@@ -2,7 +2,7 @@
  * Copyright (c) Kuba Szczodrzyński 2022-9-27.
  */
 
-package io.github.cloudcutter.data
+package io.github.cloudcutter.data.model
 
 import com.squareup.moshi.Json
 

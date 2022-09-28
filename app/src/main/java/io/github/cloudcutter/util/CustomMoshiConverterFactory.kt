@@ -2,10 +2,10 @@
  * Copyright (c) Kuba Szczodrzyński 2022-9-27.
  */
 
-package io.github.cloudcutter.api
+package io.github.cloudcutter.util
 
 import com.squareup.moshi.Moshi
-import io.github.cloudcutter.get
+import io.github.cloudcutter.ext.get
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit

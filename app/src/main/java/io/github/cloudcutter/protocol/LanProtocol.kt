@@ -4,9 +4,9 @@
 
 package io.github.cloudcutter.protocol
 
-import io.github.cloudcutter.data.ClassicProfile
-import io.github.cloudcutter.data.FlashBasedProfile
-import io.github.cloudcutter.data.IProfile
+import io.github.cloudcutter.data.model.ClassicProfile
+import io.github.cloudcutter.data.model.FlashBasedProfile
+import io.github.cloudcutter.data.model.IProfile
 import io.github.cloudcutter.protocol.base.IPacket
 import io.github.cloudcutter.protocol.proper.FlashReadPacket
 import io.github.cloudcutter.protocol.proper.ProperPacket

@@ -4,7 +4,7 @@
 
 package io.github.cloudcutter.protocol.stager
 
-import io.github.cloudcutter.data.FlashBasedProfile
+import io.github.cloudcutter.data.model.FlashBasedProfile
 
 data class FlashWritePacket(
 	val profile: FlashBasedProfile,

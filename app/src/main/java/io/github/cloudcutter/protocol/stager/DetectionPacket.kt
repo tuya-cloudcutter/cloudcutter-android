@@ -4,7 +4,7 @@
 
 package io.github.cloudcutter.protocol.stager
 
-import io.github.cloudcutter.data.FlashBasedProfile
+import io.github.cloudcutter.data.model.FlashBasedProfile
 import io.github.cloudcutter.protocol.CMD_FINISH
 import io.github.cloudcutter.protocol.buildByteArray
 

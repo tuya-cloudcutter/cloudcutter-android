@@ -4,7 +4,7 @@
 
 package io.github.cloudcutter.protocol.proper
 
-import io.github.cloudcutter.data.FlashBasedProfile
+import io.github.cloudcutter.data.model.FlashBasedProfile
 import io.github.cloudcutter.protocol.buildByteArray
 
 data class FlashReadPacket(

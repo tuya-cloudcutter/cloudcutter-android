@@ -4,7 +4,7 @@
 
 package io.github.cloudcutter.protocol.stager
 
-import io.github.cloudcutter.data.FlashBasedProfile
+import io.github.cloudcutter.data.model.FlashBasedProfile
 import io.github.cloudcutter.protocol.OPT_LENGTH
 import io.github.cloudcutter.protocol.base.BasePacket
 import java.nio.ByteBuffer
