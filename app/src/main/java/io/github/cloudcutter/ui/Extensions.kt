@@ -9,7 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.viewbinding.ViewBinding
 
 public inline fun <reified B : ViewBinding> ComponentActivity.viewBinding(
-        crossinline inflater: (LayoutInflater) -> B,
+	crossinline inflater: (LayoutInflater) -> B,
 ) = lazy(LazyThreadSafetyMode.NONE) {
-    inflater(layoutInflater)
+	inflater(layoutInflater)
 }

@@ -25,7 +25,7 @@ fun buildByteArray(size: Int, vararg items: Any): ByteArray {
 }
 
 fun getFinishToken(address: Int) = buildByteArray(
-	size=76,
+	size = 76,
 	"A".repeat(72),
 	address,
 ).take(75).toByteArray()

@@ -24,10 +24,8 @@ class CustomMoshiConverterFactory(
 	) = Converter<ResponseBody, Any> { response ->
 		var json = response.string()
 		json = json.replace(regex) {
-			'"' + it[1].toLong(16)
-				.toString() + '"'
+			'"' + it[1].toLong(16).toString() + '"'
 		}
-		return@Converter moshi.adapter<Any>(type)
-			.fromJson(json)
+		return@Converter moshi.adapter<Any>(type).fromJson(json)
 	}
 }

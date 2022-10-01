@@ -24,26 +24,25 @@ import kotlinx.coroutines.Job
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), CoroutineScope {
 
-    override val coroutineContext = Job() + Dispatchers.IO
+	override val coroutineContext = Job() + Dispatchers.IO
 
-    private val b by viewBinding(MainActivityBinding::inflate)
-    private val vm by viewModels<MainViewModel>()
-    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
-    private lateinit var appBarConfiguration: AppBarConfiguration
+	private val b by viewBinding(MainActivityBinding::inflate)
+	private val vm by viewModels<MainViewModel>()
+	private val navController by lazy { findNavController(R.id.nav_host_fragment) }
+	private lateinit var appBarConfiguration: AppBarConfiguration
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        super.onCreate(savedInstanceState)
-        setContentView(b.root)
-        setSupportActionBar(b.toolbar)
+	override fun onCreate(savedInstanceState: Bundle?) {
+		WindowCompat.setDecorFitsSystemWindows(window, false)
+		super.onCreate(savedInstanceState)
+		setContentView(b.root)
+		setSupportActionBar(b.toolbar)
 
-        b.toolbar.setupWithNavController(navController)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-    }
+		b.toolbar.setupWithNavController(navController)
+		appBarConfiguration = AppBarConfiguration(navController.graph)
+		setupActionBarWithNavController(navController, appBarConfiguration)
+	}
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
-    }
+	override fun onSupportNavigateUp(): Boolean {
+		return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+	}
 }

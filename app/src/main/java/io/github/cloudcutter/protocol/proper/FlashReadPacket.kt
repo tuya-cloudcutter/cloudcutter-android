@@ -4,11 +4,11 @@
 
 package io.github.cloudcutter.protocol.proper
 
-import io.github.cloudcutter.data.model.FlashBasedProfile
+import io.github.cloudcutter.data.model.ProfileDataLightleak
 import io.github.cloudcutter.protocol.buildByteArray
 
 data class FlashReadPacket(
-	val profile: FlashBasedProfile,
+	val profile: ProfileDataLightleak,
 	val offset: Int,
 	val length: Int,
 	val maxLength: Int = 1024,
@@ -17,7 +17,7 @@ data class FlashReadPacket(
 	override val action = 0x01
 	override val data: ByteArray
 		get() = buildByteArray(
-			size=20,
+			size = 20,
 			profile.addressMap.buffer,
 			offset,
 			length,

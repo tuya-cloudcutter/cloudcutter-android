@@ -4,13 +4,13 @@
 
 package io.github.cloudcutter.protocol.stager
 
-import io.github.cloudcutter.data.model.FlashBasedProfile
+import io.github.cloudcutter.data.model.ProfileDataLightleak
 import io.github.cloudcutter.protocol.CMD_FINISH
 import io.github.cloudcutter.protocol.buildByteArray
 
 data class DetectionPacket(
-	val profile: FlashBasedProfile,
-	val gadget: FlashBasedProfile.Gadget,
+	val profile: ProfileDataLightleak,
+	val gadget: ProfileDataLightleak.Gadget,
 ) : StagerPacket(profile) {
 
 	override val storeAddress =

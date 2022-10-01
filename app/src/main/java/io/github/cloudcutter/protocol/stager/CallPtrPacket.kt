@@ -4,12 +4,12 @@
 
 package io.github.cloudcutter.protocol.stager
 
-import io.github.cloudcutter.data.model.FlashBasedProfile
+import io.github.cloudcutter.data.model.ProfileDataLightleak
 import io.github.cloudcutter.protocol.CMD_RUN_PTR
 import io.github.cloudcutter.protocol.buildByteArray
 
 abstract class CallPtrPacket(
-	profile: FlashBasedProfile,
+	profile: ProfileDataLightleak,
 ) : StagerPacket(profile) {
 
 	abstract val arg1: Int

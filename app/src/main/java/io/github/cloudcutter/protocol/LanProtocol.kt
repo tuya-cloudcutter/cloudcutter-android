@@ -4,9 +4,9 @@
 
 package io.github.cloudcutter.protocol
 
-import io.github.cloudcutter.data.model.ClassicProfile
-import io.github.cloudcutter.data.model.FlashBasedProfile
-import io.github.cloudcutter.data.model.IProfile
+import io.github.cloudcutter.data.model.Profile
+import io.github.cloudcutter.data.model.ProfileDataClassic
+import io.github.cloudcutter.data.model.ProfileDataLightleak
 import io.github.cloudcutter.protocol.base.IPacket
 import io.github.cloudcutter.protocol.proper.FlashReadPacket
 import io.github.cloudcutter.protocol.proper.ProperPacket
@@ -19,17 +19,17 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 
 class LanProtocol(
-	val profile: IProfile,
+	val profile: Profile,
 ) {
 
-	fun requireClassic(): ClassicProfile {
-		assert(profile is ClassicProfile)
-		return profile as ClassicProfile
+	private fun requireClassic(): ProfileDataClassic {
+		assert(profile.data is ProfileDataClassic)
+		return profile.data as ProfileDataClassic
 	}
 
-	fun requireFlashBased(): FlashBasedProfile {
-		assert(profile is FlashBasedProfile)
-		return profile as FlashBasedProfile
+	private fun requireLightleak(): ProfileDataLightleak {
+		assert(profile.data is ProfileDataLightleak)
+		return profile.data as ProfileDataLightleak
 	}
 
 	fun send(packet: IPacket): Boolean {
@@ -52,27 +52,27 @@ class LanProtocol(
 	).send(this)
 
 	fun findGadget(name: String) = DetectionPacket(
-		requireFlashBased(),
-		requireFlashBased().getGadget(name),
+		requireLightleak(),
+		requireLightleak().getGadget(name),
 	).send(this)
 
 	fun runStager() = CallbackPacket(
-		requireFlashBased(),
+		requireLightleak(),
 	).send(this)
 
 	fun flashErase(offset: Int) = FlashErasePacket(
-		requireFlashBased(),
+		requireLightleak(),
 		offset,
 	).send(this)
 
 	fun flashWrite(offset: Int, data: ByteArray) = FlashWritePacket(
-		requireFlashBased(),
+		requireLightleak(),
 		offset,
 		data,
 	).send(this)
 
 	fun flashRead(offset: Int, length: Int) = FlashReadPacket(
-		requireFlashBased(),
+		requireLightleak(),
 		offset,
 		length,
 	).send(this)

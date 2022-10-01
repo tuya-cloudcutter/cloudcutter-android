@@ -4,15 +4,15 @@
 
 package io.github.cloudcutter.protocol.stager
 
-import io.github.cloudcutter.data.model.FlashBasedProfile
+import io.github.cloudcutter.data.model.ProfileDataLightleak
 
 data class FlashWritePacket(
-	val profile: FlashBasedProfile,
+	val profile: ProfileDataLightleak,
 	val offset: Int,
 	override val data: ByteArray,
 ) : CallPtrPacket(profile) {
 
-	override val storeAddress = profile.getGadget("flash_write").getStoreOffset(profile)
+	override val storeAddress = profile.getGadget("flash_write").getStoreOffset()
 	override val arg1 = offset
 	override val arg2 = data.size
 }

@@ -11,9 +11,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.github.cloudcutter.data.model.ClassicProfile
-import io.github.cloudcutter.data.model.FlashBasedProfile
-import io.github.cloudcutter.data.model.IProfile
+import io.github.cloudcutter.data.model.ProfileBase
+import io.github.cloudcutter.data.model.ProfileData
+import io.github.cloudcutter.data.model.ProfileDataClassic
+import io.github.cloudcutter.data.model.ProfileDataLightleak
 import javax.inject.Singleton
 
 @Module
@@ -22,14 +23,16 @@ class DataModule {
 
 	@Singleton
 	@Provides
-	fun provideJsonFactory() = PolymorphicJsonAdapterFactory.of(IProfile::class.java, "type")
-		.withSubtype(ClassicProfile::class.java, "CLASSIC")
-		.withSubtype(FlashBasedProfile::class.java, "FLASH_BASED")
+	fun provideJsonFactory(): PolymorphicJsonAdapterFactory<ProfileData> =
+		PolymorphicJsonAdapterFactory.of(ProfileData::class.java, "type")
+			.withSubtype(ProfileDataClassic::class.java, ProfileBase.Type.CLASSIC.name)
+			.withSubtype(ProfileDataLightleak::class.java, ProfileBase.Type.LIGHTLEAK.name)
 
 	@Singleton
 	@Provides
-	fun provideMoshi(factory: PolymorphicJsonAdapterFactory<IProfile>) = Moshi.Builder()
-		.add(factory)
-		.addLast(KotlinJsonAdapterFactory())
-		.build()
+	fun provideMoshi(factory: PolymorphicJsonAdapterFactory<ProfileData>): Moshi =
+		Moshi.Builder()
+			.add(factory)
+			.addLast(KotlinJsonAdapterFactory())
+			.build()
 }
