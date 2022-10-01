@@ -8,10 +8,10 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/nav_graph"
-	app:startDestination="@id/deviceListFragment">
+	app:startDestination="@id/menu_devices">
 
 	<fragment
-		android:id="@+id/deviceListFragment"
+		android:id="@+id/menu_devices"
 		android:name="io.github.cloudcutter.ui.device.DeviceListFragment"
 		android:label="@string/title_devices"
 		tools:layout="@layout/device_list_fragment" />

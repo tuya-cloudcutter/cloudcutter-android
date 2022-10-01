@@ -6,4 +6,6 @@
 <resources>
     <string name="app_name">Cloudcutter</string>
 	<string name="title_devices">Devices</string>
+	<string name="title_profiles">Profiles</string>
+	<string name="title_dumps">My Dumps</string>
 </resources>
