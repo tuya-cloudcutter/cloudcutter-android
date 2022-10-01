@@ -15,4 +15,10 @@
 		android:name="io.github.cloudcutter.ui.device.DeviceListFragment"
 		android:label="@string/title_devices"
 		tools:layout="@layout/device_list_fragment" />
+
+	<fragment
+		android:id="@+id/menu_profiles"
+		android:name="io.github.cloudcutter.ui.profile.ProfileListFragment"
+		android:label="@string/title_profiles"
+		tools:layout="@layout/profile_list_fragment" />
 </navigation>

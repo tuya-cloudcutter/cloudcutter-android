@@ -10,6 +10,8 @@ import com.squareup.moshi.Json
 class Profile(
 	slug: String,
 	name: String,
+	@Json(name = "sub_name")
+	subName: String?,
 	type: Type,
 	icon: IIcon?,
 
@@ -18,7 +20,7 @@ class Profile(
 	val devices: List<DeviceBase>,
 	val firmware: Firmware?,
 	val data: ProfileData,
-) : ProfileBase(slug, name, type, icon) {
+) : ProfileBase(slug, name, subName, type, icon) {
 
 	data class Firmware(
 		val chip: String,

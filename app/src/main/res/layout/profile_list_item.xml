@@ -3,61 +3,72 @@
   ~ Copyright (c) Kuba Szczodrzyński 2022-10-1.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<layout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	xmlns:tools="http://schemas.android.com/tools">
 
-	<com.mikepenz.iconics.view.IconicsImageView
-		android:id="@+id/icon"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginHorizontal="16dp"
-		app:iiv_color="?android:textColorPrimary"
-		app:iiv_icon="cmd-chip"
-		app:iiv_size="32dp"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		tools:background="@android:drawable/ic_lock_power_off"
-		tools:layout_height="32dp"
-		tools:layout_width="32dp" />
+	<data>
 
-	<LinearLayout
-		android:id="@+id/text"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginStart="8dp"
-		android:orientation="vertical"
-		android:paddingVertical="16dp"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toEndOf="@+id/icon"
-		app:layout_constraintTop_toTopOf="parent">
+		<variable
+			name="profile"
+			type="io.github.cloudcutter.data.model.ProfileBase" />
+	</data>
 
-		<TextView
-			android:id="@+id/name"
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<com.mikepenz.iconics.view.IconicsImageView
+			android:id="@+id/icon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="?textAppearanceBodyLarge"
-			tools:text="1.2.16 - BK7231N" />
+			android:layout_marginHorizontal="16dp"
+			app:iiv_color="?android:textColorPrimary"
+			app:iiv_size="32dp"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:background="@android:drawable/ic_lock_power_off"
+			tools:layout_height="32dp"
+			tools:layout_width="32dp" />
 
-		<TextView
-			android:id="@+id/subName"
+		<LinearLayout
+			android:id="@+id/text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="?textAppearanceBodySmall"
-			tools:text="oem_bk7231n_light_ty" />
-	</LinearLayout>
+			android:layout_marginStart="16dp"
+			android:orientation="vertical"
+			android:paddingVertical="16dp"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/icon"
+			app:layout_constraintTop_toTopOf="parent">
 
-	<TextView
-		android:id="@+id/type"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginEnd="16dp"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		tools:text="Classic" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+			<TextView
+				android:id="@+id/name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@{profile.name}"
+				android:textAppearance="?textAppearanceBodyLarge"
+				tools:text="1.2.16 - BK7231N" />
+
+			<TextView
+				android:id="@+id/subName"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@{profile.subName}"
+				android:textAppearance="?textAppearanceBodySmall"
+				tools:text="oem_bk7231n_light_ty" />
+		</LinearLayout>
+
+		<TextView
+			android:id="@+id/type"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="16dp"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:text="Classic" />
+	</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

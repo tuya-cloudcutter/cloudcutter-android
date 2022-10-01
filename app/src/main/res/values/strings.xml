@@ -8,4 +8,6 @@
 	<string name="title_devices">Devices</string>
 	<string name="title_profiles">Profiles</string>
 	<string name="title_dumps">My Dumps</string>
+	<string name="profile_type_classic">Classic</string>
+	<string name="profile_type_lightleak">Lightleak</string>
 </resources>

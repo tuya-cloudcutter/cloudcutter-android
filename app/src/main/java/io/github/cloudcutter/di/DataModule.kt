@@ -15,6 +15,7 @@ import io.github.cloudcutter.data.model.ProfileBase
 import io.github.cloudcutter.data.model.ProfileData
 import io.github.cloudcutter.data.model.ProfileDataClassic
 import io.github.cloudcutter.data.model.ProfileDataLightleak
+import io.github.cloudcutter.util.MoshiIconAdapter
 import javax.inject.Singleton
 
 @Module
@@ -33,6 +34,7 @@ class DataModule {
 	fun provideMoshi(factory: PolymorphicJsonAdapterFactory<ProfileData>): Moshi =
 		Moshi.Builder()
 			.add(factory)
+			.add(MoshiIconAdapter())
 			.addLast(KotlinJsonAdapterFactory())
 			.build()
 }
