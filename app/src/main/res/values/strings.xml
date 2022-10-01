@@ -5,4 +5,5 @@
 
 <resources>
     <string name="app_name">Cloudcutter</string>
+	<string name="title_devices">Devices</string>
 </resources>

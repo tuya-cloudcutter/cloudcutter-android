@@ -7,7 +7,7 @@ package io.github.cloudcutter.data.api
 import retrofit2.Response
 
 @Throws(RuntimeException::class)
-fun <T> Response<T>.toApiResponse(): ApiResponse<T> {
+fun <T> Response<T>.checkResponse(): T {
 	val response = this
 
 	val body = response.body()
@@ -15,5 +15,5 @@ fun <T> Response<T>.toApiResponse(): ApiResponse<T> {
 		throw RuntimeException(response.message())
 	}
 
-	return ApiResponse.success(body)
+	return body
 }

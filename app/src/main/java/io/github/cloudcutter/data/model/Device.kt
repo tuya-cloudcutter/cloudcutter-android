@@ -4,14 +4,19 @@
 
 package io.github.cloudcutter.data.model
 
-class Device(
-    slug: String,
-    manufacturer: String,
-    name: String,
-    imageUrl: String?,
+import com.squareup.moshi.Json
 
-    val githubIssues: List<Int>,
-    val imageUrls: List<String>,
-    val profiles: List<ProfileBase>,
-    val schemas: Map<String, List<Any>>,
+class Device(
+	slug: String,
+	manufacturer: String,
+	name: String,
+	@Json(name = "image_url")
+	imageUrl: String?,
+
+	@Json(name = "github_issues")
+	val githubIssues: List<Int>,
+	@Json(name = "image_urls")
+	val imageUrls: List<String>,
+	val profiles: List<ProfileBase>,
+	val schemas: Map<String, List<Any>>,
 ) : DeviceBase(slug, manufacturer, name, imageUrl)

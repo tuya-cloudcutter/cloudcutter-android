@@ -21,7 +21,7 @@ interface ApiService {
 	@GET("devices/{slug}.json")
 	suspend fun getDevice(
 		@Path("slug") slug: String,
-	): Response<List<Device>>
+	): Response<Device>
 
 	@GET("profiles.json")
 	suspend fun getProfileList(): Response<List<ProfileBase>>

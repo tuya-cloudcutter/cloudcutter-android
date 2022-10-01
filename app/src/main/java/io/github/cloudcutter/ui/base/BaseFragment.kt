@@ -12,9 +12,10 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.viewbinding.ViewBinding
 import io.github.cloudcutter.ui.main.MainViewModel
 
-abstract class BaseFragment<B : ViewDataBinding>(
+abstract class BaseFragment<B : ViewBinding>(
 	private val inflater: (inflater: LayoutInflater, parent: ViewGroup?) -> B,
 ) : Fragment() {
 
@@ -28,7 +29,8 @@ abstract class BaseFragment<B : ViewDataBinding>(
 		savedInstanceState: Bundle?,
 	): View? {
 		b = this.inflater(inflater, container)
-		b.lifecycleOwner = viewLifecycleOwner
+		if (b is ViewDataBinding)
+			(b as ViewDataBinding).lifecycleOwner = viewLifecycleOwner
 		return b.root
 	}
 

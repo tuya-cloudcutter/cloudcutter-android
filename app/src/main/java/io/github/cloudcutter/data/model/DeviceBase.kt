@@ -4,9 +4,12 @@
 
 package io.github.cloudcutter.data.model
 
+import com.squareup.moshi.Json
+
 open class DeviceBase(
-    val slug: String,
-    val manufacturer: String,
-    val name: String,
-    val imageUrl: String?,
+	val slug: String,
+	val manufacturer: String,
+	val name: String,
+	@Json(name = "image_url")
+	val imageUrl: String?,
 )
