@@ -5,9 +5,32 @@
 
 <resources>
     <string name="app_name">Cloudcutter</string>
-	<string name="title_devices">Devices</string>
-	<string name="title_profiles">Profiles</string>
-	<string name="title_dumps">My Dumps</string>
+
+	<string name="action_connect_custom_ssid">Connect to device\'s new WiFi</string>
+	<string name="action_connect_to_device">Connect to smart device WiFi</string>
+	<string name="action_connected_to_ssid">Connected: %s</string>
+	<string name="action_custom_ap_connect">Connect to CustomAP device (%s)</string>
+	<string name="action_custom_ap_setup">Setup CustomAP credentials</string>
+	<string name="action_custom_ap_wait_timeout">Wait for CustomAP termination</string>
+	<string name="action_finish">Success</string>
+	<string name="action_packet_cloudcut">Run exploit to change device keys</string>
+	<string name="action_packet_detect_gadget">Find function address: %s</string>
+	<string name="action_packet_flash_erase">Erase flash at 0x%X</string>
+	<string name="action_packet_flash_write">Write %d bytes to 0x%X</string>
+	<string name="action_packet_stager">Connect smart device to CustomAP</string>
+	<string name="action_packet_stager_callback">Configure stager payload</string>
+	<string name="action_ping_connect">Establish connection with the device</string>
+	<string name="action_ping_exploitable">Check if device is exploitable</string>
+	<string name="action_ping_lost">Wait for device to stop responding</string>
+	<string name="action_ping_respond">Check if device still responds</string>
+	<string name="action_prepare">Prepare environment</string>
+	<string name="message_device_reboot_ap_mode">The device exited AP mode and connected to the custom AP. Reboot the device into AP mode once again (usually only 1 reboot is needed now).</string>
+	<string name="message_enable_ap_pairing">Put the smart device in AP pairing mode. The light (or LED) should be blinking slowly (every 1–2 seconds).</string>
+	<string name="message_exploitable">Good news! The device seems to be exploitable.</string>
+	<string name="message_start_custom_ap">Make sure that the custom AP device is running and idle. The \"%s\" network has to be available for this to succeed.</string>
 	<string name="profile_type_classic">Classic</string>
 	<string name="profile_type_lightleak">Lightleak</string>
+	<string name="title_devices">Devices</string>
+	<string name="title_dumps">My Dumps</string>
+	<string name="title_profiles">Profiles</string>
 </resources>
