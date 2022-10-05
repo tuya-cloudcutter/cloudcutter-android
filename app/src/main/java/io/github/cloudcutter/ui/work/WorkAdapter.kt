@@ -43,7 +43,7 @@ class WorkAdapter(
 			return
 		}
 		holder.b.icon.icon = IconicsDrawable(holder.b.root.context, icon).apply {
-			sizeDp = 32
+			sizeDp = 24
 			colorRes = if (state.error == null) R.color.icon_success else R.color.icon_error
 		}
 	}

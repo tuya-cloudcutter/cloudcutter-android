@@ -32,9 +32,10 @@
 			tools:text="@string/action_connect_custom_ssid" />
 
 		<FrameLayout
-			android:layout_width="32dp"
-			android:layout_height="32dp"
-			android:layout_marginHorizontal="8dp">
+			android:layout_width="24dp"
+			android:layout_height="24dp"
+			android:layout_marginHorizontal="8dp"
+			android:layout_marginVertical="4dp">
 
 			<ProgressBar
 				android:layout_width="match_parent"
