@@ -135,9 +135,7 @@ class WorkViewModel @Inject constructor(
 				messageRemove = false
 			}
 			is PacketAction -> runPacketAction(action)
-			is PingStartAction -> runPingAction(action)
-			is PingWaitFoundAction -> event.await<PingFoundEvent>()
-			is PingWaitLostAction -> event.await<PingLostEvent>()
+			is PingAction -> runPingAction(action)
 			is WiFiConnectAction -> runWiFiConnectAction(action)
 			is WiFiCustomAPAction -> runWiFiCustomAPAction(action)
 			is WiFiScanAction -> runWiFiScanAction(action)
@@ -173,22 +171,24 @@ class WorkViewModel @Inject constructor(
 		}
 	}
 
-	private suspend fun runPingAction(action: PingStartAction) = withContext(Dispatchers.IO) {
+	private suspend fun runPingAction(action: PingAction) = withContext(Dispatchers.IO) {
+		var count = 0
 		val ping = Ping(InetAddress.getByName(action.address), object : PingListener {
 			override fun onPing(timeMs: Long, index: Int) {
 				event.postValue(PingFoundEvent(timeMs))
+				if (action.mode == PingAction.Mode.FOUND) count++
 			}
 
-			override fun onPingException(e: java.lang.Exception?, count: Int) {
+			override fun onPingException(e: Exception, index: Int) {
 				event.postValue(PingLostEvent())
+				if (action.mode == PingAction.Mode.LOST) count++
 			}
 		})
-		pingJob = async(Dispatchers.IO) {
-			while (true) {
-				ping.run()
-			}
+		ping.count = 1
+
+		while (count < action.threshold) {
+			ping.run()
 		}
-		return@withContext action.nextId
 	}
 
 	private suspend fun runWiFiScanAction(action: WiFiScanAction) {

@@ -74,21 +74,18 @@ class ActionGraph(private val work: WorkData) {
 		WiFiConnectAction(
 			id = "connect_to_device",
 			title = Text(R.string.action_connect_to_device),
-			nextId = "ping_start",
+			nextId = "ping_found_1",
 			type = WiFiConnectAction.Type.DEVICE_DEFAULT,
 			ssid = null,
 			password = null,
 		),
-		PingStartAction(
-			id = "ping_start",
-			title = null,
-			nextId = "ping_found_1",
-			address = work.targetAddress,
-		),
-		PingWaitFoundAction(
+		PingAction(
 			id = "ping_found_1",
 			title = Text(R.string.action_ping_connect),
 			nextId = "exploit_initial",
+			mode = PingAction.Mode.FOUND,
+			address = work.targetAddress,
+			threshold = 2,
 		),
 		PacketAction(
 			id = "exploit_initial",
@@ -102,10 +99,13 @@ class ActionGraph(private val work: WorkData) {
 				newPskKey = "",
 			),
 		),
-		PingWaitLostAction(
+		PingAction(
 			id = "ping_lost_1",
 			title = Text(R.string.action_ping_lost),
 			nextId = "connect_custom_ssid",
+			mode = PingAction.Mode.LOST,
+			address = work.targetAddress,
+			threshold = 5,
 		),
 		WiFiConnectAction(
 			id = "connect_custom_ssid",
@@ -114,10 +114,13 @@ class ActionGraph(private val work: WorkData) {
 			type = WiFiConnectAction.Type.DEVICE_CUSTOM,
 			ssid = work.targetSsidPrefix,
 		),
-		PingWaitFoundAction(
+		PingAction(
 			id = "ping_found_2",
 			title = Text(R.string.action_ping_connect),
 			nextId = "exploit_initial",
+			mode = PingAction.Mode.FOUND,
+			address = work.targetAddress,
+			threshold = 2,
 		),
 	)
 
@@ -131,10 +134,18 @@ class ActionGraph(private val work: WorkData) {
 		WiFiConnectAction(
 			id = "custom_ap_connect",
 			title = Text(R.string.action_custom_ap_connect, work.idleSsid),
-			nextId = "custom_ap_setup",
+			nextId = "ap_ping_found_1",
 			type = WiFiConnectAction.Type.SSID,
 			ssid = work.idleSsid,
 			password = work.idlePassword,
+		),
+		PingAction(
+			id = "ap_ping_found_1",
+			title = Text(R.string.action_ping_connect),
+			nextId = "custom_ap_setup",
+			mode = PingAction.Mode.FOUND,
+			address = work.idleAddress,
+			threshold = 2,
 		),
 		WiFiCustomAPAction(
 			id = "custom_ap_setup",
@@ -153,20 +164,17 @@ class ActionGraph(private val work: WorkData) {
 		WiFiConnectAction(
 			id = "connect_default_1",
 			title = Text(R.string.action_connect_to_device),
-			nextId = "ping_start",
+			nextId = "ping_found_1",
 			type = WiFiConnectAction.Type.DEVICE_DEFAULT,
 			ssid = null,
 		),
-		PingStartAction(
-			id = "ping_start",
-			title = null,
-			nextId = "ping_found_1",
-			address = work.targetAddress,
-		),
-		PingWaitFoundAction(
+		PingAction(
 			id = "ping_found_1",
 			title = Text(R.string.action_ping_connect),
 			nextId = "exploit_stager",
+			mode = PingAction.Mode.FOUND,
+			address = work.targetAddress,
+			threshold = 2,
 		),
 		PacketAction(id = "exploit_stager",
 			title = Text(R.string.action_packet_stager),
@@ -175,18 +183,22 @@ class ActionGraph(private val work: WorkData) {
 				ssid = work.lightleakSsid,
 				password = work.lightleakPassword,
 				token = "1".toByteArray(),
-			)),
-		PingWaitLostAction(
+			),
+		),
+		PingAction(
 			id = "ping_lost_1",
 			title = Text(R.string.action_ping_lost),
 			nextId = "custom_ap_scan",
+			mode = PingAction.Mode.LOST,
+			address = work.targetAddress,
+			threshold = 5,
 		),
 		WiFiScanAction(
 			id = "custom_ap_scan",
 			title = Text(R.string.action_custom_ap_wait_timeout),
 			nextId = "message_device_reboot",
 			ssid = work.idleSsid,
-			timeout = 20_000,
+			timeout = 30_000,
 		),
 		MessageAction(
 			id = "message_device_reboot",
@@ -201,10 +213,13 @@ class ActionGraph(private val work: WorkData) {
 			type = WiFiConnectAction.Type.DEVICE_DEFAULT,
 			ssid = null,
 		),
-		PingWaitFoundAction(
+		PingAction(
 			id = "ping_found_2",
 			title = Text(R.string.action_ping_connect),
 			nextId = "exploit_check",
+			mode = PingAction.Mode.FOUND,
+			address = work.targetAddress,
+			threshold = 2,
 		),
 		PacketAction(
 			id = "exploit_check",
@@ -214,11 +229,14 @@ class ActionGraph(private val work: WorkData) {
 				profile = profile,
 			),
 		),
-		PingWaitFoundAction(
+		PingAction(
 			id = "ping_found_3",
 			title = Text(R.string.action_ping_exploitable),
 			nextId = "message_exploitable",
 			timeout = 2_000,
+			mode = PingAction.Mode.FOUND,
+			address = work.targetAddress,
+			threshold = 2,
 		),
 		MessageAction(
 			id = "message_exploitable",
@@ -227,10 +245,14 @@ class ActionGraph(private val work: WorkData) {
 			nextId = "detect_0",
 		),
 		*getDetectionActions(profile, nextId = "ping_found_4"),
-		PingWaitFoundAction(
+		PingAction(
 			id = "ping_found_4",
 			title = Text(R.string.action_ping_respond),
 			nextId = "flash_erase",
+			timeout = 2_000,
+			mode = PingAction.Mode.FOUND,
+			address = work.targetAddress,
+			threshold = 1,
 		),
 		*getProperWriteActions(profile, nextId = ""),
 	)
