@@ -73,7 +73,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 		b.stateList.layoutManager = LinearLayoutManager(context)
 		b.stateList.adapter = adapter
 
-		vm.event.receiveAsFlow().asLiveData().observe(viewLifecycleOwner, this)
+		vm.event.observe(viewLifecycleOwner, this)
 		vm.stateAddedIndex.receiveAsFlow().asLiveData().observe(viewLifecycleOwner) {
 			adapter.notifyItemInserted(it)
 			runProgressBar(it)
@@ -120,21 +120,22 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 	override fun onChanged(value: Event) {
 		launch {
 			Log.d(TAG, "Event: $value")
-			try {
-				async {
+			async {
+				try {
 					handleEvent(value)
+				} catch (e: Exception) {
+					val error = (e as? CancellationException)?.cause ?: e
+					lifecycleScope.cancel()
+					val action = vm.stateList.last().action
+					handleEvent(MessageEvent(MessageType.ERROR, action.getErrorText(error)))
 				}
-			} catch (e: Exception) {
-				lifecycleScope.cancel()
-				val action = vm.stateList.last().action
-				handleEvent(MessageEvent(MessageType.ERROR, action.getErrorText(e)))
 			}
 		}
 	}
 
 	private suspend fun handleEvent(event: Event) {
 		when (event) {
-			is LocalIpRequest -> vm.event.send(LocalIpResponse(localAddress))
+			is LocalIpRequest -> vm.event.postValue(LocalIpResponse(localAddress))
 			is MessageEvent -> {
 				if (defaultIcon == null) defaultIcon = b.messageIcon.icon
 				b.messageTitle.setText(event.type.title)
@@ -151,11 +152,11 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 			}
 			is WiFiConnectRequest -> {
 				context?.wifiConnect(event.ssid, event.password) ?: return
-				vm.event.send(WiFiConnectResponse())
+				vm.event.postValue(WiFiConnectResponse())
 			}
 			is WiFiScanRequest -> {
 				val results = context?.wifiScan() ?: return
-				vm.event.send(results.toEvent())
+				vm.event.postValue(results.toEvent())
 			}
 		}
 	}

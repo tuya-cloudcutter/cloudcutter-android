@@ -8,8 +8,11 @@ package io.github.cloudcutter.work.event
 
 import android.net.wifi.ScanResult
 import android.util.Log
+import androidx.lifecycle.asFlow
+import com.hadilq.liveevent.LiveEvent
 import io.github.cloudcutter.ext.hasEncryption
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 
 suspend inline fun <reified T : Event> Channel<Event>.await(): T {
@@ -33,6 +36,23 @@ suspend inline fun <reified T : Event> Channel<Event>.awaitTimeout(timeout: Long
 			Log.d("Extensions", "Event: $event")
 			return event
 		}
+	}
+}
+
+suspend inline fun <reified T : Event> LiveEvent<Event>.await(): T {
+	Log.d("Extensions", "Awaiting ${T::class.java.simpleName}")
+	return this.asFlow().first { event ->
+		if (event is T) {
+			Log.d("Extensions", "Event: $event")
+			return@first true
+		}
+		return@first false
+	} as T
+}
+
+suspend inline fun <reified T : Event> LiveEvent<Event>.awaitTimeout(timeout: Long): T {
+	return withTimeout(timeout) {
+		await()
 	}
 }
 

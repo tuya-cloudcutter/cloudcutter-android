@@ -5,6 +5,7 @@
 package io.github.cloudcutter.ui.work
 
 import android.util.Log
+import com.hadilq.liveevent.LiveEvent
 import com.spectrum.android.ping.Ping
 import com.spectrum.android.ping.Ping.PingListener
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,7 +45,7 @@ class WorkViewModel @Inject constructor(
 	val stateAddedIndex = Channel<Int>()
 	val stateChangedIndex = Channel<Int>()
 
-	val event = Channel<Event>()
+	val event = LiveEvent<Event>()
 
 	private var messageRemove: Boolean? = null
 	private var pingJob: Deferred<Unit>? = null
@@ -69,7 +70,7 @@ class WorkViewModel @Inject constructor(
 
 	private suspend fun ActionState.error(e: Throwable) {
 		Log.d(TAG, "State error: $action $e")
-		event.send(MessageEvent(MessageType.ERROR, action.getErrorText(e)))
+		event.postValue(MessageEvent(MessageType.ERROR, action.getErrorText(e)))
 		Log.d(TAG, "State sent")
 		error = e
 		end()
@@ -123,14 +124,14 @@ class WorkViewModel @Inject constructor(
 
 		if (messageRemove != null) {
 			messageRemove = if (messageRemove == true) {
-				event.send(MessageRemoveEvent())
+				event.postValue(MessageRemoveEvent())
 				null
 			} else true
 		}
 
 		when (action) {
 			is MessageAction -> {
-				event.send(MessageEvent(action.type, action.text))
+				event.postValue(MessageEvent(action.type, action.text))
 				messageRemove = false
 			}
 			is PacketAction -> runPacketAction(action)
@@ -160,7 +161,7 @@ class WorkViewModel @Inject constructor(
 		val send = socket.openWriteChannel(autoFlush = true)
 
 		if (action.packet is ProperPacket) {
-			event.send(LocalIpRequest())
+			event.postValue(LocalIpRequest())
 			val localAddress = event.await<LocalIpResponse>().address
 			action.packet.returnIp = localAddress
 		}
@@ -175,11 +176,11 @@ class WorkViewModel @Inject constructor(
 	private suspend fun runPingAction(action: PingStartAction) = withContext(Dispatchers.IO) {
 		val ping = Ping(InetAddress.getByName(action.address), object : PingListener {
 			override fun onPing(timeMs: Long, index: Int) {
-				event.trySend(PingFoundEvent(timeMs))
+				event.postValue(PingFoundEvent(timeMs))
 			}
 
 			override fun onPingException(e: java.lang.Exception?, count: Int) {
-				event.trySend(PingLostEvent())
+				event.postValue(PingLostEvent())
 			}
 		})
 		pingJob = async(Dispatchers.IO) {
@@ -192,7 +193,7 @@ class WorkViewModel @Inject constructor(
 
 	private suspend fun runWiFiScanAction(action: WiFiScanAction) {
 		while (true) {
-			event.send(WiFiScanRequest())
+			event.postValue(WiFiScanRequest())
 			val response = event.await<WiFiScanResponse>()
 			response.networks.firstOrNull {
 				it.ssid == action.ssid
@@ -220,7 +221,7 @@ class WorkViewModel @Inject constructor(
 
 	private suspend fun runWiFiConnectAction(action: WiFiConnectAction) {
 		while (true) {
-			event.send(WiFiScanRequest())
+			event.postValue(WiFiScanRequest())
 			val response = event.await<WiFiScanResponse>()
 			val network = response.networks.firstOrNull {
 				when (action.type) {
@@ -235,8 +236,8 @@ class WorkViewModel @Inject constructor(
 					}
 				}
 			} ?: continue
-			event.send(WiFiConnectRequest(network.ssid, action.password))
-			event.awaitTimeout<WiFiConnectResponse>(timeout = 5_000)
+			event.postValue(WiFiConnectRequest(network.ssid, action.password))
+			event.awaitTimeout<WiFiConnectResponse>(timeout = 20_000)
 			DummyAction(Text(R.string.action_connected_to_ssid, network.ssid)).start().end()
 			break
 		}
