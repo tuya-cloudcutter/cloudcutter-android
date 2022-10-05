@@ -8,4 +8,4 @@ import java.net.InetAddress
 
 class LocalIpResponse(
 	val address: InetAddress,
-) : Event
+) : Event()

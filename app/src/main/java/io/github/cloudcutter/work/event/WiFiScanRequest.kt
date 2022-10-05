@@ -4,4 +4,4 @@
 
 package io.github.cloudcutter.work.event
 
-class WiFiScanRequest : Event
+class WiFiScanRequest : Event()

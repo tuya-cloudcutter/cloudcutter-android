@@ -4,4 +4,4 @@
 
 package io.github.cloudcutter.work.event
 
-class WiFiConnectResponse : Event
+class WiFiConnectResponse : Event()

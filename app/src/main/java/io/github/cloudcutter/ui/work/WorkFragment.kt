@@ -97,14 +97,14 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 	}
 
 	private fun runProgressBar(itemIndex: Int) {
-		Log.d(TAG, "State changed $itemIndex")
 		anim?.cancel()
 		val state = vm.stateList[itemIndex]
+		val action = state.action
+		Log.d(TAG, "State changed progress=${state.progress} error=${state.error} $action")
 		if (!state.progress) {
 			b.messageProgress.progress = 0
 			return
 		}
-		val action = state.action
 		val timeout = action.timeout ?: return
 		anim = ObjectAnimator.ofInt(
 			b.messageProgress,

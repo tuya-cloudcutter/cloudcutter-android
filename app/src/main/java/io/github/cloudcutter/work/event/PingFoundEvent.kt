@@ -6,4 +6,4 @@ package io.github.cloudcutter.work.event
 
 class PingFoundEvent(
 	val delayMs: Long,
-) : Event
+) : Event()

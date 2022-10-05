@@ -7,27 +7,31 @@
 package io.github.cloudcutter.work.event
 
 import android.net.wifi.ScanResult
+import android.util.Log
 import io.github.cloudcutter.ext.hasEncryption
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withTimeout
 
 suspend inline fun <reified T : Event> Channel<Event>.await(): T {
+	Log.d("Extensions", "Awaiting ${T::class.java.simpleName}")
 	while (this.tryReceive().getOrNull() != null);
 	while (true) {
 		val event = receive()
-		if (event is T) return event
+		if (event is T) {
+			Log.d("Extensions", "Event: $event")
+			return event
+		}
 	}
 }
 
-suspend inline fun <reified T : Event> Channel<Event>.awaitTimeout(timeout: Long): T? {
+suspend inline fun <reified T : Event> Channel<Event>.awaitTimeout(timeout: Long): T {
+	Log.d("Extensions", "Awaiting ${T::class.java.simpleName} for $timeout ms")
 	while (this.tryReceive().getOrNull() != null);
 	while (true) {
-		try {
-			val event = withTimeout(timeout) { receive() }
-			if (event is T) return event
-		} catch (e: TimeoutCancellationException) {
-			return null
+		val event = withTimeout(timeout) { receive() }
+		if (event is T) {
+			Log.d("Extensions", "Event: $event")
+			return event
 		}
 	}
 }

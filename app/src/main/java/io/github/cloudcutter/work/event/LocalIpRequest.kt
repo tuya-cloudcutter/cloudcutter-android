@@ -4,4 +4,4 @@
 
 package io.github.cloudcutter.work.event
 
-class LocalIpRequest : Event
+class LocalIpRequest : Event()

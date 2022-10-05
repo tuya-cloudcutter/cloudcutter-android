@@ -6,7 +6,7 @@ package io.github.cloudcutter.work.event
 
 class WiFiScanResponse(
 	val networks: List<Network>,
-) : Event {
+) : Event() {
 
 	data class Network(
 		val ssid: String,

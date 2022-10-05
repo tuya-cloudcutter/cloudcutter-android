@@ -10,4 +10,4 @@ import io.github.cloudcutter.util.Text
 class MessageEvent(
 	val type: MessageType,
 	val text: Text,
-) : Event
+) : Event()

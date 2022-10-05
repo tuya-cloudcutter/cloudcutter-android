@@ -7,4 +7,4 @@ package io.github.cloudcutter.work.event
 class WiFiConnectRequest(
 	val ssid: String,
 	val password: String?,
-) : Event
+) : Event()

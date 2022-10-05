@@ -52,7 +52,7 @@ class WorkViewModel @Inject constructor(
 	private suspend fun Action.start(): ActionState {
 		val state = ActionState(this)
 		if (this.title != null) {
-			Log.d(TAG, "State start: ${this::class.java.simpleName}")
+			Log.d(TAG, "State start: $this")
 			stateList += state
 			stateAddedIndex.send(stateList.size - 1)
 		}
@@ -62,13 +62,13 @@ class WorkViewModel @Inject constructor(
 	private suspend fun ActionState.end() {
 		progress = false
 		if (this in stateList) {
-			Log.d(TAG, "State end: ${action::class.java.simpleName}")
+			Log.d(TAG, "State end: $action")
 			stateChangedIndex.send(stateList.indexOf(this))
 		}
 	}
 
 	private suspend fun ActionState.error(e: Throwable) {
-		Log.d(TAG, "State error: ${action::class.java.simpleName} $e")
+		Log.d(TAG, "State error: $action $e")
 		event.send(MessageEvent(MessageType.ERROR, action.getErrorText(e)))
 		Log.d(TAG, "State sent")
 		error = e
@@ -101,13 +101,13 @@ class WorkViewModel @Inject constructor(
 			val state = action.start()
 			val timeout = action.timeout ?: work.actionTimeout
 			try {
-				Log.d(TAG, "Run action: $action")
+				Log.d(TAG, "Action run: $action")
 				action = withContext(Dispatchers.IO) {
 					withTimeout(timeout) {
 						runAction(state)
 					}
 				}
-				Log.d(TAG, "Action OK: $action")
+				Log.d(TAG, "Action OK")
 			} catch (e: Exception) {
 				state.error(e)
 				return

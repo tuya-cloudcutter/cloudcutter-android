@@ -4,4 +4,4 @@
 
 package io.github.cloudcutter.work.event
 
-class PingLostEvent : Event
+class PingLostEvent : Event()

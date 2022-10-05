@@ -4,4 +4,7 @@
 
 package io.github.cloudcutter.work.event
 
-interface Event
+abstract class Event {
+
+	override fun toString(): String = this::class.java.simpleName
+}

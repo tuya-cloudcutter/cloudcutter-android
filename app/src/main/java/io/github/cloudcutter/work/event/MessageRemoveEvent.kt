@@ -4,4 +4,4 @@
 
 package io.github.cloudcutter.work.event
 
-class MessageRemoveEvent : Event
+class MessageRemoveEvent : Event()
