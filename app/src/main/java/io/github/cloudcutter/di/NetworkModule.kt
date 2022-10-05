@@ -5,6 +5,7 @@
 package io.github.cloudcutter.di
 
 import android.content.Context
+import android.util.Log
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.squareup.moshi.Moshi
 import dagger.Module
@@ -13,9 +14,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.cloudcutter.Const.API_ENDPOINT
 import io.github.cloudcutter.data.api.ApiService
-import io.github.cloudcutter.ext.hasNetwork
+import io.github.cloudcutter.ext.hasInternet
 import io.github.cloudcutter.util.CustomMoshiConverterFactory
 import okhttp3.Cache
+import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import javax.inject.Singleton
@@ -23,6 +25,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
+	companion object {
+		private const val TAG = "NetworkModule"
+	}
 
 	@Singleton
 	@Provides
@@ -35,16 +40,26 @@ class NetworkModule {
 		OkHttpClient.Builder()
 			.cache(cache)
 			.addInterceptor { chain ->
-				val cacheControl =
-					if (context.hasNetwork())
-						"public, max-age=${12 * 60 * 60}"
-					else
-						"public, only-if-cached, max-stale=${7 * 24 * 60 * 60}"
-				val request = chain.request()
-					.newBuilder()
-					.header("Cache-Control", cacheControl)
-					.build()
-				return@addInterceptor chain.proceed(request)
+				val cacheControlList = if (context.hasInternet())
+					listOf(CacheControl.FORCE_NETWORK, CacheControl.FORCE_CACHE)
+				else
+					listOf(CacheControl.FORCE_CACHE)
+
+				var error: Throwable? = null
+				for (cacheControl in cacheControlList) {
+					try {
+						Log.d(TAG, "Cache control: $cacheControl")
+						val request = chain.request()
+							.newBuilder()
+							.cacheControl(cacheControl)
+							.build()
+						return@addInterceptor chain.proceed(request)
+					} catch (e: Exception) {
+						error = error ?: e
+						Log.e(TAG, "Failed: $e")
+					}
+				}
+				throw error!!
 			}
 			.addNetworkInterceptor(StethoInterceptor())
 			.build()

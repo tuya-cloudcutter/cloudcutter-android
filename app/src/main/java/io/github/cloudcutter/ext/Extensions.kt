@@ -6,10 +6,24 @@ package io.github.cloudcutter.ext
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
+import androidx.core.content.getSystemService
+
 
 operator fun MatchResult.get(i: Int) = this.groupValues[i]
 
-fun Context.hasNetwork(): Boolean {
-	val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-	return connectivityManager.activeNetworkInfo?.isConnected ?: false
+fun Context.hasInternet(): Boolean {
+	val cm = getSystemService<ConnectivityManager>()
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+		return cm?.getNetworkCapabilities(cm.activeNetwork)
+			?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+	} else {
+		when (cm?.activeNetworkInfo?.type) {
+			ConnectivityManager.TYPE_WIFI -> return true
+			ConnectivityManager.TYPE_MOBILE -> return true
+			ConnectivityManager.TYPE_VPN -> return true
+		}
+	}
+	return false
 }
