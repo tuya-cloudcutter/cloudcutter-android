@@ -50,12 +50,17 @@ class WorkViewModel @Inject constructor(
 	private var messageRemove: Boolean? = null
 	private var pingJob: Deferred<Unit>? = null
 
-	private suspend fun Action.start(): ActionState {
+	private suspend fun Action.start(index: Int? = null): ActionState {
 		val state = ActionState(this)
 		if (this.title != null) {
 			Log.d(TAG, "State start: $this")
-			stateList += state
-			stateAddedIndex.send(stateList.size - 1)
+			val position = when {
+				index == null -> stateList.size
+				index < 0 -> (stateList.size + index).coerceAtLeast(0)
+				else -> index
+			}
+			stateList.add(position, state)
+			stateAddedIndex.send(position)
 		}
 		return state
 	}
@@ -236,6 +241,7 @@ class WorkViewModel @Inject constructor(
 					}
 				}
 			} ?: continue
+			DummyAction(Text(R.string.action_scanned_ssid, network.ssid)).start(index = -1).end()
 			event.postValue(WiFiConnectRequest(network.ssid, action.password))
 			event.awaitTimeout<WiFiConnectResponse>(timeout = 20_000)
 			DummyAction(Text(R.string.action_connected_to_ssid, network.ssid)).start().end()
