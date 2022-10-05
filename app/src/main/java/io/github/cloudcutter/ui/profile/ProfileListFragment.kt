@@ -36,7 +36,7 @@ class ProfileListFragment : BaseFragment<ProfileListFragmentBinding>({ inflater,
 		b.list.layoutManager = LinearLayoutManager(context)
 
 		vm.data.observe(viewLifecycleOwner) {
-			b.list.adapter = ProfileListAdapter(it)
+			b.list.adapter = ProfileListAdapter(it, vm::onProfileClicked)
 		}
 
 		lifecycleScope.launch {

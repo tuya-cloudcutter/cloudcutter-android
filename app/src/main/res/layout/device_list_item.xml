@@ -18,6 +18,7 @@
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:background="?selectableItemBackground"
 		tools:layout_width="200dp">
 
 		<io.github.cloudcutter.ui.SquareImageView

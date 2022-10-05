@@ -20,5 +20,19 @@
 		android:id="@+id/menu_profiles"
 		android:name="io.github.cloudcutter.ui.profile.ProfileListFragment"
 		android:label="@string/title_profiles"
-		tools:layout="@layout/profile_list_fragment" />
+		tools:layout="@layout/profile_list_fragment">
+		<action
+			android:id="@+id/action_menu_profiles_to_menu_work"
+			app:destination="@id/menu_work" />
+	</fragment>
+
+	<fragment
+		android:id="@+id/menu_work"
+		android:name="io.github.cloudcutter.ui.work.WorkFragment"
+		android:label="@string/title_work"
+		tools:layout="@layout/work_fragment">
+		<argument
+			android:name="profileSlug"
+			app:argType="string" />
+	</fragment>
 </navigation>

@@ -19,4 +19,8 @@ class ProfileListViewModel @Inject constructor(
 		return profileRepository.getProfiles()
 			.sortedBy { "${5 - it.type.ordinal} ${it.name} ${it.subName}" }
 	}
+
+	fun onProfileClicked(profile: ProfileBase) {
+		navigate(ProfileListFragmentDirections.actionMenuProfilesToMenuWork(profile.slug))
+	}
 }

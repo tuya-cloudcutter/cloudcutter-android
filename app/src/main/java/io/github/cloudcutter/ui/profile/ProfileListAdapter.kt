@@ -17,6 +17,7 @@ import io.github.cloudcutter.util.BindingViewHolder
 
 class ProfileListAdapter(
 	private val items: List<ProfileBase>,
+	private val onClick: (profile: ProfileBase) -> Unit,
 ) : RecyclerView.Adapter<BindingViewHolder<ProfileListItemBinding>>() {
 
 	override fun onCreateViewHolder(
@@ -45,6 +46,9 @@ class ProfileListAdapter(
 			icon = profile.icon ?: CommunityMaterial.Icon.cmd_code_tags,
 		).apply {
 			sizeDp = 24
+		}
+		holder.b.root.setOnClickListener {
+			onClick(profile)
 		}
 	}
 
