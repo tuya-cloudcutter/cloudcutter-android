@@ -16,7 +16,7 @@
 	<string name="action_packet_cloudcut">Run exploit to change device keys</string>
 	<string name="action_packet_detect_gadget">Find function address: %s</string>
 	<string name="action_packet_flash_erase">Erase flash at 0x%X</string>
-	<string name="action_packet_flash_write">Write %d bytes to 0x%X</string>
+	<string name="action_packet_flash_write">Write %1$d bytes to 0x%2$X</string>
 	<string name="action_packet_stager">Connect smart device to CustomAP</string>
 	<string name="action_packet_stager_callback">Configure stager payload</string>
 	<string name="action_ping_connect">Establish connection with the device</string>
@@ -26,11 +26,24 @@
 	<string name="action_prepare">Prepare environment</string>
 	<string name="message_device_reboot_ap_mode">The device exited AP mode and connected to the custom AP. Reboot the device into AP mode once again (usually only 1 reboot is needed now).</string>
 	<string name="message_enable_ap_pairing">Put the smart device in AP pairing mode. The light (or LED) should be blinking slowly (every 1–2 seconds).</string>
+	<string name="message_error_ping_found_timeout">The device doesn\'t respond to ping requests.\n\nThis usually means that an exploit is incompatible, making the device freeze instead of continuing running.</string>
+	<string name="message_error_ping_lost_timeout">Ping requests are still successful.\n\nThis means that an exploit is incompatible, so the device didn\'t hang/reboot when it was expected to.</string>
+	<string name="message_error_timeout">Timed out waiting for the step to finish</string>
+	<string name="message_error_unknown">Unhandled exception: %s</string>
+	<string name="message_error_wifi_connect_timeout">Couldn\'t connect to the device.\n\nMake sure it\'s in AP mode and that the network is discoverable.</string>
+	<string name="message_error_wifi_scan_timeout">Timed out while scanning for SSID \"%s\".\n\nThe device may have not entered or exited the AP mode.</string>
 	<string name="message_exploitable">Good news! The device seems to be exploitable.</string>
+	<string name="message_running">Cloudcutting is now in progress.\n\nThis window will show any notices or errors that may be important.</string>
 	<string name="message_start_custom_ap">Make sure that the custom AP device is running and idle. The \"%s\" network has to be available for this to succeed.</string>
+	<string name="message_title_error">Error</string>
+	<string name="message_title_running">Running…</string>
+	<string name="message_type_info">Note</string>
+	<string name="message_type_success">Success!</string>
+	<string name="message_type_warning">Warning</string>
 	<string name="profile_type_classic">Classic</string>
 	<string name="profile_type_lightleak">Lightleak</string>
 	<string name="title_devices">Devices</string>
 	<string name="title_dumps">My Dumps</string>
 	<string name="title_profiles">Profiles</string>
+	<string name="title_work">Cloudcutter</string>
 </resources>

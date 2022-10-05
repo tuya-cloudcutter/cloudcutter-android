@@ -16,7 +16,7 @@ class WiFiCustomAPAction(
 	val ssid: ByteArray,
 	val password: ByteArray,
 	val stopTimeout: Int,
-	timeout: Long = 2_000,
+	timeout: Long = 10_000,
 ) : Action(id, title, nextId, timeout) {
 
 	fun buildPacket(): ByteBuffer {

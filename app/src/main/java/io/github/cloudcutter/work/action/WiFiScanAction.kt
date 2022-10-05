@@ -4,7 +4,9 @@
 
 package io.github.cloudcutter.work.action
 
+import io.github.cloudcutter.R
 import io.github.cloudcutter.util.Text
+import kotlinx.coroutines.TimeoutCancellationException
 
 class WiFiScanAction(
 	id: String,
@@ -12,4 +14,6 @@ class WiFiScanAction(
 	nextId: String,
 	val ssid: String,
 	timeout: Long = 10_000,
-) : Action(id, title, nextId, timeout)
+) : Action(id, title, nextId, timeout, mapOf(
+	TimeoutCancellationException::class.java to Text(R.string.message_error_wifi_scan_timeout, ssid),
+))

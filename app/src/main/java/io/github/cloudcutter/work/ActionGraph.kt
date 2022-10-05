@@ -65,6 +65,12 @@ class ActionGraph(private val work: WorkData) {
 	fun getAction(id: String) = actions.first { it.id == id }
 
 	private fun buildClassic(profile: ProfileClassic.Data) = listOf(
+		MessageAction(
+			id = "message_device_connect_1",
+			type = MessageType.INFO,
+			text = Text(R.string.message_enable_ap_pairing),
+			nextId = "connect_to_device",
+		),
 		WiFiConnectAction(
 			id = "connect_to_device",
 			title = Text(R.string.action_connect_to_device),

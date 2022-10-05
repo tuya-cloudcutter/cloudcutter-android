@@ -4,7 +4,9 @@
 
 package io.github.cloudcutter.work.action
 
+import io.github.cloudcutter.R
 import io.github.cloudcutter.util.Text
+import kotlinx.coroutines.TimeoutCancellationException
 
 class WiFiConnectAction(
 	id: String,
@@ -14,7 +16,9 @@ class WiFiConnectAction(
 	val ssid: String?,
 	val password: String? = null,
 	timeout: Long = 60_000,
-) : Action(id, title, nextId, timeout) {
+) : Action(id, title, nextId, timeout, mapOf(
+	TimeoutCancellationException::class.java to Text(R.string.message_error_wifi_connect_timeout),
+)) {
 
 	enum class Type {
 		DEVICE_DEFAULT,

@@ -6,4 +6,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="icon_success">#FF4CAF50</color>
+	<color name="icon_warning">#FFFDD835</color>
+	<color name="icon_info">#FF03A9F4</color>
+	<color name="icon_error">#FFC41C00</color>
 </resources>
