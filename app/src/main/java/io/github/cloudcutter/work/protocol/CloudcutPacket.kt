@@ -4,11 +4,11 @@
 
 package io.github.cloudcutter.work.protocol
 
-import io.github.cloudcutter.data.model.ProfileDataClassic
+import io.github.cloudcutter.data.model.ProfileClassic
 import io.github.cloudcutter.work.protocol.base.BasePacket
 
 data class CloudcutPacket(
-	val data: ProfileDataClassic,
+	val data: ProfileClassic.Data,
 	val apSsid: String = "B",
 	val newUuid: String = "abcd",
 	val newAuthKey: String = "",

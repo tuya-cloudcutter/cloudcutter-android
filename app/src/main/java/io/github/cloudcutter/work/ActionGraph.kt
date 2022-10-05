@@ -4,11 +4,12 @@
 
 package io.github.cloudcutter.work
 
+import android.util.Log
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.api.ApiService
 import io.github.cloudcutter.data.api.checkResponse
-import io.github.cloudcutter.data.model.ProfileDataClassic
-import io.github.cloudcutter.data.model.ProfileDataLightleak
+import io.github.cloudcutter.data.model.ProfileClassic
+import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.action.*
@@ -24,6 +25,9 @@ import kotlinx.coroutines.withContext
 
 @Suppress("SameParameterValue")
 class ActionGraph(private val work: WorkData) {
+	companion object {
+		private const val TAG = "ActionGraph"
+	}
 
 	private val randomHex: List<Char> = ('a'..'f') + ('0'..'9')
 	private val randomAscii: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
@@ -31,12 +35,12 @@ class ActionGraph(private val work: WorkData) {
 	private lateinit var actions: List<Action>
 
 	suspend fun prepare(api: ApiService) = withContext(Dispatchers.IO) {
-		when (work.profile.data) {
-			is ProfileDataClassic -> {
+		when (work.profile) {
+			is ProfileClassic -> {
 				work.newUuid = (0 until 16).map { randomHex.random() }.joinToString("")
 				work.newAuthKey = (0 until 32).map { randomAscii.random() }.joinToString("")
 			}
-			is ProfileDataLightleak -> {
+			is ProfileLightleak -> {
 				work.lightleakPassword = downloadBinary(api, work.profile.data.bins.stager)
 				work.lightleakProper = downloadBinary(api, work.profile.data.bins.proper)
 			}
@@ -44,14 +48,15 @@ class ActionGraph(private val work: WorkData) {
 	}
 
 	private suspend fun downloadBinary(api: ApiService, name: String): ByteArray {
+		Log.d(TAG, "Downloading '${name}'")
 		val response = api.getBinary(name).checkResponse()
 		return response.bytes()
 	}
 
 	fun build() {
-		actions = when (work.profile.data) {
-			is ProfileDataClassic -> buildClassic(work.profile.data)
-			is ProfileDataLightleak -> buildLightleak(work.profile.data)
+		actions = when (work.profile) {
+			is ProfileClassic -> buildClassic(work.profile.data)
+			is ProfileLightleak -> buildLightleak(work.profile.data)
 			else -> throw IllegalArgumentException("Unknown profile type")
 		}
 	}
@@ -59,7 +64,7 @@ class ActionGraph(private val work: WorkData) {
 	fun getStartAction() = actions.first()
 	fun getAction(id: String) = actions.first { it.id == id }
 
-	private fun buildClassic(profile: ProfileDataClassic) = listOf(
+	private fun buildClassic(profile: ProfileClassic.Data) = listOf(
 		WiFiConnectAction(
 			id = "connect_to_device",
 			title = Text(R.string.action_connect_to_device),
@@ -110,7 +115,7 @@ class ActionGraph(private val work: WorkData) {
 		),
 	)
 
-	private fun buildLightleak(profile: ProfileDataLightleak) = listOf(
+	private fun buildLightleak(profile: ProfileLightleak.Data) = listOf(
 		MessageAction(
 			id = "message_custom_ap_connect",
 			type = MessageType.INFO,
@@ -225,7 +230,7 @@ class ActionGraph(private val work: WorkData) {
 	)
 
 	private fun getDetectionActions(
-		profile: ProfileDataLightleak,
+		profile: ProfileLightleak.Data,
 		nextId: String,
 	): Array<Action> {
 		val list = mutableListOf<Action>()
@@ -248,7 +253,7 @@ class ActionGraph(private val work: WorkData) {
 	}
 
 	private fun getProperWriteActions(
-		profile: ProfileDataLightleak,
+		profile: ProfileLightleak.Data,
 		nextId: String,
 	): Array<Action> {
 		var offset = profile.getGadget("proper").map.values.first().toOffset()

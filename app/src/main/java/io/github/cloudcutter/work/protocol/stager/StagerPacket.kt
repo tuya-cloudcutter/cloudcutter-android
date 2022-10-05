@@ -4,14 +4,14 @@
 
 package io.github.cloudcutter.work.protocol.stager
 
-import io.github.cloudcutter.data.model.ProfileDataLightleak
+import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.work.protocol.OPT_LENGTH
 import io.github.cloudcutter.work.protocol.base.BasePacket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 abstract class StagerPacket(
-	profile: ProfileDataLightleak,
+	profile: ProfileLightleak.Data,
 ) : BasePacket() {
 
 	var fd = 3

@@ -11,10 +11,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.github.cloudcutter.data.model.Profile
 import io.github.cloudcutter.data.model.ProfileBase
-import io.github.cloudcutter.data.model.ProfileData
-import io.github.cloudcutter.data.model.ProfileDataClassic
-import io.github.cloudcutter.data.model.ProfileDataLightleak
+import io.github.cloudcutter.data.model.ProfileClassic
+import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.util.MoshiIconAdapter
 import javax.inject.Singleton
 
@@ -24,14 +24,14 @@ class DataModule {
 
 	@Singleton
 	@Provides
-	fun provideJsonFactory(): PolymorphicJsonAdapterFactory<ProfileData> =
-		PolymorphicJsonAdapterFactory.of(ProfileData::class.java, "type")
-			.withSubtype(ProfileDataClassic::class.java, ProfileBase.Type.CLASSIC.name)
-			.withSubtype(ProfileDataLightleak::class.java, ProfileBase.Type.LIGHTLEAK.name)
+	fun provideJsonFactory(): PolymorphicJsonAdapterFactory<Profile<*>> =
+		PolymorphicJsonAdapterFactory.of(Profile::class.java, "type")
+			.withSubtype(ProfileClassic::class.java, ProfileBase.Type.CLASSIC.name)
+			.withSubtype(ProfileLightleak::class.java, ProfileBase.Type.LIGHTLEAK.name)
 
 	@Singleton
 	@Provides
-	fun provideMoshi(factory: PolymorphicJsonAdapterFactory<ProfileData>): Moshi =
+	fun provideMoshi(factory: PolymorphicJsonAdapterFactory<Profile<*>>): Moshi =
 		Moshi.Builder()
 			.add(factory)
 			.add(MoshiIconAdapter())

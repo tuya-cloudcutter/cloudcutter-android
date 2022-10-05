@@ -20,7 +20,7 @@ class ProfileRepository @Inject constructor(
 		return api.getProfileList().checkResponse()
 	}
 
-	suspend fun getProfile(slug: String): Profile {
+	suspend fun getProfile(slug: String): Profile<*> {
 		return api.getProfile(slug).checkResponse()
 	}
 }

@@ -4,15 +4,18 @@
 
 package io.github.cloudcutter.ui.work
 
-import androidx.lifecycle.ViewModel
+import android.util.Log
 import com.spectrum.android.ping.Ping
 import com.spectrum.android.ping.Ping.PingListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.api.ApiService
-import io.github.cloudcutter.data.model.Profile
+import io.github.cloudcutter.data.repository.ProfileRepository
+import io.github.cloudcutter.ui.base.BaseViewModel
+import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.ActionGraph
+import io.github.cloudcutter.work.ActionState
 import io.github.cloudcutter.work.WorkData
 import io.github.cloudcutter.work.action.*
 import io.github.cloudcutter.work.event.*
@@ -22,72 +25,89 @@ import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import java.net.InetAddress
 import javax.inject.Inject
 
 @HiltViewModel
 class WorkViewModel @Inject constructor(
 	private val api: ApiService,
-) : ViewModel() {
+	private val profileRepository: ProfileRepository,
+) : BaseViewModel() {
+	companion object {
+		private const val TAG = "WorkViewModel"
+	}
 
 	private lateinit var work: WorkData
 	private lateinit var graph: ActionGraph
 
 	val stateList = mutableListOf<ActionState>()
-	val stateChanged = MutableSharedFlow<ActionState>()
+	val stateAddedIndex = Channel<Int>()
+	val stateChangedIndex = Channel<Int>()
 
 	val event = Channel<Event>()
 
 	private var messageRemove: Boolean? = null
 	private var pingJob: Deferred<Unit>? = null
 
-	inner class ActionState(val action: Action) {
-		var progress: Boolean = true
-		var error: Throwable? = null
-
-		suspend fun end() {
-			progress = false
-			stateChanged.emit(this)
+	private suspend fun Action.start(): ActionState {
+		val state = ActionState(this)
+		if (this.title != null) {
+			Log.d(TAG, "State start: ${this::class.java.simpleName}")
+			stateList += state
+			stateAddedIndex.send(stateList.size - 1)
 		}
-
-		suspend fun error(e: Throwable) {
-			error = e
-			end()
-		}
-	}
-
-	private suspend fun stateStart(action: Action): ActionState {
-		val state = ActionState(action)
-		stateList += state
-		stateChanged.emit(state)
 		return state
 	}
 
-	suspend fun prepare(profile: Profile) {
-		val state = stateStart(DummyAction(Text(R.string.action_prepare)))
+	private suspend fun ActionState.end() {
+		progress = false
+		if (this in stateList) {
+			Log.d(TAG, "State end: ${action::class.java.simpleName}")
+			stateChangedIndex.send(stateList.indexOf(this))
+		}
+	}
+
+	private suspend fun ActionState.error(e: Throwable) {
+		Log.d(TAG, "State error: ${action::class.java.simpleName} $e")
+		event.send(MessageEvent(MessageType.ERROR, action.getErrorText(e)))
+		Log.d(TAG, "State sent")
+		error = e
+		end()
+	}
+
+	suspend fun prepare(profileSlug: String): Boolean {
+		val state = DummyAction(Text(R.string.action_prepare)).start()
 		try {
+			val profile = profileRepository.getProfile(profileSlug)
+			Log.d(TAG, "Profile: $profile")
 			work = WorkData(profile)
 			graph = ActionGraph(work)
+			Log.d(TAG, "Preparing action graph")
 			graph.prepare(api)
+			Log.d(TAG, "Building action graph")
 			graph.build()
+			Log.d(TAG, "Action graph OK")
 			state.end()
+			return true
 		} catch (e: Exception) {
 			state.error(e)
+			return false
 		}
 	}
 
 	suspend fun run() {
 		var action: Action? = graph.getStartAction()
 		while (action != null) {
-			val state = stateStart(action)
+			val state = action.start()
 			val timeout = action.timeout ?: work.actionTimeout
 			try {
+				Log.d(TAG, "Run action: $action")
 				action = withContext(Dispatchers.IO) {
 					withTimeout(timeout) {
 						runAction(state)
 					}
 				}
+				Log.d(TAG, "Action OK: $action")
 			} catch (e: Exception) {
 				state.error(e)
 				return
@@ -95,7 +115,7 @@ class WorkViewModel @Inject constructor(
 			state.end()
 		}
 		pingJob?.cancel()
-		stateStart(DummyAction(Text(R.string.action_finish))).end()
+		DummyAction(Text(R.string.action_finish)).start().end()
 	}
 
 	private suspend fun runAction(state: ActionState): Action? {
@@ -217,7 +237,7 @@ class WorkViewModel @Inject constructor(
 			} ?: continue
 			event.send(WiFiConnectRequest(network.ssid, action.password))
 			event.awaitTimeout<WiFiConnectResponse>(timeout = 5_000)
-			stateStart(DummyAction(Text(R.string.action_connected_to_ssid, network.ssid))).end()
+			DummyAction(Text(R.string.action_connected_to_ssid, network.ssid)).start().end()
 			break
 		}
 	}

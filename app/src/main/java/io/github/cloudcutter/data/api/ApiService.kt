@@ -15,23 +15,23 @@ import retrofit2.http.Path
 
 interface ApiService {
 
-	@GET("devices.json")
+	@GET("api/devices.json")
 	suspend fun getDeviceList(): Response<List<DeviceBase>>
 
-	@GET("devices/{slug}.json")
+	@GET("api/devices/{slug}.json")
 	suspend fun getDevice(
 		@Path("slug") slug: String,
 	): Response<Device>
 
-	@GET("profiles.json")
+	@GET("api/profiles.json")
 	suspend fun getProfileList(): Response<List<ProfileBase>>
 
-	@GET("profiles/{key}.json")
+	@GET("api/profiles/{slug}.json")
 	suspend fun getProfile(
 		@Path("slug") slug: String,
-	): Response<Profile>
+	): Response<Profile<*>>
 
-	@GET("bin/{name}")
+	@GET("bins/{name}")
 	suspend fun getBinary(
 		@Path("name") name: String,
 	): Response<ResponseBody>

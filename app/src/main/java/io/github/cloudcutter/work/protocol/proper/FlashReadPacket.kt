@@ -4,11 +4,11 @@
 
 package io.github.cloudcutter.work.protocol.proper
 
-import io.github.cloudcutter.data.model.ProfileDataLightleak
+import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.work.protocol.buildByteArray
 
 data class FlashReadPacket(
-	val profile: ProfileDataLightleak,
+	val profile: ProfileLightleak.Data,
 	val offset: Int,
 	val length: Int,
 	val maxLength: Int = 1024,

@@ -7,7 +7,7 @@ package io.github.cloudcutter.work
 import io.github.cloudcutter.data.model.Profile
 
 class WorkData(
-	val profile: Profile,
+	val profile: Profile<*>,
 ) {
 
 	val actionTimeout = 10 * 60 * 1000L

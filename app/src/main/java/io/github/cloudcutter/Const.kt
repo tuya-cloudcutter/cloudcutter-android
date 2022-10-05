@@ -5,5 +5,5 @@
 package io.github.cloudcutter
 
 object Const {
-	const val API_ENDPOINT = "https://tuya-cloudcutter.github.io/cloudcutter-data/"
+	const val API_ENDPOINT = "https://tuya-cloudcutter.github.io/"
 }

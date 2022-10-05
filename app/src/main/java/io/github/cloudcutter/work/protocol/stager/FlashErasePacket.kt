@@ -4,13 +4,13 @@
 
 package io.github.cloudcutter.work.protocol.stager
 
-import io.github.cloudcutter.data.model.ProfileDataLightleak
+import io.github.cloudcutter.data.model.ProfileLightleak
 
 data class FlashErasePacket(
-	val profile: ProfileDataLightleak,
+	val profile: ProfileLightleak.Data,
 	val offset: Int,
 ) : CallIntPacket(profile) {
 
-	override val storeAddress = profile.getGadget("flash_erase_sector").getStoreOffset()
+	override val storeAddress = profile.getGadget("flash_erase_sector").getStoreOffset(profile)
 	override val arg1 = offset
 }
