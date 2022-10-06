@@ -76,6 +76,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 		vm.event.observe(viewLifecycleOwner, this)
 		vm.stateAddedIndex.receiveAsFlow().asLiveData().observe(viewLifecycleOwner) {
 			adapter.notifyItemInserted(it)
+			b.stateList.smoothScrollToPosition(it)
 			runProgressBar(it)
 		}
 		vm.stateChangedIndex.receiveAsFlow().asLiveData().observe(viewLifecycleOwner) {
@@ -114,6 +115,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 		)
 		anim?.duration = timeout
 		anim?.interpolator = LinearInterpolator()
+		anim?.setAutoCancel(true)
 		anim?.start()
 	}
 
@@ -137,6 +139,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 		when (event) {
 			is LocalIpRequest -> vm.event.postValue(LocalIpResponse(localAddress))
 			is MessageEvent -> {
+				b.messageCard.isVisible = true
 				if (defaultIcon == null) defaultIcon = b.messageIcon.icon
 				b.messageTitle.setText(event.type.title)
 				b.messageText.text = event.text.format(context ?: return)
@@ -146,6 +149,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 				}
 			}
 			is MessageRemoveEvent -> {
+				b.messageCard.isVisible = false
 				b.messageTitle.setText(R.string.message_title_running)
 				b.messageText.setText(R.string.message_running)
 				b.messageIcon.icon = defaultIcon
