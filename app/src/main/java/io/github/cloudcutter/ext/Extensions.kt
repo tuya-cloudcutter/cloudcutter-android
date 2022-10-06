@@ -27,3 +27,7 @@ fun Context.hasInternet(): Boolean {
 	}
 	return false
 }
+
+fun ByteArray.toHexString() = joinToString(" ") { it.toUByte().toString(16).padStart(2, '0') }
+
+fun Int.roundTo(value: Int): Int = this.div(value).times(value)

@@ -12,10 +12,16 @@ class PingAction(
 	id: String,
 	title: Text,
 	nextId: String,
-	timeout: Long = 5_000,
 	val mode: Mode,
 	val address: String,
-	val threshold: Int,
+	val threshold: Int = when (mode) {
+		Mode.FOUND -> 2
+		Mode.LOST -> 3
+	},
+	timeout: Long = when (mode) {
+		Mode.FOUND -> 10_000 + 3_000 * threshold.toLong()
+		Mode.LOST -> 5_000 * threshold.toLong()
+	},
 ) : Action(id, title, nextId, timeout, mapOf(
 	TimeoutCancellationException::class.java to Text(when (mode) {
 		Mode.FOUND -> R.string.message_error_ping_found_timeout

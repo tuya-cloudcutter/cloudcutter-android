@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.content.getSystemService
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
@@ -28,7 +29,6 @@ import io.github.cloudcutter.databinding.WorkFragmentBinding
 import io.github.cloudcutter.ext.wifiConnect
 import io.github.cloudcutter.ext.wifiScan
 import io.github.cloudcutter.ui.base.BaseFragment
-import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.work.event.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -126,10 +126,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 				try {
 					handleEvent(value)
 				} catch (e: Exception) {
-					val error = (e as? CancellationException)?.cause ?: e
 					lifecycleScope.cancel()
-					val action = vm.stateList.last().action
-					handleEvent(MessageEvent(MessageType.ERROR, action.getErrorText(error)))
 				}
 			}
 		}
@@ -155,11 +152,16 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 				b.messageIcon.icon = defaultIcon
 			}
 			is WiFiConnectRequest -> {
-				context?.wifiConnect(event.ssid, event.password) ?: return
+				var error: String?
+				while (true) {
+					error = context?.wifiConnect(event.ssid, event.password)
+					if (error == null) break
+				}
 				vm.event.postValue(WiFiConnectResponse())
 			}
 			is WiFiScanRequest -> {
 				val results = context?.wifiScan() ?: return
+				delay(200)
 				vm.event.postValue(results.toEvent())
 			}
 		}

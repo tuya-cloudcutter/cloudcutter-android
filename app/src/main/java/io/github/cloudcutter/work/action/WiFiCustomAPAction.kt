@@ -19,8 +19,9 @@ class WiFiCustomAPAction(
 	timeout: Long = 10_000,
 ) : Action(id, title, nextId, timeout) {
 
-	fun buildPacket(): ByteBuffer {
+	fun buildPacket(): ByteArray {
 		val packet = ByteBuffer.allocate(33 + 63 + 4)
+		packet.order(ByteOrder.LITTLE_ENDIAN)
 		packet.put(ssid)
 		packet.position(33)
 		packet.put(password)
@@ -36,6 +37,6 @@ class WiFiCustomAPAction(
 		buf.put(104.toByte())           // length
 		buf.put(packetData)             // packet data
 		buf.putInt(crc.value.toInt())   // crc32 of packet data
-		return buf
+		return buf.array()
 	}
 }

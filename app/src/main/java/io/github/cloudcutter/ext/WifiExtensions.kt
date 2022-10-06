@@ -31,12 +31,12 @@ suspend fun Context.wifiConnect(ssid: String, password: String?) =
 			.onConnectionResult(object : ConnectionSuccessListener {
 				override fun success() {
 					Log.d(TAG, "Connected")
-					continuation.resume(true)
+					continuation.resume(null)
 				}
 
 				override fun failed(errorCode: ConnectionErrorCode) {
 					Log.d(TAG, "Connection failed: $errorCode")
-					continuation.cancel(RuntimeException(errorCode.toString()))
+					continuation.resume(errorCode.toString())
 				}
 			}).start()
 	}

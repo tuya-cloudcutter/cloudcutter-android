@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.api.ApiService
 import io.github.cloudcutter.data.repository.ProfileRepository
+import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ui.base.BaseViewModel
 import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.util.Text
@@ -20,11 +21,12 @@ import io.github.cloudcutter.work.ActionState
 import io.github.cloudcutter.work.WorkData
 import io.github.cloudcutter.work.action.*
 import io.github.cloudcutter.work.event.*
-import io.github.cloudcutter.work.protocol.DGRAM_SIZE
 import io.github.cloudcutter.work.protocol.proper.ProperPacket
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import java.net.InetAddress
 import javax.inject.Inject
@@ -74,10 +76,10 @@ class WorkViewModel @Inject constructor(
 	}
 
 	private suspend fun ActionState.error(e: Throwable) {
-		Log.d(TAG, "State error: $action $e")
-		event.postValue(MessageEvent(MessageType.ERROR, action.getErrorText(e)))
+		error = (e as? CancellationException)?.cause ?: e
+		Log.d(TAG, "State error: $action $error")
+		event.postValue(MessageEvent(MessageType.ERROR, action.getErrorText(error!!)))
 		Log.d(TAG, "State sent")
-		error = e
 		end()
 	}
 
@@ -110,6 +112,7 @@ class WorkViewModel @Inject constructor(
 				Log.d(TAG, "Action run: $action")
 				action = withContext(Dispatchers.IO) {
 					withTimeout(timeout) {
+						delay(100)
 						runAction(state)
 					}
 				}
@@ -129,6 +132,7 @@ class WorkViewModel @Inject constructor(
 
 		if (messageRemove != null) {
 			messageRemove = if (messageRemove == true) {
+				Log.d(TAG, "Removing message")
 				event.postValue(MessageRemoveEvent())
 				null
 			} else true
@@ -170,7 +174,9 @@ class WorkViewModel @Inject constructor(
 		}
 
 		withContext(Dispatchers.IO) {
-			send.writeFully(action.packet.serialize(), 0, DGRAM_SIZE)
+			val packet = action.packet.serialize()
+			send.writeFully(packet)
+			Log.d(TAG, "Wrote packet: ${packet.toHexString()}")
 			socket.close()
 			selectorManager.close()
 		}
@@ -180,19 +186,26 @@ class WorkViewModel @Inject constructor(
 		var count = 0
 		val ping = Ping(InetAddress.getByName(action.address), object : PingListener {
 			override fun onPing(timeMs: Long, index: Int) {
+				if (timeMs == -1L) {
+					onPingException(null, index)
+					return
+				}
 				event.postValue(PingFoundEvent(timeMs))
 				if (action.mode == PingAction.Mode.FOUND) count++
 			}
 
-			override fun onPingException(e: Exception, index: Int) {
+			override fun onPingException(e: Exception?, index: Int) {
 				event.postValue(PingLostEvent())
 				if (action.mode == PingAction.Mode.LOST) count++
 			}
 		})
+		ping.delayMs = 0 // disable blocking delay
+		ping.timeoutMs = 1000
 		ping.count = 1
 
 		while (count < action.threshold) {
 			ping.run()
+			delay(1000)
 		}
 	}
 
@@ -213,22 +226,31 @@ class WorkViewModel @Inject constructor(
 		val recv = socket.openReadChannel()
 		val send = socket.openWriteChannel(autoFlush = true)
 
+		Log.d(TAG, "CustomAP connected")
 		withContext(Dispatchers.IO) {
-			send.writeFully(action.buildPacket())
-			val code = recv.readByte().toInt()
-			socket.close()
-			selectorManager.close()
-			if (code != 0xDE) {
-				throw RuntimeException("Error configuring CustomAP: 0x${code.toString(16)}")
+			val error = try {
+				val packet = action.buildPacket()
+				send.writeFully(packet)
+				Log.d(TAG, "Wrote packet: ${packet.toHexString()}")
+				val code = recv.readByte().toUByte().toInt()
+				Log.d(TAG, "Got response: $code")
+				if (code != 0xDE) RuntimeException("Error configuring CustomAP: 0x${code.toString(16)}")
+				else null
+			} catch (e: TimeoutCancellationException) {
+				e
+			} finally {
+				socket.close()
+				selectorManager.close()
 			}
+			if (error != null) throw error
 		}
 	}
 
 	private suspend fun runWiFiConnectAction(action: WiFiConnectAction) {
 		while (true) {
 			event.postValue(WiFiScanRequest())
-			val response = event.await<WiFiScanResponse>()
-			val network = response.networks.firstOrNull {
+			val scanResponse = event.await<WiFiScanResponse>()
+			val network = scanResponse.networks.firstOrNull {
 				when (action.type) {
 					WiFiConnectAction.Type.DEVICE_DEFAULT -> {
 						!it.isEncrypted && it.ssid.matches(work.targetSsidRegex)

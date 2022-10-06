@@ -10,6 +10,8 @@ import io.github.cloudcutter.data.api.ApiService
 import io.github.cloudcutter.data.api.checkResponse
 import io.github.cloudcutter.data.model.ProfileClassic
 import io.github.cloudcutter.data.model.ProfileLightleak
+import io.github.cloudcutter.ext.roundTo
+import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.action.*
@@ -59,10 +61,15 @@ class ActionGraph(private val work: WorkData) {
 			is ProfileLightleak -> buildLightleak(work.profile.data)
 			else -> throw IllegalArgumentException("Unknown profile type")
 		}
+
+		for (action in actions.filterIsInstance<PacketAction>()) {
+			Log.d(TAG, "$action packet: ${action.packet.serialize().toHexString()}")
+		}
 	}
 
 	fun getStartAction() = actions.first()
-	fun getAction(id: String) = actions.first { it.id == id }
+	fun getAction(id: String) = actions.firstOrNull { it.id == id }
+		?: throw NoSuchElementException("No action with id=$id")
 
 	private fun buildClassic(profile: ProfileClassic.Data) = listOf(
 		MessageAction(
@@ -85,7 +92,6 @@ class ActionGraph(private val work: WorkData) {
 			nextId = "exploit_initial",
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
-			threshold = 2,
 		),
 		PacketAction(
 			id = "exploit_initial",
@@ -105,7 +111,6 @@ class ActionGraph(private val work: WorkData) {
 			nextId = "connect_custom_ssid",
 			mode = PingAction.Mode.LOST,
 			address = work.targetAddress,
-			threshold = 5,
 		),
 		WiFiConnectAction(
 			id = "connect_custom_ssid",
@@ -120,7 +125,6 @@ class ActionGraph(private val work: WorkData) {
 			nextId = "exploit_initial",
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
-			threshold = 2,
 		),
 	)
 
@@ -145,7 +149,6 @@ class ActionGraph(private val work: WorkData) {
 			nextId = "custom_ap_setup",
 			mode = PingAction.Mode.FOUND,
 			address = work.idleAddress,
-			threshold = 2,
 		),
 		WiFiCustomAPAction(
 			id = "custom_ap_setup",
@@ -174,9 +177,9 @@ class ActionGraph(private val work: WorkData) {
 			nextId = "exploit_stager",
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
-			threshold = 2,
 		),
-		PacketAction(id = "exploit_stager",
+		PacketAction(
+			id = "exploit_stager",
 			title = Text(R.string.action_packet_stager),
 			nextId = "ping_lost_1",
 			packet = WifiPacket(
@@ -191,7 +194,6 @@ class ActionGraph(private val work: WorkData) {
 			nextId = "custom_ap_scan",
 			mode = PingAction.Mode.LOST,
 			address = work.targetAddress,
-			threshold = 5,
 		),
 		WiFiScanAction(
 			id = "custom_ap_scan",
@@ -216,10 +218,10 @@ class ActionGraph(private val work: WorkData) {
 		PingAction(
 			id = "ping_found_2",
 			title = Text(R.string.action_ping_connect),
+			timeout = 20_000,
 			nextId = "exploit_check",
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
-			threshold = 2,
 		),
 		PacketAction(
 			id = "exploit_check",
@@ -233,10 +235,8 @@ class ActionGraph(private val work: WorkData) {
 			id = "ping_found_3",
 			title = Text(R.string.action_ping_exploitable),
 			nextId = "message_exploitable",
-			timeout = 2_000,
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
-			threshold = 2,
 		),
 		MessageAction(
 			id = "message_exploitable",
@@ -249,10 +249,8 @@ class ActionGraph(private val work: WorkData) {
 			id = "ping_found_4",
 			title = Text(R.string.action_ping_respond),
 			nextId = "flash_erase",
-			timeout = 2_000,
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
-			threshold = 1,
 		),
 		*getProperWriteActions(profile, nextId = ""),
 	)
@@ -262,15 +260,12 @@ class ActionGraph(private val work: WorkData) {
 		nextId: String,
 	): Array<Action> {
 		val list = mutableListOf<Action>()
-		var i = 0
-		for (gadget in profile.gadgets) {
-			if (gadget.intfOffset == null) {
-				continue
-			}
+		val gadgets = profile.gadgets.filter { it.intfOffset != null }
+		for ((i, gadget) in gadgets.withIndex()) {
 			list += PacketAction(
-				id = "detect_${i++}",
+				id = "detect_${i}",
 				title = Text(R.string.action_packet_detect_gadget, gadget.name),
-				nextId = if (i == profile.gadgets.size) nextId else "detect_${i}",
+				nextId = if (i == gadgets.lastIndex) nextId else "detect_${i + 1}",
 				packet = DetectionPacket(
 					profile = profile,
 					gadget = gadget,
@@ -284,7 +279,7 @@ class ActionGraph(private val work: WorkData) {
 		profile: ProfileLightleak.Data,
 		nextId: String,
 	): Array<Action> {
-		var offset = profile.getGadget("proper").map.values.first().toOffset()
+		var offset = profile.getGadget("proper").map.values.first().roundTo(2).toOffset()
 		val list = mutableListOf<Action>(
 			PacketAction(
 				id = "flash_erase",
@@ -297,12 +292,12 @@ class ActionGraph(private val work: WorkData) {
 			),
 		)
 
-		var i = 0
-		for (chunk in work.lightleakProper.toList().chunked(128)) {
+		val chunked = work.lightleakProper.toList().chunked(128)
+		for ((i, chunk) in chunked.withIndex()) {
 			list += PacketAction(
-				id = "flash_write_${i++}",
+				id = "flash_write_${i}",
 				title = Text(R.string.action_packet_flash_write, chunk.size, offset),
-				nextId = if (i == profile.gadgets.size) nextId else "flash_write_${i}",
+				nextId = if (i == chunked.lastIndex) nextId else "flash_write_${i + 1}",
 				packet = FlashWritePacket(
 					profile = profile,
 					offset = offset,
