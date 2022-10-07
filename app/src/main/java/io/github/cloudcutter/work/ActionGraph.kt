@@ -252,12 +252,12 @@ class ActionGraph(private val work: WorkData) {
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
 		),
-		*getProperWriteActions(profile, nextId = ""),
+		*getProperWriteActions(profile, nextId = null),
 	)
 
 	private fun getDetectionActions(
 		profile: ProfileLightleak.Data,
-		nextId: String,
+		nextId: String?,
 	): Array<Action> {
 		val list = mutableListOf<Action>()
 		val gadgets = profile.gadgets.filter { it.intfOffset != null }
@@ -277,7 +277,7 @@ class ActionGraph(private val work: WorkData) {
 
 	private fun getProperWriteActions(
 		profile: ProfileLightleak.Data,
-		nextId: String,
+		nextId: String?,
 	): Array<Action> {
 		var offset = profile.getGadget("proper").map.values.first().roundTo(2).toOffset()
 		val list = mutableListOf<Action>(

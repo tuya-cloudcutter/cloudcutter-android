@@ -10,6 +10,6 @@ import io.github.cloudcutter.work.protocol.base.IPacket
 class PacketAction(
 	id: String,
 	title: Text,
-	nextId: String,
+	nextId: String?,
 	val packet: IPacket,
 ) : Action(id, title, nextId)
