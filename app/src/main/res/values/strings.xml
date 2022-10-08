@@ -47,4 +47,8 @@
 	<string name="title_dumps">My Dumps</string>
 	<string name="title_profiles">Profiles</string>
 	<string name="title_work">Cloudcutter</string>
+	<string name="work_state_dialog_title">Device state</string>
+	<string name="work_state_dialog_text">Is the device currently configured to join Lightleak CustomAP?\n\nThis may save you some time if you want to re-run the remote dump feature.\n\nThis will not work if you haven\'t run Lightleak before, or you have already paired the device with a different network.</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
 </resources>

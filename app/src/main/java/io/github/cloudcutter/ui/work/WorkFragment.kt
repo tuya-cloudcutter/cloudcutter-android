@@ -19,12 +19,14 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.utils.colorRes
 import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.R
+import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.databinding.WorkFragmentBinding
 import io.github.cloudcutter.ext.wifiConnect
 import io.github.cloudcutter.ext.wifiScan
@@ -85,15 +87,34 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 		}
 
 		lifecycleScope.launch {
-			val jobs = listOf(
-				async {
-					if (!vm.prepare(args.profileSlug)) return@async
-					Log.d(TAG, "Prepare OK")
-					vm.run()
-					Log.d(TAG, "Run OK")
-				},
-			)
-			jobs.awaitAll()
+			val profile = withContext(Dispatchers.IO) {
+				vm.prepare(args.profileSlug)
+			} ?: return@launch
+			if (profile.data is ProfileLightleak.Data) {
+				showDialog()
+			} else {
+				startWork(null)
+			}
+		}
+	}
+
+	private fun showDialog() {
+		MaterialAlertDialogBuilder(requireContext())
+			.setTitle(R.string.work_state_dialog_title)
+			.setMessage(R.string.work_state_dialog_text)
+			.setPositiveButton(R.string.yes) { _, _ ->
+				startWork("message_device_connect_2")
+			}
+			.setNegativeButton(R.string.no) { _, _ ->
+				startWork(null)
+			}
+			.setCancelable(false)
+			.show()
+	}
+
+	private fun startWork(startActionId: String?) {
+		lifecycleScope.launch {
+			vm.run(startActionId)
 		}
 	}
 

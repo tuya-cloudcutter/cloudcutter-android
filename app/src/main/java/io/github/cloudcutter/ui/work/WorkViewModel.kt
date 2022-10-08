@@ -11,6 +11,7 @@ import com.spectrum.android.ping.Ping.PingListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.api.ApiService
+import io.github.cloudcutter.data.model.Profile
 import io.github.cloudcutter.data.repository.ProfileRepository
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ui.base.BaseViewModel
@@ -83,7 +84,7 @@ class WorkViewModel @Inject constructor(
 		end()
 	}
 
-	suspend fun prepare(profileSlug: String): Boolean {
+	suspend fun prepare(profileSlug: String): Profile<*>? {
 		val state = DummyAction(Text(R.string.action_prepare)).start()
 		try {
 			val profile = profileRepository.getProfile(profileSlug)
@@ -96,15 +97,18 @@ class WorkViewModel @Inject constructor(
 			graph.build()
 			Log.d(TAG, "Action graph OK")
 			state.end()
-			return true
+			return profile
 		} catch (e: Exception) {
 			state.error(e)
-			return false
+			return null
 		}
 	}
 
-	suspend fun run() {
-		var action: Action? = graph.getStartAction()
+	suspend fun run(startActionId: String? = null) {
+		var action: Action? = startActionId?.let {
+			graph.getAction(it)
+		} ?: graph.getStartAction()
+
 		while (action != null) {
 			val state = action.start()
 			val timeout = action.timeout ?: work.actionTimeout

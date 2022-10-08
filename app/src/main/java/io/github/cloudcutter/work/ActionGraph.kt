@@ -208,6 +208,12 @@ class ActionGraph(private val work: WorkData) {
 			text = Text(R.string.message_device_reboot_ap_mode),
 			nextId = "connect_default_2",
 		),
+		MessageAction(
+			id = "message_device_connect_2",
+			type = MessageType.INFO,
+			text = Text(R.string.message_enable_ap_pairing),
+			nextId = "connect_default_2",
+		),
 		WiFiConnectAction(
 			id = "connect_default_2",
 			title = Text(R.string.action_connect_to_device),
