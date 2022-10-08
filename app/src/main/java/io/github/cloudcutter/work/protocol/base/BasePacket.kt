@@ -4,10 +4,10 @@
 
 package io.github.cloudcutter.work.protocol.base
 
+import io.github.cloudcutter.ext.crc32
 import io.github.cloudcutter.work.protocol.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.zip.CRC32
 
 abstract class BasePacket : IPacket {
 
@@ -49,9 +49,8 @@ abstract class BasePacket : IPacket {
 		buf.putInt(jsonEnd - jsonStart + 8) // payload + crc + tail
 		buf.position(jsonEnd)
 
-		val crc = CRC32()
-		crc.update(buf.array().take(buf.position()).toByteArray())
-		buf.putInt(crc.value.toInt())
+		val crc32 = buf.array().take(buf.position()).crc32()
+		buf.putInt(crc32)
 		buf.putInt(DGRAM_TAIL)
 
 		buf.order(ByteOrder.LITTLE_ENDIAN)

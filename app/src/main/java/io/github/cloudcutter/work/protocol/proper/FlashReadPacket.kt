@@ -6,22 +6,23 @@ package io.github.cloudcutter.work.protocol.proper
 
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.work.protocol.buildByteArray
+import java.net.InetAddress
 
-data class FlashReadPacket(
-	val profile: ProfileLightleak.Data,
+class FlashReadPacket(
+	profile: ProfileLightleak.Data,
+	requestId: Int,
+	returnIp: InetAddress,
 	val offset: Int,
 	val length: Int,
 	val maxLength: Int = 1024,
-) : ProperPacket(profile) {
+) : ProperPacket(profile, requestId, returnIp) {
 
 	override val action = 0x01
-	override val data: ByteArray
+	override val properData: ByteArray
 		get() = buildByteArray(
-			size = 20,
-			profile.addressMap.buffer,
+			size = 12,
 			offset,
 			length,
 			maxLength,
-			returnIp.address.reversedArray(),
 		)
 }

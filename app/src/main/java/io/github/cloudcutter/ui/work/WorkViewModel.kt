@@ -23,6 +23,7 @@ import io.github.cloudcutter.work.WorkData
 import io.github.cloudcutter.work.action.*
 import io.github.cloudcutter.work.event.*
 import io.github.cloudcutter.work.protocol.proper.ProperPacket
+import io.github.cloudcutter.work.protocol.send
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
@@ -161,29 +162,13 @@ class WorkViewModel @Inject constructor(
 	}
 
 	private suspend fun runPacketAction(action: PacketAction) {
-		val selectorManager = SelectorManager(Dispatchers.IO)
-		val socket = aSocket(selectorManager).udp().connect(
-			remoteAddress = InetSocketAddress(work.targetBroadcast, 6669),
-			localAddress = null,
-			configure = {
-				broadcast = true
-			},
-		)
-		val send = socket.openWriteChannel(autoFlush = true)
-
 		if (action.packet is ProperPacket) {
 			event.postValue(LocalIpRequest())
 			val localAddress = event.await<LocalIpResponse>().address
 			action.packet.returnIp = localAddress
 		}
 
-		withContext(Dispatchers.IO) {
-			val packet = action.packet.serialize()
-			send.writeFully(packet)
-			Log.d(TAG, "Wrote packet: ${packet.toHexString()}")
-			socket.close()
-			selectorManager.close()
-		}
+		action.packet.send(work.targetBroadcast)
 	}
 
 	private suspend fun runPingAction(action: PingAction) = withContext(Dispatchers.IO) {

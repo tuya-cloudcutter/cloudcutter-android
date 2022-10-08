@@ -4,6 +4,16 @@
 
 package io.github.cloudcutter.work.protocol
 
+import android.util.Log
+import io.github.cloudcutter.ext.toHexString
+import io.github.cloudcutter.ui.work.WorkViewModel
+import io.github.cloudcutter.work.protocol.base.BasePacket
+import io.github.cloudcutter.work.protocol.base.IPacket
+import io.ktor.network.selector.*
+import io.ktor.network.sockets.*
+import io.ktor.utils.io.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -31,3 +41,22 @@ fun getFinishToken(address: Int) = buildByteArray(
 
 fun Int.toOffset(): Int = this.floorDiv(32) * 34 + this.mod(32)
 fun Int.toAddress(): Int = this.floorDiv(34) * 32 + this.mod(34)
+
+suspend fun IPacket.send(address: String) {
+	val selectorManager = SelectorManager(Dispatchers.IO)
+	val socket = aSocket(selectorManager).udp().connect(
+		remoteAddress = InetSocketAddress(address, 6669),
+		localAddress = null,
+		configure = {
+			broadcast = true
+		},
+	)
+	val send = socket.openWriteChannel(autoFlush = true)
+	val packet = this.serialize()
+	withContext(Dispatchers.IO) {
+		send.writeFully(packet)
+		Log.d("IPacket", "Wrote packet: ${packet.toHexString()}")
+		socket.close()
+		selectorManager.close()
+	}
+}

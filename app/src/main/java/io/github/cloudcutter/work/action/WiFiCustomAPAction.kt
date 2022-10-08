@@ -4,10 +4,10 @@
 
 package io.github.cloudcutter.work.action
 
+import io.github.cloudcutter.ext.crc32
 import io.github.cloudcutter.util.Text
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.zip.CRC32
 
 class WiFiCustomAPAction(
 	id: String,
@@ -28,15 +28,13 @@ class WiFiCustomAPAction(
 		packet.position(33 + 63)
 		packet.putInt(stopTimeout)
 		val packetData = packet.array()
-		val crc = CRC32()
-		crc.update(packetData)
 
 		val buf = ByteBuffer.allocate(4 + 1 + packetData.size + 4)
 		buf.order(ByteOrder.LITTLE_ENDIAN)
 		buf.put("cctr".toByteArray())   // magic
 		buf.put(104.toByte())           // length
 		buf.put(packetData)             // packet data
-		buf.putInt(crc.value.toInt())   // crc32 of packet data
+		buf.putInt(packetData.crc32())   // crc32 of packet data
 		return buf.array()
 	}
 }
