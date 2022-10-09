@@ -168,7 +168,10 @@ class WorkViewModel @Inject constructor(
 			action.packet.returnIp = localAddress
 		}
 
-		action.packet.send(work.targetBroadcast)
+		for (i in 0 until 3) {
+			action.packet.send(work.targetBroadcast)
+			delay(100)
+		}
 	}
 
 	private suspend fun runPingAction(action: PingAction) = withContext(Dispatchers.IO) {

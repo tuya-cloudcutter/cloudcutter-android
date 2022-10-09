@@ -17,6 +17,7 @@ import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.action.*
 import io.github.cloudcutter.work.protocol.CloudcutPacket
 import io.github.cloudcutter.work.protocol.WifiPacket
+import io.github.cloudcutter.work.protocol.proper.StopTimerPacket
 import io.github.cloudcutter.work.protocol.stager.CallbackPacket
 import io.github.cloudcutter.work.protocol.stager.DetectionPacket
 import io.github.cloudcutter.work.protocol.stager.FlashErasePacket
@@ -24,6 +25,7 @@ import io.github.cloudcutter.work.protocol.stager.FlashWritePacket
 import io.github.cloudcutter.work.protocol.toOffset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.InetAddress
 
 @Suppress("SameParameterValue")
 class ActionGraph(private val work: WorkData) {
@@ -68,8 +70,8 @@ class ActionGraph(private val work: WorkData) {
 	}
 
 	fun getStartAction() = actions.first()
-	fun getAction(id: String) = actions.firstOrNull { it.id == id }
-		?: throw NoSuchElementException("No action with id=$id")
+	fun getAction(id: String) =
+		actions.firstOrNull { it.id == id } ?: throw NoSuchElementException("No action with id=$id")
 
 	private fun buildClassic(profile: ProfileClassic.Data) = listOf(
 		MessageAction(
@@ -258,7 +260,24 @@ class ActionGraph(private val work: WorkData) {
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
 		),
-		*getProperWriteActions(profile, nextId = null),
+		*getProperWriteActions(profile, nextId = "proper_stop_timer"),
+		PacketAction(
+			id = "proper_stop_timer",
+			title = Text(R.string.action_packet_stop_timer),
+			nextId = "ping_found_5",
+			packet = StopTimerPacket(
+				profile = profile,
+				requestId = 0x1234,
+				timerPeriods = listOf(3 * 60 * 1000), // 180000 ms
+			),
+		),
+		PingAction(
+			id = "ping_found_5",
+			title = Text(R.string.action_ping_respond),
+			nextId = null,
+			mode = PingAction.Mode.FOUND,
+			address = work.targetAddress,
+		),
 	)
 
 	private fun getDetectionActions(
@@ -266,7 +285,7 @@ class ActionGraph(private val work: WorkData) {
 		nextId: String?,
 	): Array<Action> {
 		val list = mutableListOf<Action>()
-		val gadgets = profile.gadgets.filter { it.intfOffset != null }
+		val gadgets = profile.gadgets.filter { it.intfOffset != null || it.name == "proper" }
 		for ((i, gadget) in gadgets.withIndex()) {
 			list += PacketAction(
 				id = "detect_${i}",

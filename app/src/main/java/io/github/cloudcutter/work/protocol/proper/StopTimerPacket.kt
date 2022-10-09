@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Kuba Szczodrzyński 2022-9-26.
+ * Copyright (c) Kuba Szczodrzyński 2022-10-9.
  */
 
 package io.github.cloudcutter.work.protocol.proper
@@ -8,20 +8,17 @@ import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.work.protocol.buildByteArray
 import java.net.InetAddress
 
-class FlashReadPacket(
+class StopTimerPacket(
 	profile: ProfileLightleak.Data,
 	requestId: Int,
-	val offset: Int,
-	val length: Int,
-	val maxLength: Int = 1024,
+	val timerPeriods: List<Int>,
 ) : ProperPacket(profile, requestId) {
 
-	override val action = 0x01
+	override val action = 0x0E
 	override val properData: ByteArray
 		get() = buildByteArray(
-			size = 12,
-			offset,
-			length,
-			maxLength,
+			size = 4 * (timerPeriods.size + 1),
+			0xFF00 or timerPeriods.size,
+			*timerPeriods.toTypedArray(),
 		)
 }

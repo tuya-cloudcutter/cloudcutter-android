@@ -11,7 +11,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 class PingAction(
 	id: String,
 	title: Text,
-	nextId: String,
+	nextId: String?,
 	val mode: Mode,
 	val address: String,
 	val threshold: Int = when (mode) {
