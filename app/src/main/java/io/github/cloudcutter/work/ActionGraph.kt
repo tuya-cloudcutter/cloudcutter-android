@@ -131,6 +131,7 @@ class ActionGraph(private val work: WorkData) {
 	)
 
 	private fun buildLightleak(profile: ProfileLightleak.Data) = listOf(
+		/* UNCONFIGURED MODE */
 		MessageAction(
 			id = "message_custom_ap_connect",
 			type = MessageType.INFO,
@@ -204,18 +205,21 @@ class ActionGraph(private val work: WorkData) {
 			ssid = work.idleSsid,
 			timeout = 30_000,
 		),
+		/* UNCONFIGURED MODE */
 		MessageAction(
 			id = "message_device_reboot",
 			type = MessageType.INFO,
 			text = Text(R.string.message_device_reboot_ap_mode),
 			nextId = "connect_default_2",
 		),
+		/* STAGER MODE */
 		MessageAction(
 			id = "message_device_connect_2",
 			type = MessageType.INFO,
 			text = Text(R.string.message_enable_ap_pairing),
 			nextId = "connect_default_2",
 		),
+		/* UNCONFIGURED + STAGER MODES */
 		WiFiConnectAction(
 			id = "connect_default_2",
 			title = Text(R.string.action_connect_to_device),
@@ -271,6 +275,21 @@ class ActionGraph(private val work: WorkData) {
 				timerPeriods = listOf(3 * 60 * 1000), // 180000 ms
 			),
 		),
+		/* RUNNING MODE */
+		MessageAction(
+			id = "message_device_connect_3",
+			type = MessageType.INFO,
+			text = Text(R.string.message_running_mode_info),
+			nextId = "connect_default_3",
+		),
+		WiFiConnectAction(
+			id = "connect_default_3",
+			title = Text(R.string.action_connect_to_device),
+			nextId = "ping_found_5",
+			type = WiFiConnectAction.Type.DEVICE_DEFAULT,
+			ssid = null,
+		),
+		/* ALL MODES */
 		PingAction(
 			id = "ping_found_5",
 			title = Text(R.string.action_ping_respond),

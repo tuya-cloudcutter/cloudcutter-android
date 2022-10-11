@@ -19,6 +19,7 @@
 	<string name="action_packet_flash_write">Write %1$d bytes to 0x%2$X</string>
 	<string name="action_packet_stager">Connect smart device to CustomAP</string>
 	<string name="action_packet_stager_callback">Configure stager payload</string>
+	<string name="action_packet_stop_timer">Disable AP mode timeout</string>
 	<string name="action_ping_connect">Establish connection with the device</string>
 	<string name="action_ping_exploitable">Check if device is exploitable</string>
 	<string name="action_ping_lost">Wait for device to stop responding</string>
@@ -35,21 +36,25 @@
 	<string name="message_error_wifi_scan_timeout">Timed out while scanning for SSID \"%s\".\n\nThe device may have not entered or exited the AP mode.</string>
 	<string name="message_exploitable">Good news! The device seems to be exploitable.</string>
 	<string name="message_running">Cloudcutting is now in progress.\n\nThis window will show any notices or errors that may be important.</string>
+	<string name="message_running_mode_info">Do not reboot the device. It should be still blinking slowly (since the last Cloudcutter run).\n\nIf it\'s not in pairing mode, you have to go back and choose one of the first two connection modes.</string>
 	<string name="message_start_custom_ap">Make sure that the custom AP device is running and idle. The \"%s\" network has to be available for this to succeed.</string>
 	<string name="message_title_error">Error</string>
 	<string name="message_title_running">Running…</string>
 	<string name="message_type_info">Note</string>
 	<string name="message_type_success">Success!</string>
 	<string name="message_type_warning">Warning</string>
+	<string name="no">No</string>
+	<string name="ok">OK</string>
 	<string name="profile_type_classic">Classic</string>
 	<string name="profile_type_lightleak">Lightleak</string>
 	<string name="title_devices">Devices</string>
 	<string name="title_dumps">My Dumps</string>
 	<string name="title_profiles">Profiles</string>
 	<string name="title_work">Cloudcutter</string>
+	<string name="work_state_dialog_raw">Unconfigured</string>
+	<string name="work_state_dialog_running">Running - AP mode timeout disabled</string>
+	<string name="work_state_dialog_text">What is the current state of the device?\n\nThis may save you some time if you want to re-run the remote dump feature (i.e. in case of errors).\n\nIf in doubt, choose the first option. Other options will not work on a fresh device.\n\nClick OK to choose the state.</string>
 	<string name="work_state_dialog_title">Device state</string>
-	<string name="work_state_dialog_text">Is the device currently configured to join Lightleak CustomAP?\n\nThis may save you some time if you want to re-run the remote dump feature.\n\nThis will not work if you haven\'t run Lightleak before, or you have already paired the device with a different network.</string>
+	<string name="work_state_dialog_with_stager">Configured to join CustomAP</string>
 	<string name="yes">Yes</string>
-	<string name="no">No</string>
-	<string name="action_packet_stop_timer">Disable AP mode timeout</string>
 </resources>
