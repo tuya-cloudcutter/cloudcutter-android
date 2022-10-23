@@ -130,6 +130,7 @@ class WorkViewModel @Inject constructor(
 		}
 		pingJob?.cancel()
 		DummyAction(Text(R.string.action_finish)).start().end()
+		navigate(WorkFragmentDirections.actionMenuWorkToMenuLightleak(work.profile.slug))
 	}
 
 	private suspend fun runAction(state: ActionState): Action? {

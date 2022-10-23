@@ -103,6 +103,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 			R.string.work_state_dialog_raw,
 			R.string.work_state_dialog_with_stager,
 			R.string.work_state_dialog_running,
+			R.string.work_state_dialog_connected,
 		).map { requireContext().getString(it) }
 
 		MaterialAlertDialogBuilder(requireContext())
@@ -117,6 +118,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 							0 -> startWork(null)
 							1 -> startWork("message_device_connect_2")
 							2 -> startWork("message_device_connect_3")
+							3 -> startWork("ping_found_5")
 						}
 					}
 					.setCancelable(false)

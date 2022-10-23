@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) Kuba Szczodrzyński 2022-10-23.
+  -->
+
+<layout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<data>
+
+		<variable
+			name="vm"
+			type="io.github.cloudcutter.ui.lightleak.LightleakViewModel" />
+	</data>
+
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<Button
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="16dp"
+			android:enabled="@{!vm.progress}"
+			android:onClick="@{() -> vm.onReadKeyblockClick()}"
+			android:text="Read Keyblock"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/profileSubName" />
+
+		<ProgressBar
+			style="?android:attr/progressBarStyle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="16dp"
+			android:isVisible="@{vm.progress}"
+			app:layout_constraintBottom_toBottomOf="@+id/title"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/title" />
+
+		<TextView
+			android:id="@+id/title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:text="Device connected"
+			android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<TextView
+			android:id="@+id/profileName"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:text="@{vm.profile.name}"
+			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/title"
+			tools:text="1.0.1 - BK7231T" />
+
+		<TextView
+			android:id="@+id/profileSubName"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@{vm.profile.subName}"
+			android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/profileName"
+			tools:text="oem_bk7231s_ty_ffc_newdp" />
+	</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

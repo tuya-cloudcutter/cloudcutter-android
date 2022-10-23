@@ -26,6 +26,7 @@
 	<string name="action_ping_respond">Check if device still responds</string>
 	<string name="action_prepare">Prepare environment</string>
 	<string name="action_scanned_ssid">Found network: %s</string>
+	<string name="lightleak_service_name">Cloudcutter Lightleak Service</string>
 	<string name="message_device_reboot_ap_mode">The device exited AP mode and connected to the custom AP. Reboot the device into AP mode once again (usually only 1 reboot is needed now).</string>
 	<string name="message_enable_ap_pairing">Put the smart device in AP pairing mode. The light (or LED) should be blinking slowly (every 1–2 seconds).</string>
 	<string name="message_error_ping_found_timeout">The device doesn\'t respond to ping requests.\n\nThis usually means that an exploit is incompatible, making the device freeze instead of continuing running.\n\nIt can also mean that writing the payload didn\'t succeed, in which case you can try again.</string>
@@ -49,8 +50,10 @@
 	<string name="profile_type_lightleak">Lightleak</string>
 	<string name="title_devices">Devices</string>
 	<string name="title_dumps">My Dumps</string>
+	<string name="title_lightleak">Lightleak</string>
 	<string name="title_profiles">Profiles</string>
 	<string name="title_work">Cloudcutter</string>
+	<string name="work_state_dialog_connected">Connected to AP (timeout disabled)</string>
 	<string name="work_state_dialog_raw">Unconfigured</string>
 	<string name="work_state_dialog_running">Running - AP mode timeout disabled</string>
 	<string name="work_state_dialog_text">What is the current state of the device?\n\nThis may save you some time if you want to re-run the remote dump feature (i.e. in case of errors).\n\nIf in doubt, choose the first option. Other options will not work on a fresh device.\n\nClick OK to choose the state.</string>

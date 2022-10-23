@@ -30,6 +30,7 @@ fun Context.hasInternet(): Boolean {
 }
 
 fun ByteArray.toHexString() = joinToString(" ") { it.toUByte().toString(16).padStart(2, '0') }
+fun Collection<Byte>.toHexString() = joinToString(" ") { it.toUByte().toString(16).padStart(2, '0') }
 
 fun ByteArray.crc32() = CRC32().let { crc ->
 	crc.update(this@crc32)
