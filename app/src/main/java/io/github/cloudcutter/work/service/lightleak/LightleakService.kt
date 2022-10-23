@@ -8,7 +8,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.util.Log
-import com.hadilq.liveevent.LiveEvent
+import androidx.lifecycle.MutableLiveData
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import io.github.cloudcutter.data.model.ProfileLightleak
@@ -18,12 +18,16 @@ import io.github.cloudcutter.work.protocol.proper.FlashReadPacket
 import io.github.cloudcutter.work.protocol.send
 import io.github.cloudcutter.work.service.lightleak.command.CommandRequest
 import io.github.cloudcutter.work.service.lightleak.command.CommandResponse
+import io.github.cloudcutter.work.service.lightleak.command.FlashReadCommand
 import io.github.cloudcutter.work.service.lightleak.command.KeyblockReadCommand
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import java.net.InetAddress
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import kotlin.math.ceil
 import kotlin.math.min
 
@@ -34,7 +38,8 @@ class LightleakService : Service(), CoroutineScope {
 
 	override val coroutineContext = Job() + Dispatchers.IO
 	private val bus = Bus()
-	private val packets = LiveEvent<Pair<Int, ByteArray>>()
+	private val packets = Channel<Pair<Int, ByteArray>>(Channel.UNLIMITED)
+	private val progress = MutableLiveData<Int?>(null)
 	private lateinit var profile: ProfileLightleak.Data
 	private lateinit var returnIp: InetAddress
 
@@ -45,6 +50,9 @@ class LightleakService : Service(), CoroutineScope {
 		}
 
 	inner class ServiceBinder : Binder() {
+		val progress
+			get() = this@LightleakService.progress
+
 		fun setProfile(data: ProfileLightleak.Data) {
 			profile = data
 		}
@@ -91,9 +99,10 @@ class LightleakService : Service(), CoroutineScope {
 			val requestId = packet.readIntLittleEndian()
 			val crc32 = packet.readIntLittleEndian()
 			val data = packet.readBytes()
-			Log.d(TAG, "Got packet: requestId=$requestId, crc32=$crc32, data=${data.take(64).toHexString()}")
+			val dataString = data.take(64).toHexString()
+			Log.d(TAG, "Got packet: requestId=$requestId, crc32=$crc32, data=$dataString")
 			if (crc32 == data.crc32()) {
-				packets.postValue(requestId to data)
+				packets.send(requestId to data)
 			} else {
 				Log.e(TAG, "Packet CRC invalid. Got $crc32, expected ${data.crc32()}")
 			}
@@ -105,34 +114,72 @@ class LightleakService : Service(), CoroutineScope {
 		Log.d(TAG, "Running command: $command")
 		val response = when (command) {
 			is KeyblockReadCommand -> readKeyblock()
+			is FlashReadCommand -> flashRead(command.offset, command.offset + command.length)
 			else -> null
 		} ?: return@launch
-		bus.post(CommandResponse(command, response))
+		withContext(Dispatchers.Main) {
+			bus.post(CommandResponse(command, response))
+		}
 	}
 
 	private suspend fun flashRead(start: Int, end: Int): List<ByteArray> {
-		var offset = start
-		val readBlockSize = 0x1000
-		val readPacketSize = 1024f
-		val data = mutableListOf<ByteArray>()
-		while (offset < end) {
+		val readBlockSize = 0x4000
+		val readPacketSize = 1024
+
+		val size = end - start
+		val packetCount = ceil(size / readPacketSize.toFloat()).toInt()
+		val packetList = MutableList<ByteArray?>(packetCount) { null }
+		val packetOffsets = MutableList(packetCount) { start + readPacketSize * it }
+
+		var pauseCount = 0
+		while (true) {
+			val readIndex = packetList.indexOfFirst { it == null }
+			if (readIndex == -1)
+				break
+
 			val requestId = newRequestId
-			val readLength = min(readBlockSize, end - offset)
-			val readCount = ceil(readLength / readPacketSize).toInt()
+			// get offset for the index and calculate read length
+			val readOffset = packetOffsets[readIndex]
+			val readLength = min(readBlockSize, end - readOffset)
 			// read flash
+			Log.d(TAG, "Reading data #$readIndex, offset=0x${readOffset.toString(16)}")
 			FlashReadPacket(
 				profile = profile,
 				requestId = requestId,
-				offset = offset,
+				offset = readOffset,
 				length = readLength,
-				maxLength = readPacketSize.toInt(),
+				maxLength = readPacketSize,
 			).also { it.returnIp = returnIp }.send("192.168.175.1")
-			// wait for response
-			data += packets.awaitCount(requestId, count = readCount)
-			// increment reading address
-			offset += readLength
+
+			// wait a moment
+			if (pauseCount++ == 20)
+				delay(1000)
+			else
+				delay(100)
+
+			// receive all currently buffered packets
+			while (true) {
+				val result = packets.tryReceive()
+				if (!result.isSuccess)
+					break
+				val bytes = result.getOrThrow().second
+				val buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+				val offset = buf.int
+				val length = buf.int
+				val index = packetOffsets.indexOf(offset)
+				Log.d(TAG,
+					"Received data #$index, offset=0x${offset.toString(16)}, size=${bytes.size}")
+				packetList[index] = bytes.sliceArray(8 until length+8)
+			}
+
+			// check if all packets were received
+			val progress = packetList.count { it != null }
+			this.progress.postValue(progress * 100 / packetCount)
+			if (progress == packetCount)
+				break
 		}
-		return data
+		progress.postValue(null)
+		return packetList.filterNotNull()
 	}
 
 	private suspend fun readKeyblock(): List<ByteArray> {

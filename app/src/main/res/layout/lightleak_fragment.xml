@@ -20,22 +20,35 @@
 		android:layout_height="match_parent">
 
 		<Button
+			android:id="@+id/button2"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="16dp"
-			android:layout_marginTop="16dp"
+			android:layout_marginTop="8dp"
 			android:enabled="@{!vm.progress}"
 			android:onClick="@{() -> vm.onReadKeyblockClick()}"
 			android:text="Read Keyblock"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/profileSubName" />
+			app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+		<Button
+			android:id="@+id/button"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="8dp"
+			android:enabled="@{!vm.progress}"
+			android:onClick="@{() -> vm.onReadFlashClick()}"
+			android:text="Read Flash"
+			app:layout_constraintStart_toEndOf="@+id/button2"
+			app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
 		<ProgressBar
 			style="?android:attr/progressBarStyle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginEnd="16dp"
-			android:isVisible="@{vm.progress}"
+			android:isVisible="@{vm.progress &amp;&amp; vm.binder.progress == null}"
 			app:layout_constraintBottom_toBottomOf="@+id/title"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="@+id/title" />
@@ -73,5 +86,28 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/profileName"
 			tools:text="oem_bk7231s_ty_ffc_newdp" />
+
+		<ProgressBar
+			android:id="@+id/progressBar"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginEnd="16dp"
+			android:isVisible="@{vm.progress &amp;&amp; vm.binder.progress != null}"
+			android:progress="@{vm.binder.progress}"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/profileSubName" />
+
+		<TextView
+			android:id="@+id/hexView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="16dp"
+			android:fontFamily="monospace"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/button" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

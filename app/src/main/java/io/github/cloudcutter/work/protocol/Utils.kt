@@ -55,7 +55,7 @@ suspend fun IPacket.send(address: String) {
 	val packet = this.serialize()
 	withContext(Dispatchers.IO) {
 		send.writeFully(packet)
-		Log.d("IPacket", "Wrote packet: ${packet.toHexString()}")
+		// Log.d("IPacket", "Wrote packet: ${packet.toHexString()}")
 		socket.close()
 		selectorManager.close()
 	}

@@ -14,6 +14,7 @@ import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.repository.ProfileRepository
 import io.github.cloudcutter.ui.base.BaseViewModel
 import io.github.cloudcutter.work.service.lightleak.LightleakService
+import io.github.cloudcutter.work.service.lightleak.command.FlashReadCommand
 import io.github.cloudcutter.work.service.lightleak.command.KeyblockReadCommand
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,6 +32,8 @@ class LightleakViewModel @Inject constructor(
 	val progress = MutableLiveData<Boolean>()
 	val profile = MutableLiveData<ProfileLightleak>()
 	var binder: LightleakService.ServiceBinder? = null
+
+	var result = MutableLiveData<List<ByteArray>>()
 
 	suspend fun prepare(profileSlug: String) {
 		if (isPrepared)
@@ -51,5 +54,14 @@ class LightleakViewModel @Inject constructor(
 		val response: List<ByteArray> = binder?.execute(KeyblockReadCommand()) ?: return@launch
 		Log.d(TAG, response.toString())
 		progress.postValue(false)
+		result.postValue(response)
+	}
+
+	fun onReadFlashClick() = viewModelScope.launch {
+		progress.postValue(true)
+		val response: List<ByteArray> = binder?.execute(FlashReadCommand(0x000000, 0x200000)) ?: return@launch
+//		Log.d(TAG, response.toString())
+		progress.postValue(false)
+		result.postValue(response)
 	}
 }

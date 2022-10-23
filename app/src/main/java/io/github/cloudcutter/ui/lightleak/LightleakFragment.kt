@@ -23,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.databinding.LightleakFragmentBinding
+import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ui.base.BaseFragment
 import io.github.cloudcutter.work.service.lightleak.LightleakService
 import kotlinx.coroutines.CoroutineScope
@@ -62,6 +63,23 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 		super.onViewCreated(view, savedInstanceState)
 		b.vm = vm
 		vm.progress.postValue(true)
+
+		vm.result.observe(viewLifecycleOwner) { result ->
+			val bytes = result.take(2).flatMap { it.toList() }
+			val text = bytes.chunked(16).mapIndexed { index, chunk ->
+				val offset = (index * 16).toString(16).padStart(6, '0')
+				val part1 = chunk.subList(0, 8).toHexString()
+				val part2 = chunk.subList(8, 16).toHexString()
+				val ascii = chunk.map {
+					if (it in 32..127)
+						it.toInt().toChar()
+					else
+						'.'
+				}.joinToString("")
+				"$offset  $part1  $part2  |$ascii|"
+			}
+			b.hexView.text = text.joinToString("\n")
+		}
 	}
 
 	override fun onStart() {
