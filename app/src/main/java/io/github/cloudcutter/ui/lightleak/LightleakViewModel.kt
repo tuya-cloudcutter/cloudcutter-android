@@ -5,17 +5,16 @@
 package io.github.cloudcutter.ui.lightleak
 
 import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.cloudcutter.data.api.ApiService
-import io.github.cloudcutter.data.model.Profile
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.repository.ProfileRepository
 import io.github.cloudcutter.ui.base.BaseViewModel
 import io.github.cloudcutter.work.service.lightleak.LightleakService
 import io.github.cloudcutter.work.service.lightleak.command.FlashReadCommand
-import io.github.cloudcutter.work.service.lightleak.command.KeyblockReadCommand
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,6 +31,12 @@ class LightleakViewModel @Inject constructor(
 	val progress = MutableLiveData<Boolean>()
 	val profile = MutableLiveData<ProfileLightleak>()
 	var binder: LightleakService.ServiceBinder? = null
+		set(value) {
+			field = value
+			value?.setProfile(profile.value?.data ?: return)
+		}
+
+	lateinit var output: DocumentFile
 
 	var result = MutableLiveData<List<ByteArray>>()
 
@@ -42,7 +47,6 @@ class LightleakViewModel @Inject constructor(
 		val profile = profileRepository.getProfile(profileSlug) as? ProfileLightleak ?: return
 		Log.d(TAG, "Profile: $profile")
 
-		this.binder?.setProfile(profile.data)
 		this.profile.postValue(profile)
 
 		isPrepared = true
@@ -50,17 +54,19 @@ class LightleakViewModel @Inject constructor(
 	}
 
 	fun onReadKeyblockClick() = viewModelScope.launch {
-		progress.postValue(true)
-		val response: List<ByteArray> = binder?.execute(KeyblockReadCommand()) ?: return@launch
-		Log.d(TAG, response.toString())
-		progress.postValue(false)
-		result.postValue(response)
+		val offset = 0x200000 - 0x3000 - 0xE000 - 0x1000
+		val length = 0x1000 + 0xE000 // incl. encrypted key, excl. swap
+		flashRead(offset, length)
 	}
 
 	fun onReadFlashClick() = viewModelScope.launch {
+		flashRead(0x000000, 0x200000)
+	}
+
+	private suspend fun flashRead(start: Int, length: Int) {
 		progress.postValue(true)
-		val response: List<ByteArray> = binder?.execute(FlashReadCommand(0x000000, 0x200000)) ?: return@launch
-//		Log.d(TAG, response.toString())
+		val response: List<ByteArray> = binder?.execute(FlashReadCommand(start, length, output)) ?: return
+		Log.d(TAG, response.toString())
 		progress.postValue(false)
 		result.postValue(response)
 	}

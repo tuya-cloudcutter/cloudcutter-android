@@ -13,11 +13,17 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.DocumentsContract
 import android.util.Log
 import android.view.View
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.getSystemService
+import androidx.core.net.toFile
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -31,13 +37,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.RandomAccessFile
 import java.net.Inet4Address
 import java.net.InetAddress
+import java.net.URI
 
 @AndroidEntryPoint
 class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, parent ->
 	LightleakFragmentBinding.inflate(inflater, parent, false)
-}), CoroutineScope, ServiceConnection {
+}), CoroutineScope, ServiceConnection, ActivityResultCallback<Uri?> {
 	companion object {
 		private const val TAG = "LightleakFragment"
 	}
@@ -64,6 +73,17 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 		b.vm = vm
 		vm.progress.postValue(true)
 
+		val launcher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree(), this)
+		launcher.launch(null)
+
+		lifecycleScope.launch {
+			withContext(Dispatchers.IO) {
+				vm.prepare(args.profileSlug)
+			}
+			// force setting the profile
+			vm.binder = vm.binder
+		}
+
 		vm.result.observe(viewLifecycleOwner) { result ->
 			val bytes = result.take(2).flatMap { it.toList() }
 			val text = bytes.chunked(16).mapIndexed { index, chunk ->
@@ -80,6 +100,14 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 			}
 			b.hexView.text = text.joinToString("\n")
 		}
+	}
+
+	override fun onActivityResult(uri: Uri?) {
+		uri ?: return
+		val tree = DocumentFile.fromTreeUri(requireContext(), uri)
+			?: return
+		vm.output = tree.createFile("application/octet-stream", "dump.bin")
+			?: return
 	}
 
 	override fun onStart() {
@@ -104,12 +132,6 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 				.removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
 		connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
 		connectivityManager?.requestNetwork(networkRequest, networkCallback)
-
-		lifecycleScope.launch {
-			withContext(Dispatchers.IO) {
-				vm.prepare(args.profileSlug)
-			}
-		}
 	}
 
 	override fun onServiceDisconnected(className: ComponentName?) {

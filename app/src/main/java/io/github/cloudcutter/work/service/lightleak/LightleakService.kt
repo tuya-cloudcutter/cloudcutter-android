@@ -8,6 +8,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
@@ -19,15 +20,24 @@ import io.github.cloudcutter.work.protocol.send
 import io.github.cloudcutter.work.service.lightleak.command.CommandRequest
 import io.github.cloudcutter.work.service.lightleak.command.CommandResponse
 import io.github.cloudcutter.work.service.lightleak.command.FlashReadCommand
-import io.github.cloudcutter.work.service.lightleak.command.KeyblockReadCommand
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.core.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.RandomAccessFile
 import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.nio.channels.FileChannel
 import kotlin.math.ceil
 import kotlin.math.min
 
@@ -113,8 +123,11 @@ class LightleakService : Service(), CoroutineScope {
 	fun onCommand(command: CommandRequest) = launch {
 		Log.d(TAG, "Running command: $command")
 		val response = when (command) {
-			is KeyblockReadCommand -> readKeyblock()
-			is FlashReadCommand -> flashRead(command.offset, command.offset + command.length)
+			is FlashReadCommand -> flashRead(
+				start = command.offset,
+				end = command.offset + command.length,
+				output = command.output,
+			)
 			else -> null
 		} ?: return@launch
 		withContext(Dispatchers.Main) {
@@ -122,7 +135,7 @@ class LightleakService : Service(), CoroutineScope {
 		}
 	}
 
-	private suspend fun flashRead(start: Int, end: Int): List<ByteArray> {
+	private suspend fun flashRead(start: Int, end: Int, output: DocumentFile): List<ByteArray> {
 		val readBlockSize = 0x4000
 		val readPacketSize = 1024
 
@@ -169,7 +182,7 @@ class LightleakService : Service(), CoroutineScope {
 				val index = packetOffsets.indexOf(offset)
 				Log.d(TAG,
 					"Received data #$index, offset=0x${offset.toString(16)}, size=${bytes.size}")
-				packetList[index] = bytes.sliceArray(8 until length+8)
+				packetList[index] = bytes.sliceArray(8 until length + 8)
 			}
 
 			// check if all packets were received
@@ -179,12 +192,20 @@ class LightleakService : Service(), CoroutineScope {
 				break
 		}
 		progress.postValue(null)
-		return packetList.filterNotNull()
-	}
 
-	private suspend fun readKeyblock(): List<ByteArray> {
-		val offset = 0x200000 - 0x3000 - 0xE000 - 0x1000
-		val length = 0x1000 + 0xE000 // incl. encrypted key, excl. swap
-		return flashRead(offset, offset + length)
+		withContext(Dispatchers.IO) {
+			contentResolver.openFileDescriptor(output.uri, "rw").use { pfd ->
+				val stream = FileOutputStream(pfd?.fileDescriptor ?: return@use)
+				val channel = stream.channel
+				channel.position(start.toLong())
+				for (chunk in packetList) {
+					if (chunk == null)
+						continue
+					channel.write(ByteBuffer.wrap(chunk))
+				}
+			}
+		}
+
+		return packetList.filterNotNull()
 	}
 }
