@@ -29,34 +29,19 @@ class ProfileLightleak(
 	data,
 ) {
 
-	data class Data(
-		@Json(name = "address_map") val addressMap: AddressMap,
+	open class Data(
+		val type: Type,
 		val bins: Binaries,
-		val gadgets: List<Gadget>,
 	) {
 
-		data class AddressMap(
-			val magic: Int,
-			val stager: Int,
-			val buffer: Int,
-			val store: Int,
-			val intf: Int,
-		)
+		enum class Type {
+			BK7231T,
+			BK7231N,
+		}
 
 		data class Binaries(
 			val stager: String,
 			val proper: String,
 		)
-
-		class Gadget(
-			val name: String,
-			@Json(name = "intf_offset") val intfOffset: Int?,
-			val map: Map<Long, Int>,
-		) {
-			fun getStoreOffset(data: Data) =
-				intfOffset?.plus(data.addressMap.intf) ?: data.addressMap.store
-		}
-
-		fun getGadget(name: String) = gadgets.first { it.name == name }
 	}
 }

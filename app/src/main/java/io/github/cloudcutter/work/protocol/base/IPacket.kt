@@ -4,9 +4,6 @@
 
 package io.github.cloudcutter.work.protocol.base
 
-import io.github.cloudcutter.work.protocol.DGRAM_SIZE
-import io.github.cloudcutter.work.protocol.OPT_LENGTH
-
 interface IPacket {
 
 	/**
@@ -33,9 +30,4 @@ interface IPacket {
 	 * Get offset of first command byte.
 	 */
 	fun getCommandOffset(): Int = 0x48
-
-	/**
-	 * Get offset of first options byte.
-	 */
-	fun getOptionsOffset(): Int = DGRAM_SIZE - OPT_LENGTH - 4
 }

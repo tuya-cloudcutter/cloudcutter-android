@@ -57,11 +57,12 @@ abstract class BasePacket : IPacket {
 
 		val command = getCommand()
 		val options = getOptions()
+		val optionsOffset = DGRAM_SIZE - (options?.size?.plus(4) ?: 0)
 
 		if (command != null) {
 			if (buf.position() > getCommandOffset())
 				throw IllegalArgumentException("Payload too long to store a command")
-			if (command.size > getOptionsOffset() - getCommandOffset())
+			if (command.size > optionsOffset - getCommandOffset())
 				throw IllegalArgumentException("Command too long")
 			if (options == null)
 				throw IllegalArgumentException("Specified command with no options")
@@ -70,9 +71,7 @@ abstract class BasePacket : IPacket {
 		}
 
 		if (options != null) {
-			if (options.size != OPT_LENGTH)
-				throw IllegalArgumentException("Invalid options length")
-			buf.position(getOptionsOffset())
+			buf.position(optionsOffset)
 			buf.put(options)
 			buf.putInt(OPT_MARKER)
 		}

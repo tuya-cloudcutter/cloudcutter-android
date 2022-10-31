@@ -4,10 +4,6 @@
 
 package io.github.cloudcutter.work.protocol
 
-import android.util.Log
-import io.github.cloudcutter.ext.toHexString
-import io.github.cloudcutter.ui.work.WorkViewModel
-import io.github.cloudcutter.work.protocol.base.BasePacket
 import io.github.cloudcutter.work.protocol.base.IPacket
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*

@@ -2,14 +2,13 @@
  * Copyright (c) Kuba Szczodrzyński 2022-9-26.
  */
 
-package io.github.cloudcutter.work.protocol.stager
+package io.github.cloudcutter.work.protocol.stager.bk7231t
 
-import io.github.cloudcutter.data.model.ProfileLightleak
-import io.github.cloudcutter.work.protocol.CMD_RUN_PTR
+import io.github.cloudcutter.data.model.ProfileLightleakDataT
 import io.github.cloudcutter.work.protocol.buildByteArray
 
 abstract class CallPtrPacket(
-	profile: ProfileLightleak.Data,
+	profile: ProfileLightleakDataT,
 ) : StagerPacket(profile) {
 
 	abstract val arg1: Int

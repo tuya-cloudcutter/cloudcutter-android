@@ -2,15 +2,14 @@
  * Copyright (c) Kuba Szczodrzyński 2022-9-26.
  */
 
-package io.github.cloudcutter.work.protocol.stager
+package io.github.cloudcutter.work.protocol.stager.bk7231t
 
-import io.github.cloudcutter.data.model.ProfileLightleak
-import io.github.cloudcutter.work.protocol.CMD_FINISH
+import io.github.cloudcutter.data.model.ProfileLightleakDataT
 import io.github.cloudcutter.work.protocol.buildByteArray
 
 data class DetectionPacket(
-	val profile: ProfileLightleak.Data,
-	val gadget: ProfileLightleak.Data.Gadget,
+	private val profile: ProfileLightleakDataT,
+	private val gadget: ProfileLightleakDataT.Gadget,
 ) : StagerPacket(profile) {
 
 	override val storeAddress =

@@ -2,15 +2,14 @@
  * Copyright (c) Kuba Szczodrzyński 2022-9-26.
  */
 
-package io.github.cloudcutter.work.protocol.stager
+package io.github.cloudcutter.work.protocol.stager.bk7231t
 
-import io.github.cloudcutter.data.model.ProfileLightleak
-import io.github.cloudcutter.work.protocol.CMD_FINISH
+import io.github.cloudcutter.data.model.ProfileLightleakDataT
 import io.github.cloudcutter.work.protocol.buildByteArray
 import io.github.cloudcutter.work.protocol.getFinishToken
 
 data class CallbackPacket(
-	val profile: ProfileLightleak.Data,
+	private val profile: ProfileLightleakDataT,
 ) : StagerPacket(profile) {
 
 	override fun getJsonFields() = mapOf(

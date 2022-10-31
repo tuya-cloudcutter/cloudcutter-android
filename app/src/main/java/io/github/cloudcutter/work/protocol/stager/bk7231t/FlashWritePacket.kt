@@ -2,13 +2,13 @@
  * Copyright (c) Kuba Szczodrzyński 2022-9-27.
  */
 
-package io.github.cloudcutter.work.protocol.stager
+package io.github.cloudcutter.work.protocol.stager.bk7231t
 
-import io.github.cloudcutter.data.model.ProfileLightleak
+import io.github.cloudcutter.data.model.ProfileLightleakDataT
 
 data class FlashWritePacket(
-	val profile: ProfileLightleak.Data,
-	val offset: Int,
+	private val profile: ProfileLightleakDataT,
+	private val offset: Int,
 	override val data: ByteArray,
 ) : CallPtrPacket(profile) {
 
