@@ -15,6 +15,8 @@ import io.github.cloudcutter.data.model.Profile
 import io.github.cloudcutter.data.model.ProfileBase
 import io.github.cloudcutter.data.model.ProfileClassic
 import io.github.cloudcutter.data.model.ProfileLightleak
+import io.github.cloudcutter.data.model.ProfileLightleakDataN
+import io.github.cloudcutter.data.model.ProfileLightleakDataT
 import io.github.cloudcutter.util.MoshiIconAdapter
 import javax.inject.Singleton
 
@@ -24,16 +26,30 @@ class DataModule {
 
 	@Singleton
 	@Provides
-	fun provideJsonFactory(): PolymorphicJsonAdapterFactory<Profile<*>> =
-		PolymorphicJsonAdapterFactory.of(Profile::class.java, "type")
-			.withSubtype(ProfileClassic::class.java, ProfileBase.Type.CLASSIC.name)
-			.withSubtype(ProfileLightleak::class.java, ProfileBase.Type.LIGHTLEAK.name)
-
-	@Singleton
-	@Provides
-	fun provideMoshi(factory: PolymorphicJsonAdapterFactory<Profile<*>>): Moshi =
+	fun provideMoshi(): Moshi =
 		Moshi.Builder()
-			.add(factory)
+			.add(
+				PolymorphicJsonAdapterFactory.of(Profile::class.java, "type")
+					.withSubtype(
+						ProfileClassic::class.java,
+						ProfileBase.Type.CLASSIC.name,
+					)
+					.withSubtype(
+						ProfileLightleak::class.java,
+						ProfileBase.Type.LIGHTLEAK.name,
+					)
+			)
+			.add(
+				PolymorphicJsonAdapterFactory.of(ProfileLightleak.Data::class.java, "type")
+					.withSubtype(
+						ProfileLightleakDataT::class.java,
+						ProfileLightleak.Data.Type.BK7231T.name,
+					)
+					.withSubtype(
+						ProfileLightleakDataN::class.java,
+						ProfileLightleak.Data.Type.BK7231N.name,
+					)
+			)
 			.add(MoshiIconAdapter())
 			.addLast(KotlinJsonAdapterFactory())
 			.build()

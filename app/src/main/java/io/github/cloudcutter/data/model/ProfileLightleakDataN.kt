@@ -24,7 +24,7 @@ class ProfileLightleakDataN(
 		val name: String,
 		@Json(name = "intf_offset") val intfOffset: Int?,
 		val address: Int,
-		@Json(name = "branch_offset") val branchOffset: Int,
+		@Json(name = "branch_offset") val branchOffset: Int?,
 	)
 
 	fun getGadget(name: String) = gadgets.first { it.name == name }

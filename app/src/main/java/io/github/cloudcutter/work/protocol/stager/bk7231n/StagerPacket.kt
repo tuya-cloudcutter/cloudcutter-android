@@ -29,7 +29,7 @@ abstract class StagerPacket(
 		val buf = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN)
 		buf.putInt(target.address)
 		buf.putInt(fd)
-		buf.putInt(target.branchOffset)
+		buf.putInt(target.branchOffset ?: 0)
 		buf.putInt(profile.addressMap.handle)
 		return buf.array()
 	}

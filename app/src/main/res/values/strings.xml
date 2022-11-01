@@ -17,8 +17,11 @@
 	<string name="action_packet_detect_gadget">Find function address: %s</string>
 	<string name="action_packet_flash_erase">Erase flash at 0x%X</string>
 	<string name="action_packet_flash_write">Write %1$d bytes to 0x%2$X</string>
+	<string name="action_packet_proper_fill_intf">Send interface addresses</string>
 	<string name="action_packet_stager">Connect smart device to CustomAP</string>
 	<string name="action_packet_stager_callback">Configure stager payload</string>
+	<string name="action_packet_stager_flash_open">Open flash device</string>
+	<string name="action_packet_stager_flash_unprotect">Unprotect flash</string>
 	<string name="action_packet_stop_timer">Disable AP mode timeout</string>
 	<string name="action_ping_connect">Establish connection with the device</string>
 	<string name="action_ping_exploitable">Check if device is exploitable</string>

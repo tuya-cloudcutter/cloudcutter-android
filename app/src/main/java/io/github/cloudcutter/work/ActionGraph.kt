@@ -10,6 +10,7 @@ import io.github.cloudcutter.data.api.ApiService
 import io.github.cloudcutter.data.api.checkResponse
 import io.github.cloudcutter.data.model.ProfileClassic
 import io.github.cloudcutter.data.model.ProfileLightleak
+import io.github.cloudcutter.data.model.ProfileLightleakDataN
 import io.github.cloudcutter.data.model.ProfileLightleakDataT
 import io.github.cloudcutter.ext.roundTo
 import io.github.cloudcutter.ext.toHexString
@@ -238,6 +239,7 @@ class ActionGraph(private val work: WorkData) {
 		/* STAGER TYPE-DEPENDENT ACTIONS */
 		*when (profile) {
 			is ProfileLightleakDataT -> ActionGraphLightleakT(work, profile).getActions()
+			is ProfileLightleakDataN -> ActionGraphLightleakN(work, profile).getActions()
 			else -> throw IllegalArgumentException("Invalid profile data type")
 		},
 		/* RUNNING MODE */

