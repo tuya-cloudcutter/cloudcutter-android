@@ -14,8 +14,8 @@ android {
         applicationId "io.github.cloudcutter"
         minSdk 21
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 10
+        versionName "0.1.0"
     }
 
     buildTypes {
