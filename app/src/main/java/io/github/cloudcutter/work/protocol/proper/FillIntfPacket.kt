@@ -21,7 +21,7 @@ class FillIntfPacket(
 		val gadgets = getGadgetAddresses()
 		return@lazy buildByteArray(
 			size = 4 + gadgets.size,
-			gadgets.size,
+			gadgets.size / 4,
 			gadgets,
 		)
 	}

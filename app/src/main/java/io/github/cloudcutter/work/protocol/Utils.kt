@@ -20,6 +20,7 @@ fun buildByteArray(size: Int, vararg items: Any): ByteArray {
 		when (item) {
 			is String -> buf.put(item.toByteArray())
 			is Int -> buf.putInt(item)
+			is Float -> buf.putInt(item.toInt())
 			is Long -> buf.putInt(item.toInt())
 			is ByteArray -> buf.put(item)
 			is Char -> buf.put(item.code.toByte())

@@ -66,26 +66,26 @@ class ActionGraphLightleakN(
 			packet = DDevControlPacket(
 				profile = profile,
 				command = DDevCommand.FLASH_SET_PROTECT,
-				param = buildByteArray(size = 4, 2),
+				param = buildByteArray(size = 4, 0 /* FLASH_PROTECT_NONE */ ),
 			),
 		),
 		PingAction(
 			id = "ping_found_4",
 			title = Text(R.string.action_ping_respond),
-			nextId = "fill_intf",
+			nextId = "flash_erase",
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
 		),
+		*getProperWriteActions(nextId = "fill_intf"),
 		PacketAction(
 			id = "fill_intf",
 			title = Text(R.string.action_packet_proper_fill_intf),
-			nextId = "flash_erase",
+			nextId = "proper_stop_timer",
 			packet = FillIntfPacket(
 				profile = profile,
 				requestId = 0x1234,
 			),
 		),
-		*getProperWriteActions(nextId = "proper_stop_timer"),
 		PacketAction(
 			id = "proper_stop_timer",
 			title = Text(R.string.action_packet_stop_timer),
