@@ -50,6 +50,7 @@ class WorkViewModel @Inject constructor(
 	val stateChangedIndex = Channel<Int>()
 
 	val event = LiveEvent<Event>()
+	var localAddress: InetAddress = InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1))
 
 	private var messageRemove: Boolean? = null
 	private var pingJob: Deferred<Unit>? = null
@@ -163,11 +164,8 @@ class WorkViewModel @Inject constructor(
 	}
 
 	private suspend fun runPacketAction(action: PacketAction) {
-		if (action.packet is ProperPacket) {
-			event.postValue(LocalIpRequest())
-			val localAddress = event.await<LocalIpResponse>().address
+		if (action.packet is ProperPacket)
 			action.packet.returnIp = localAddress
-		}
 
 		for (i in 0 until 3) {
 			action.packet.send(work.targetBroadcast)

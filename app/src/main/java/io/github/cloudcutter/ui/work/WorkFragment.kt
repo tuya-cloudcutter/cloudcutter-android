@@ -48,7 +48,6 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 	override val coroutineContext = Job() + Dispatchers.Main
 	override val vm: WorkViewModel by viewModels()
 	private val args: WorkFragmentArgs by navArgs()
-	private var localAddress: InetAddress = InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1))
 	private var defaultIcon: IconicsDrawable? = null
 	private var anim: ObjectAnimator? = null
 
@@ -57,7 +56,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 
 	private val networkCallback = object : NetworkCallback() {
 		override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-			localAddress =
+			vm.localAddress =
 				linkProperties.linkAddresses.map { it.address }.firstOrNull { it is Inet4Address }
 					?: return
 		}
@@ -171,7 +170,6 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 
 	private suspend fun handleEvent(event: Event) {
 		when (event) {
-			is LocalIpRequest -> vm.event.postValue(LocalIpResponse(localAddress))
 			is MessageEvent -> {
 				b.messageCard.isVisible = true
 				if (defaultIcon == null) defaultIcon = b.messageIcon.icon
