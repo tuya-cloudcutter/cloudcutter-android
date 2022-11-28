@@ -7,7 +7,7 @@ on:
 
 jobs:
   prepare:
-    name: Prepare build environment
+    name: Build APK release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
