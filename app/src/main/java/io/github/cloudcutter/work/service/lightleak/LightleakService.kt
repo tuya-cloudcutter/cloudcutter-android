@@ -166,9 +166,9 @@ class LightleakService : Service(), CoroutineScope {
 
 			// wait a moment
 			if (pauseCount++ == 20)
-				delay(1000)
+				delay(500)
 			else
-				delay(100)
+				delay(20)
 
 			// receive all currently buffered packets
 			while (true) {
