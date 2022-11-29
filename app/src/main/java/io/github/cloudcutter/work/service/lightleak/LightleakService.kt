@@ -165,8 +165,8 @@ class LightleakService : Service(), CoroutineScope {
 			).also { it.returnIp = returnIp }.send("192.168.175.1")
 
 			// wait a moment
-			if (pauseCount++ == 20)
-				delay(500)
+			if (pauseCount++ == 100)
+				delay(2000)
 			else
 				delay(20)
 
