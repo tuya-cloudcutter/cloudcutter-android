@@ -20,35 +20,34 @@
 		android:layout_height="match_parent">
 
 		<Button
-			android:id="@+id/button2"
+			android:id="@+id/buttonReadFlash"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="16dp"
 			android:layout_marginTop="8dp"
-			android:enabled="@{!vm.progress}"
-			android:onClick="@{() -> vm.onReadKeyblockClick()}"
-			android:text="Read Keyblock"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/progressBar" />
-
-		<Button
-			android:id="@+id/button"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="16dp"
-			android:layout_marginTop="8dp"
-			android:enabled="@{!vm.progress}"
+			android:enabled="@{!vm.progressRunning}"
 			android:onClick="@{() -> vm.onReadFlashClick()}"
 			android:text="Read Flash"
-			app:layout_constraintStart_toEndOf="@+id/button2"
-			app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/progressText" />
+
+		<Button
+			android:id="@+id/buttonReadStorage"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:enabled="@{!vm.progressRunning}"
+			android:onClick="@{() -> vm.onReadKeyblockClick()}"
+			android:text="Read Storage"
+			app:layout_constraintStart_toEndOf="@+id/buttonReadFlash"
+			app:layout_constraintTop_toTopOf="@+id/buttonReadFlash" />
 
 		<ProgressBar
 			style="?android:attr/progressBarStyle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginEnd="16dp"
-			android:isVisible="@{vm.progress &amp;&amp; vm.binder.progress == null}"
+			android:isVisible="@{vm.progressRunning &amp;&amp; vm.progressValue == null}"
 			app:layout_constraintBottom_toBottomOf="@+id/title"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="@+id/title" />
@@ -81,7 +80,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@{vm.profile.subName}"
-			android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/profileName"
@@ -93,12 +92,13 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="16dp"
+			android:layout_marginTop="8dp"
 			android:layout_marginEnd="16dp"
-			android:isVisible="@{vm.progress &amp;&amp; vm.binder.progress != null}"
-			android:progress="@{vm.binder.progress}"
+			android:isVisible="@{vm.progressRunning &amp;&amp; vm.progressValue != null}"
+			android:progress="@{vm.progressValue}"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/profileSubName" />
+			app:layout_constraintTop_toBottomOf="@+id/outputDirectory" />
 
 		<TextView
 			android:id="@+id/hexView"
@@ -108,6 +108,48 @@
 			android:layout_marginTop="16dp"
 			android:fontFamily="monospace"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/button" />
+			app:layout_constraintTop_toBottomOf="@+id/buttonReadFlash" />
+
+		<TextView
+			android:id="@+id/progressText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+			app:layout_constraintStart_toStartOf="@+id/progressBar"
+			app:layout_constraintTop_toBottomOf="@+id/progressBar"
+			tools:text="56% - 1.12 MiB" />
+
+		<TextView
+			android:id="@+id/readSpeed"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+			app:layout_constraintEnd_toEndOf="@+id/progressBar"
+			app:layout_constraintTop_toBottomOf="@+id/progressBar"
+			tools:text="65.1 KiB/s" />
+
+		<TextView
+			android:id="@+id/outputTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:text="Output directory"
+			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/profileSubName" />
+
+		<TextView
+			android:id="@+id/outputDirectory"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginEnd="16dp"
+			android:gravity="center"
+			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/outputTitle"
+			tools:text="/storage/emulated/0/Android/data/io.github.cloudcutter/2022-11-29_11-21-06_lightleak/" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

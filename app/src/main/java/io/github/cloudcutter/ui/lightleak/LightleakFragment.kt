@@ -13,17 +13,11 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
-import android.provider.DocumentsContract
 import android.util.Log
 import android.view.View
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.getSystemService
-import androidx.core.net.toFile
-import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -31,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.databinding.LightleakFragmentBinding
 import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ext.toHexString
+import io.github.cloudcutter.ext.toReadableSize
 import io.github.cloudcutter.ui.base.BaseFragment
 import io.github.cloudcutter.work.service.lightleak.LightleakService
 import kotlinx.coroutines.CoroutineScope
@@ -38,11 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.RandomAccessFile
 import java.net.Inet4Address
-import java.net.InetAddress
-import java.net.URI
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -57,6 +48,9 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override val coroutineContext = Job() + Dispatchers.Main
 	override val vm: LightleakViewModel by viewModels()
 	private val args: LightleakFragmentArgs by navArgs()
+
+	private var progressLast = 0
+	private var progressLastAt = 0L
 
 	private val connectivityManager
 		get() = context?.getSystemService<ConnectivityManager>()
@@ -74,16 +68,38 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 		b.vm = vm
-		vm.progress.postValue(true)
+		vm.progressRunning.postValue(true)
 
 		val filesDir = requireContext().getExternalFilesDir(null) ?: requireContext().filesDir
 		val dirName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
 		vm.outputDir = filesDir.openChild("${dirName}_lightleak")
+		b.outputDirectory.text = vm.outputDir.absolutePath
 
 		lifecycleScope.launch {
 			withContext(Dispatchers.IO) {
 				vm.prepare(args.profileSlug)
 			}
+		}
+
+		vm.progressBytes.observe(viewLifecycleOwner) { progress ->
+			if (progress == null) {
+				b.readSpeed.text = null
+				b.progressText.text = null
+				return@observe
+			}
+			val now = System.currentTimeMillis()
+			if (progressLast != 0) {
+				val readBytes = progress - progressLast
+				val readTime = now - progressLastAt
+				val readSpeed = ((1000f / readTime) * readBytes).toInt()
+				val percentage = vm.progressValue.value ?: 0
+				b.progressText.text = "$percentage% - " + progress.toReadableSize()
+				if (readSpeed != 0) {
+					b.readSpeed.text = readSpeed.toReadableSize("iB/s")
+				}
+			}
+			progressLast = progress
+			progressLastAt = now
 		}
 
 		vm.result.observe(viewLifecycleOwner) { result ->
@@ -113,6 +129,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 
 	override fun onStop() {
 		super.onStop()
+		vm.cancel()
 		context?.unbindService(this)
 		onServiceDisconnected(null)
 	}

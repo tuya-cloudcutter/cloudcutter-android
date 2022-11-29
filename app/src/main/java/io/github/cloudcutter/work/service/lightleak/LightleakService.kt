@@ -8,7 +8,6 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.util.Log
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
@@ -32,12 +31,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileOutputStream
-import java.io.RandomAccessFile
 import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.channels.FileChannel
 import kotlin.math.ceil
 import kotlin.math.min
 
@@ -49,9 +45,11 @@ class LightleakService : Service(), CoroutineScope {
 	override val coroutineContext = Job() + Dispatchers.IO
 	private val bus = Bus()
 	private val packets = Channel<Pair<Int, ByteArray>>(Channel.UNLIMITED)
-	private val progress = MutableLiveData<Int?>(null)
+
 	private lateinit var profile: ProfileLightleak.Data
 	private lateinit var returnIp: InetAddress
+	private var progressValue: MutableLiveData<Int?>? = null
+	private var progressBytes: MutableLiveData<Int?>? = null
 
 	private var newRequestId = 1
 		get() {
@@ -60,11 +58,14 @@ class LightleakService : Service(), CoroutineScope {
 		}
 
 	inner class ServiceBinder : Binder() {
-		val progress
-			get() = this@LightleakService.progress
-
-		fun setProfile(data: ProfileLightleak.Data) {
-			profile = data
+		fun setData(
+			profile: ProfileLightleak.Data?,
+			progressValue: MutableLiveData<Int?>,
+			progressBytes: MutableLiveData<Int?>,
+		) {
+			this@LightleakService.progressValue = progressValue
+			this@LightleakService.progressBytes = progressBytes
+			this@LightleakService.profile = profile ?: return
 		}
 
 		fun setReturnIp(ip: InetAddress) {
@@ -187,11 +188,13 @@ class LightleakService : Service(), CoroutineScope {
 
 			// check if all packets were received
 			val progress = packetList.count { it != null }
-			this.progress.postValue(progress * 100 / packetCount)
+			this.progressValue?.postValue(progress * 100 / packetCount)
+			this.progressBytes?.postValue(progress * readPacketSize)
 			if (progress == packetCount)
 				break
 		}
-		progress.postValue(null)
+		progressValue?.postValue(null)
+		progressBytes?.postValue(null)
 
 		withContext(Dispatchers.IO) {
 			output.outputStream().use { stream ->

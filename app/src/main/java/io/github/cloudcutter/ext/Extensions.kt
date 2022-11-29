@@ -10,7 +10,10 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.content.getSystemService
 import java.io.File
+import java.text.DecimalFormat
 import java.util.zip.CRC32
+import kotlin.math.log10
+import kotlin.math.pow
 
 
 operator fun MatchResult.get(i: Int) = this.groupValues[i]
@@ -43,3 +46,21 @@ fun Collection<Byte>.crc32() = toByteArray().crc32()
 fun Int.roundTo(value: Int): Int = this.div(value).times(value)
 
 fun File.openChild(name: String) = File(this, name)
+
+fun File.create(): File {
+	if (!exists()) {
+		parentFile?.mkdirs()
+		createNewFile()
+	}
+	return this
+}
+
+fun Int.toReadableSize(unit: String = "iB", system: Double = 1024.0): String {
+	if (this <= 0)
+		return "-"
+	val units = arrayOf("", "K", "M", "G", "T", "P")
+	val digitGroups = (log10(this.toDouble()) / log10(system)).toInt()
+	val value = DecimalFormat("#,##0.#")
+		.format(this / system.pow(digitGroups.toDouble()))
+	return "$value ${units[digitGroups]}$unit"
+}
