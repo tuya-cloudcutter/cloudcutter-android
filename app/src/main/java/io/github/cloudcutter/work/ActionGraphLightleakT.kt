@@ -46,6 +46,7 @@ class ActionGraphLightleakT(
 			id = "message_exploitable",
 			type = MessageType.SUCCESS,
 			text = Text(R.string.message_exploitable),
+			autoClear = false,
 			nextId = "detect_0",
 		),
 		*getDetectionActions(nextId = "ping_found_4"),

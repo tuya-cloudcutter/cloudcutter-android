@@ -11,5 +11,6 @@ class MessageAction(
 	id: String,
 	val type: MessageType,
 	val text: Text,
+	val autoClear: Boolean = true,
 	nextId: String?,
 ) : Action(id, null, nextId)

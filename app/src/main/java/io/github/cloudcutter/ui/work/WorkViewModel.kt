@@ -148,7 +148,8 @@ class WorkViewModel @Inject constructor(
 		when (action) {
 			is MessageAction -> {
 				event.postValue(MessageEvent(action.type, action.text))
-				messageRemove = false
+				if (action.autoClear)
+					messageRemove = false
 			}
 			is PacketAction -> runPacketAction(action)
 			is PingAction -> runPingAction(action)

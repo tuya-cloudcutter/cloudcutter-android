@@ -48,6 +48,7 @@ class ActionGraphLightleakN(
 			id = "message_exploitable",
 			type = MessageType.SUCCESS,
 			text = Text(R.string.message_exploitable),
+			autoClear = false,
 			nextId = "ddev_open",
 		),
 		PacketAction(
