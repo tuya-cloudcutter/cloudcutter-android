@@ -39,6 +39,7 @@
 	<string name="message_error_wifi_connect_timeout">Couldn\'t connect to the device.\n\nMake sure it\'s in AP mode and that the network is discoverable.</string>
 	<string name="message_error_wifi_scan_timeout">Timed out while scanning for SSID \"%s\".\n\nThe device may have not entered or exited the AP mode.</string>
 	<string name="message_exploitable">Good news! The device seems to be exploitable.</string>
+	<string name="message_exploited">Running the payload succeeded. The Lightleak dumping screen should open in a few moments.</string>
 	<string name="message_running">Cloudcutting is now in progress.\n\nThis window will show any notices or errors that may be important.</string>
 	<string name="message_running_mode_info">Do not reboot the device. It should be still blinking slowly (since the last Cloudcutter run).\n\nIf it\'s not in pairing mode, you have to go back and choose one of the first two connection modes.</string>
 	<string name="message_start_custom_ap">Make sure that the custom AP device is running and idle. The \"%s\" network has to be available for this to succeed.</string>

@@ -73,9 +73,16 @@ class ActionGraphLightleakN(
 		PingAction(
 			id = "ping_found_4",
 			title = Text(R.string.action_ping_respond),
-			nextId = "flash_erase",
+			nextId = "message_exploited",
 			mode = PingAction.Mode.FOUND,
 			address = work.targetAddress,
+		),
+		MessageAction(
+			id = "message_exploited",
+			type = MessageType.SUCCESS,
+			text = Text(R.string.message_exploited),
+			autoClear = false,
+			nextId = "flash_erase",
 		),
 		*getProperWriteActions(nextId = "fill_intf"),
 		PacketAction(
