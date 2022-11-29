@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 	private lateinit var appBarConfiguration: AppBarConfiguration
 
 	override fun onCreate(savedInstanceState: Bundle?) {
-		WindowCompat.setDecorFitsSystemWindows(window, false)
 		super.onCreate(savedInstanceState)
 		setContentView(b.root)
 		setSupportActionBar(b.toolbar)

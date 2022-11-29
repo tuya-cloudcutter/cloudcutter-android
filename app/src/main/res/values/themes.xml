@@ -10,5 +10,7 @@
 		<!-- <item name="colorPrimary">@color/my_light_primary</item> -->
 	</style>
 
-	<style name="Theme.Cloudcutter" parent="Base.Theme.Cloudcutter" />
+	<style name="Theme.Cloudcutter" parent="Base.Theme.Cloudcutter">
+		<item name="android:windowFullscreen">false</item>
+	</style>
 </resources>
