@@ -17,7 +17,8 @@
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		android:keepScreenOn="true">
 
 		<Button
 			android:id="@+id/buttonReadFlash"
@@ -151,5 +152,19 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/outputTitle"
 			tools:text="/storage/emulated/0/Android/data/io.github.cloudcutter/2022-11-29_11-21-06_lightleak/" />
+
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="32dp"
+			android:layout_marginEnd="32dp"
+			android:layout_marginBottom="16dp"
+			android:text="Do not minimize the app or turn the screen off.\n\nOtherwise, the connection and reading process will break."
+			android:gravity="center_horizontal"
+			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
