@@ -135,7 +135,7 @@ class LightleakService : Service(), CoroutineScope {
 		}
 	}
 
-	private suspend fun flashRead(start: Int, end: Int, output: DocumentFile): List<ByteArray> {
+	private suspend fun flashRead(start: Int, end: Int, output: File): List<ByteArray> {
 		val readBlockSize = 0x4000
 		val readPacketSize = 1024
 
@@ -194,8 +194,7 @@ class LightleakService : Service(), CoroutineScope {
 		progress.postValue(null)
 
 		withContext(Dispatchers.IO) {
-			contentResolver.openFileDescriptor(output.uri, "rw").use { pfd ->
-				val stream = FileOutputStream(pfd?.fileDescriptor ?: return@use)
+			output.outputStream().use { stream ->
 				val channel = stream.channel
 				channel.position(start.toLong())
 				for (chunk in packetList) {

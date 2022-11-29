@@ -25,6 +25,7 @@ android {
         }
     }
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -45,6 +46,7 @@ kapt {
 dependencies {
     kapt "androidx.hilt:hilt-compiler:1.0.0"
     kapt "com.google.dagger:hilt-compiler:2.44"
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:1.2.0"
 
     implementation "androidx.appcompat:appcompat:1.5.1"
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"

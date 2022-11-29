@@ -9,6 +9,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.content.getSystemService
+import java.io.File
 import java.util.zip.CRC32
 
 
@@ -40,3 +41,5 @@ fun ByteArray.crc32() = CRC32().let { crc ->
 fun Collection<Byte>.crc32() = toByteArray().crc32()
 
 fun Int.roundTo(value: Int): Int = this.div(value).times(value)
+
+fun File.openChild(name: String) = File(this, name)

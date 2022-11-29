@@ -29,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.databinding.LightleakFragmentBinding
+import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ui.base.BaseFragment
 import io.github.cloudcutter.work.service.lightleak.LightleakService
@@ -42,11 +43,13 @@ import java.io.RandomAccessFile
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.URI
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, parent ->
 	LightleakFragmentBinding.inflate(inflater, parent, false)
-}), CoroutineScope, ServiceConnection, ActivityResultCallback<Uri?> {
+}), CoroutineScope, ServiceConnection {
 	companion object {
 		private const val TAG = "LightleakFragment"
 	}
@@ -73,15 +76,14 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 		b.vm = vm
 		vm.progress.postValue(true)
 
-		val launcher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree(), this)
-		launcher.launch(null)
+		val filesDir = requireContext().getExternalFilesDir(null) ?: requireContext().filesDir
+		val dirName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+		vm.outputDir = filesDir.openChild("${dirName}_lightleak")
 
 		lifecycleScope.launch {
 			withContext(Dispatchers.IO) {
 				vm.prepare(args.profileSlug)
 			}
-			// force setting the profile
-			vm.binder = vm.binder
 		}
 
 		vm.result.observe(viewLifecycleOwner) { result ->
@@ -100,14 +102,6 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 			}
 			b.hexView.text = text.joinToString("\n")
 		}
-	}
-
-	override fun onActivityResult(uri: Uri?) {
-		uri ?: return
-		val tree = DocumentFile.fromTreeUri(requireContext(), uri)
-			?: return
-		vm.output = tree.createFile("application/octet-stream", "dump.bin")
-			?: return
 	}
 
 	override fun onStart() {
