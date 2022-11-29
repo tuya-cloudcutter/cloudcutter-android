@@ -43,6 +43,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 }), CoroutineScope, ServiceConnection {
 	companion object {
 		private const val TAG = "LightleakFragment"
+		private const val PROGRESS_SPEED_SIZE = 50 // 50 KiB
 	}
 
 	override val coroutineContext = Job() + Dispatchers.Main
@@ -51,6 +52,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 
 	private var progressLast = 0
 	private var progressLastAt = 0L
+	private var progressSpeedList = listOf<Int>()
 
 	private val connectivityManager
 		get() = context?.getSystemService<ConnectivityManager>()
@@ -95,7 +97,9 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 				val percentage = vm.progressValue.value ?: 0
 				b.progressText.text = "$percentage% - " + progress.toReadableSize()
 				if (readSpeed != 0) {
-					b.readSpeed.text = readSpeed.toReadableSize("iB/s")
+					progressSpeedList = progressSpeedList.takeLast(PROGRESS_SPEED_SIZE - 1) + readSpeed
+					val speedAverage = progressSpeedList.average().toInt()
+					b.readSpeed.text = speedAverage.toReadableSize("iB/s")
 				}
 			}
 			progressLast = progress
