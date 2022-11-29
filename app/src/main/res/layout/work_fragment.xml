@@ -12,6 +12,24 @@
 	android:keepScreenOn="true"
 	android:orientation="vertical">
 
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="16dp"
+		android:layout_marginTop="16dp"
+		android:text="@string/work_state_title"
+		android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+
+	<TextView
+		android:id="@+id/stateText"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="16dp"
+		android:layout_marginBottom="8dp"
+		android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+		android:text="-"
+		tools:text="Configured to join CustomAP" />
+
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/stateList"
 		android:layout_width="match_parent"

@@ -151,6 +151,9 @@ class WorkViewModel @Inject constructor(
 				if (action.autoClear)
 					messageRemove = false
 			}
+			is WorkStateAction -> {
+				event.postValue(WorkStateEvent(action.text))
+			}
 			is PacketAction -> runPacketAction(action)
 			is PingAction -> runPingAction(action)
 			is WiFiConnectAction -> runWiFiConnectAction(action)

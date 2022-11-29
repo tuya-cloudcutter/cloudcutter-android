@@ -31,6 +31,7 @@ import io.github.cloudcutter.databinding.WorkFragmentBinding
 import io.github.cloudcutter.ext.wifiConnect
 import io.github.cloudcutter.ext.wifiScan
 import io.github.cloudcutter.ui.base.BaseFragment
+import io.github.cloudcutter.work.action.WorkStateAction
 import io.github.cloudcutter.work.event.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -117,7 +118,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 							0 -> startWork(null)
 							1 -> startWork("message_device_connect_2")
 							2 -> startWork("message_device_connect_3")
-							3 -> startWork("ping_found_5")
+							3 -> startWork("work_state_running")
 						}
 					}
 					.setCancelable(false)
@@ -185,6 +186,9 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 				b.messageTitle.setText(R.string.message_title_running)
 				b.messageText.setText(R.string.message_running)
 				b.messageIcon.icon = defaultIcon
+			}
+			is WorkStateEvent -> {
+				b.stateText.text = event.text.format(context ?: return)
 			}
 			is WiFiConnectRequest -> {
 				var error: String?

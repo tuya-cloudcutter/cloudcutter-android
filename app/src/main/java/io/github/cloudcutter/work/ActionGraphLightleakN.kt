@@ -28,7 +28,7 @@ class ActionGraphLightleakN(
 	private val profile: ProfileLightleakDataN,
 ) {
 
-	fun getActions(): Array<Action> = listOf(
+	fun getActions(nextId: String): Array<Action> = listOf(
 		PacketAction(
 			id = "exploit_check",
 			title = Text(R.string.action_packet_stager_callback),
@@ -97,7 +97,7 @@ class ActionGraphLightleakN(
 		PacketAction(
 			id = "proper_stop_timer",
 			title = Text(R.string.action_packet_stop_timer),
-			nextId = "ping_found_5",
+			nextId = nextId,
 			packet = StopTimerPacket(
 				profile = profile,
 				requestId = 0x1234,

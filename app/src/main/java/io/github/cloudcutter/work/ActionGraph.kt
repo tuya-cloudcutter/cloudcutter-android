@@ -137,6 +137,11 @@ class ActionGraph(private val work: WorkData) {
 			id = "message_custom_ap_connect",
 			type = MessageType.INFO,
 			text = Text(R.string.message_start_custom_ap, work.idleSsid),
+			nextId = "work_state_raw",
+		),
+		WorkStateAction(
+			id = "work_state_raw",
+			text = Text(R.string.work_state_dialog_raw),
 			nextId = "custom_ap_connect",
 		),
 		WiFiConnectAction(
@@ -211,16 +216,21 @@ class ActionGraph(private val work: WorkData) {
 			id = "message_device_reboot",
 			type = MessageType.INFO,
 			text = Text(R.string.message_device_reboot_ap_mode),
-			nextId = "connect_default_2",
+			nextId = "work_state_with_stager",
 		),
 		/* STAGER MODE */
 		MessageAction(
 			id = "message_device_connect_2",
 			type = MessageType.INFO,
 			text = Text(R.string.message_enable_ap_pairing),
-			nextId = "connect_default_2",
+			nextId = "work_state_with_stager",
 		),
 		/* UNCONFIGURED + STAGER MODES */
+		WorkStateAction(
+			id = "work_state_with_stager",
+			text = Text(R.string.work_state_dialog_with_stager),
+			nextId = "connect_default_2",
+		),
 		WiFiConnectAction(
 			id = "connect_default_2",
 			title = Text(R.string.action_connect_to_device),
@@ -238,8 +248,8 @@ class ActionGraph(private val work: WorkData) {
 		),
 		/* STAGER TYPE-DEPENDENT ACTIONS */
 		*when (profile) {
-			is ProfileLightleakDataT -> ActionGraphLightleakT(work, profile).getActions()
-			is ProfileLightleakDataN -> ActionGraphLightleakN(work, profile).getActions()
+			is ProfileLightleakDataT -> ActionGraphLightleakT(work, profile).getActions("work_state_running")
+			is ProfileLightleakDataN -> ActionGraphLightleakN(work, profile).getActions("work_state_running")
 			else -> throw IllegalArgumentException("Invalid profile data type")
 		},
 		/* RUNNING MODE */
@@ -252,11 +262,16 @@ class ActionGraph(private val work: WorkData) {
 		WiFiConnectAction(
 			id = "connect_default_3",
 			title = Text(R.string.action_connect_to_device),
-			nextId = "ping_found_5",
+			nextId = "work_state_running",
 			type = WiFiConnectAction.Type.DEVICE_DEFAULT,
 			ssid = null,
 		),
 		/* ALL MODES */
+		WorkStateAction(
+			id = "work_state_running",
+			text = Text(R.string.work_state_dialog_running),
+			nextId = "ping_found_5",
+		),
 		PingAction(
 			id = "ping_found_5",
 			title = Text(R.string.action_ping_respond),
