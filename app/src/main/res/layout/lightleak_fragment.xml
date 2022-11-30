@@ -126,13 +126,15 @@
 
 		<TextView
 			android:id="@+id/hexView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="16dp"
-			android:layout_marginTop="16dp"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:layout_marginHorizontal="16dp"
+			android:layout_marginVertical="8dp"
 			android:fontFamily="monospace"
+			app:layout_constraintBottom_toTopOf="@+id/textView"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/buttonReadFlash" />
+			app:layout_constraintTop_toBottomOf="@+id/buttonRead0to1MB" />
 
 		<TextView
 			android:id="@+id/progressText"
@@ -177,13 +179,14 @@
 			tools:text="/storage/emulated/0/Android/data/io.github.cloudcutter/2022-11-29_11-21-06_lightleak/" />
 
 		<TextView
+			android:id="@+id/textView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="32dp"
 			android:layout_marginEnd="32dp"
 			android:layout_marginBottom="16dp"
-			android:text="Do not minimize the app or turn the screen off.\n\nOtherwise, the connection and reading process will break."
 			android:gravity="center_horizontal"
+			android:text="Do not minimize the app or turn the screen off.\n\nOtherwise, the connection and reading process will break."
 			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
 			android:textStyle="bold"
 			app:layout_constraintBottom_toBottomOf="parent"
