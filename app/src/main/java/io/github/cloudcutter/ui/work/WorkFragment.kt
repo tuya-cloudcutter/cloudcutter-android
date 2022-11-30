@@ -90,6 +90,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 			val profile = withContext(Dispatchers.IO) {
 				vm.prepare(args.profileSlug)
 			} ?: return@launch
+			b.profile = profile
 			if (profile.data is ProfileLightleak.Data) {
 				showDialog()
 			} else {

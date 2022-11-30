@@ -63,6 +63,6 @@
 	<string name="work_state_dialog_text">What is the current state of the device?\n\nThis may save you some time if you want to re-run the remote dump feature (i.e. in case of errors).\n\nIf in doubt, choose the first option. Other options will not work on a fresh device.\n\nClick OK to choose the state.</string>
 	<string name="work_state_dialog_title">Device state</string>
 	<string name="work_state_dialog_with_stager">Configured to join CustomAP</string>
-	<string name="work_state_title">Current state:</string>
+	<string name="work_state_title">Current state</string>
 	<string name="yes">Yes</string>
 </resources>

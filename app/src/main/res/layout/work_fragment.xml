@@ -3,95 +3,131 @@
   ~ Copyright (c) Kuba Szczodrzyński 2022-10-3.
   -->
 
-<LinearLayout
+<layout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:keepScreenOn="true"
-	android:orientation="vertical">
+	xmlns:tools="http://schemas.android.com/tools">
 
-	<TextView
+	<data>
+
+		<variable
+			name="profile"
+			type="io.github.cloudcutter.data.model.ProfileBase" />
+	</data>
+
+	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginHorizontal="16dp"
-		android:layout_marginTop="16dp"
-		android:text="@string/work_state_title"
-		android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+		android:layout_height="match_parent"
+		android:keepScreenOn="true"
+		android:orientation="vertical">
 
-	<TextView
-		android:id="@+id/stateText"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginHorizontal="16dp"
-		android:layout_marginBottom="8dp"
-		android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-		android:text="-"
-		tools:text="Configured to join CustomAP" />
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginTop="16dp"
+			android:text="Configuring the device"
+			android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
-	<androidx.recyclerview.widget.RecyclerView
-		android:id="@+id/stateList"
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1" />
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginTop="8dp"
+			android:text="@{profile.name}"
+			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+			tools:text="1.0.1 - BK7231T" />
 
-	<com.google.android.material.card.MaterialCardView
-		android:id="@+id/messageCard"
-		style="?materialCardViewFilledStyle"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_margin="16dp"
-		android:visibility="gone">
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginBottom="8dp"
+			android:text="@{profile.subName}"
+			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+			tools:text="oem_bk7231s_ty_ffc_newdp" />
 
-		<androidx.constraintlayout.widget.ConstraintLayout
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginTop="16dp"
+			android:text="@string/work_state_title"
+			android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+		<TextView
+			android:id="@+id/stateText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginBottom="8dp"
+			android:text="-"
+			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+			tools:text="Configured to join CustomAP" />
+
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/stateList"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1" />
+
+		<com.google.android.material.card.MaterialCardView
+			android:id="@+id/messageCard"
+			style="?materialCardViewFilledStyle"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingBottom="16dp">
+			android:layout_margin="16dp"
+			android:visibility="gone">
 
-			<com.google.android.material.progressindicator.LinearProgressIndicator
-				android:id="@+id/messageProgress"
+			<androidx.constraintlayout.widget.ConstraintLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_margin="-16dp"
-				android:progress="0"
-				app:layout_constraintTop_toTopOf="parent"
-				tools:progress="66" />
+				android:paddingBottom="16dp">
 
-			<com.mikepenz.iconics.view.IconicsImageView
-				android:id="@+id/messageIcon"
-				android:layout_width="32dp"
-				android:layout_height="32dp"
-				android:layout_margin="16dp"
-				app:iiv_color="?android:textColorPrimary"
-				app:iiv_icon="cmd-timer-sand-empty"
-				app:iiv_size="32dp"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				tools:background="@android:drawable/ic_lock_power_off" />
+				<com.google.android.material.progressindicator.LinearProgressIndicator
+					android:id="@+id/messageProgress"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_margin="-16dp"
+					android:progress="0"
+					app:layout_constraintTop_toTopOf="parent"
+					tools:progress="66" />
 
-			<TextView
-				android:id="@+id/messageTitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_margin="16dp"
-				android:text="@string/message_title_running"
-				android:textAppearance="?attr/textAppearanceTitleMedium"
-				app:layout_constraintBottom_toBottomOf="@+id/messageIcon"
-				app:layout_constraintStart_toEndOf="@+id/messageIcon"
-				app:layout_constraintTop_toTopOf="@+id/messageIcon" />
+				<com.mikepenz.iconics.view.IconicsImageView
+					android:id="@+id/messageIcon"
+					android:layout_width="32dp"
+					android:layout_height="32dp"
+					android:layout_margin="16dp"
+					app:iiv_color="?android:textColorPrimary"
+					app:iiv_icon="cmd-timer-sand-empty"
+					app:iiv_size="32dp"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					tools:background="@android:drawable/ic_lock_power_off" />
 
-			<TextView
-				android:id="@+id/messageText"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginHorizontal="16dp"
-				android:layout_marginTop="16dp"
-				android:text="@string/message_running"
-				android:textAppearance="?attr/textAppearanceBodyMedium"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/messageIcon"
-				tools:layout_editor_absoluteX="16dp" />
-		</androidx.constraintlayout.widget.ConstraintLayout>
-	</com.google.android.material.card.MaterialCardView>
-</LinearLayout>
+				<TextView
+					android:id="@+id/messageTitle"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_margin="16dp"
+					android:text="@string/message_title_running"
+					android:textAppearance="?attr/textAppearanceTitleMedium"
+					app:layout_constraintBottom_toBottomOf="@+id/messageIcon"
+					app:layout_constraintStart_toEndOf="@+id/messageIcon"
+					app:layout_constraintTop_toTopOf="@+id/messageIcon" />
+
+				<TextView
+					android:id="@+id/messageText"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="16dp"
+					android:layout_marginTop="16dp"
+					android:text="@string/message_running"
+					android:textAppearance="?attr/textAppearanceBodyMedium"
+					app:layout_constraintBottom_toBottomOf="parent"
+					app:layout_constraintTop_toBottomOf="@+id/messageIcon"
+					tools:layout_editor_absoluteX="16dp" />
+			</androidx.constraintlayout.widget.ConstraintLayout>
+		</com.google.android.material.card.MaterialCardView>
+	</LinearLayout>
+</layout>
