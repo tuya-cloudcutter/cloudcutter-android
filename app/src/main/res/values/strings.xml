@@ -32,6 +32,7 @@
 	<string name="lightleak_service_name">Cloudcutter Lightleak Service</string>
 	<string name="message_device_reboot_ap_mode">The device exited AP mode and connected to the custom AP. Reboot the device into AP mode once again (usually only 1 reboot is needed now).</string>
 	<string name="message_enable_ap_pairing">Put the smart device in AP pairing mode. The light (or LED) should be blinking slowly (every 1–2 seconds).</string>
+	<string name="message_error_packet_socket_exception">Couldn\'t send the packet to the device, which means it:\n- exited AP mode\n- was frozen by an incompatible Lightleak profile\n- lost connection temporarily.\n\nYou can try repeating this process again, or choosing a different Lightleak profile.</string>
 	<string name="message_error_ping_found_timeout">The device doesn\'t respond to ping requests.\n\nThis usually means that an exploit is incompatible, making the device freeze instead of continuing running.\n\nIt can also mean that writing the payload didn\'t succeed, in which case you can try again.</string>
 	<string name="message_error_ping_lost_timeout">Ping requests are still successful.\n\nThis means that an exploit is incompatible, so the device didn\'t hang/reboot when it was expected to.</string>
 	<string name="message_error_timeout">Timed out waiting for the step to finish</string>
