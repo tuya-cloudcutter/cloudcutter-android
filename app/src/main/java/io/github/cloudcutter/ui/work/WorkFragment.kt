@@ -160,12 +160,10 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 	override fun onChanged(value: Event) {
 		launch {
 			Log.d(TAG, "Event: $value")
-			async {
-				try {
-					handleEvent(value)
-				} catch (e: Exception) {
-					lifecycleScope.cancel()
-				}
+			try {
+				handleEvent(value)
+			} catch (e: Exception) {
+				lifecycleScope.cancel()
 			}
 		}
 	}

@@ -260,7 +260,7 @@ class WorkViewModel @Inject constructor(
 			} ?: continue
 			DummyAction(Text(R.string.action_scanned_ssid, network.ssid)).start(index = -1).end()
 			event.postValue(WiFiConnectRequest(network.ssid, action.password))
-			event.awaitTimeout<WiFiConnectResponse>(timeout = 20_000)
+			event.await<WiFiConnectResponse>()
 			DummyAction(Text(R.string.action_connected_to_ssid, network.ssid)).start().end()
 			break
 		}
