@@ -7,6 +7,7 @@ package io.github.cloudcutter.work.action
 import io.github.cloudcutter.R
 import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.protocol.base.IPacket
+import java.net.ConnectException
 import java.net.SocketException
 
 class PacketAction(
@@ -15,5 +16,6 @@ class PacketAction(
 	nextId: String?,
 	val packet: IPacket,
 ) : Action(id, title, nextId, errorMap = mapOf(
+	ConnectException::class.java to Text(R.string.message_error_packet_socket_exception),
 	SocketException::class.java to Text(R.string.message_error_packet_socket_exception),
 ))
