@@ -172,6 +172,7 @@ class LightleakService : Service(), CoroutineScope {
 				delay(20)
 
 			// receive all currently buffered packets
+			var packetReceived = false
 			while (true) {
 				val result = packets.tryReceive()
 				if (!result.isSuccess)
@@ -184,12 +185,15 @@ class LightleakService : Service(), CoroutineScope {
 				Log.d(TAG,
 					"Received data #$index, offset=0x${offset.toString(16)}, size=${bytes.size}")
 				packetList[index] = bytes.sliceArray(8 until length + 8)
+				packetReceived = true
 			}
 
 			// check if all packets were received
 			val progress = packetList.count { it != null }
-			this.progressValue?.postValue(progress * 100 / packetCount)
-			this.progressBytes?.postValue(progress * readPacketSize)
+			if (packetReceived) {
+				this.progressValue?.postValue(progress * 100 / packetCount)
+				this.progressBytes?.postValue(progress * readPacketSize)
+			}
 			if (progress == packetCount)
 				break
 		}
