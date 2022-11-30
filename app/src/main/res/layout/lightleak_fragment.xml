@@ -43,6 +43,29 @@
 			app:layout_constraintStart_toEndOf="@+id/buttonReadFlash"
 			app:layout_constraintTop_toTopOf="@+id/buttonReadFlash" />
 
+		<Button
+			android:id="@+id/buttonRead0to1MB"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="8dp"
+			android:enabled="@{!vm.progressRunning}"
+			android:onClick="@{() -> vm.onReadFlashRangeClick(0x000000, 0x100000)}"
+			android:text="Read 0MB-1MB"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/buttonReadFlash" />
+
+		<Button
+			android:id="@+id/buttonRead1to2MB"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:enabled="@{!vm.progressRunning}"
+			android:onClick="@{() -> vm.onReadFlashRangeClick(0x100000, 0x100000)}"
+			android:text="Read 1MB-2MB"
+			app:layout_constraintStart_toEndOf="@+id/buttonRead0to1MB"
+			app:layout_constraintTop_toTopOf="@+id/buttonRead0to1MB" />
+
 		<ProgressBar
 			style="?android:attr/progressBarStyle"
 			android:layout_width="wrap_content"

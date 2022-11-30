@@ -91,6 +91,12 @@ class LightleakViewModel @Inject constructor(
 		}
 	}
 
+	fun onReadFlashRangeClick(start: Int = 0x000000, length: Int = 0x200000) {
+		progressJob = viewModelScope.launch {
+			flashRead(start, length)
+		}
+	}
+
 	private suspend fun flashRead(start: Int, length: Int) {
 		progressRunning.postValue(true)
 		val output = outputDir.openChild("dump.bin").create()
