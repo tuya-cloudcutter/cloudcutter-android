@@ -39,4 +39,8 @@ abstract class BaseFragment<B : ViewBinding>(
 			findNavController().navigate(it)
 		}
 	}
+
+	protected fun navigateUp() {
+		findNavController().navigateUp()
+	}
 }

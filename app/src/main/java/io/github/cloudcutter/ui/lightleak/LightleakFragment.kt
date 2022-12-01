@@ -23,7 +23,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.databinding.LightleakFragmentBinding
-import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ext.toReadableSize
 import io.github.cloudcutter.ui.base.BaseFragment
@@ -33,9 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.net.Inet4Address
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, parent ->
@@ -72,9 +70,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 		b.vm = vm
 		vm.progressRunning.postValue(true)
 
-		val filesDir = requireContext().getExternalFilesDir(null) ?: requireContext().filesDir
-		val dirName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
-		vm.outputDir = filesDir.openChild("${dirName}_lightleak")
+		vm.outputDir = File(args.outputDir)
 		b.outputDirectory.text = vm.outputDir.absolutePath
 
 		lifecycleScope.launch {

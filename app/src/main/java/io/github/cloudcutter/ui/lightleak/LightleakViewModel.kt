@@ -99,7 +99,7 @@ class LightleakViewModel @Inject constructor(
 
 	private suspend fun flashRead(start: Int, length: Int) {
 		progressRunning.postValue(true)
-		val output = outputDir.openChild("dump.bin").create()
+		val output = outputDir.openChild("dump_${outputDir.name}.bin").create()
 		val response: List<ByteArray> = binder?.execute(FlashReadCommand(start, length, output)) ?: return
 		Log.d(TAG, response.toString())
 		progressRunning.postValue(false)

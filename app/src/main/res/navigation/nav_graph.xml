@@ -47,5 +47,8 @@
 		<argument
 			android:name="profileSlug"
 			app:argType="string" />
+		<argument
+			android:name="outputDir"
+			app:argType="string" />
 	</fragment>
 </navigation>

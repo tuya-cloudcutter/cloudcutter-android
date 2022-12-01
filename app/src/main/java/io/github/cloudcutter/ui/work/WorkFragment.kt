@@ -8,6 +8,7 @@ import android.animation.ObjectAnimator
 import android.net.*
 import android.net.ConnectivityManager.NetworkCallback
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -28,15 +29,20 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.databinding.WorkFragmentBinding
+import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ext.wifiConnect
 import io.github.cloudcutter.ext.wifiScan
 import io.github.cloudcutter.ui.base.BaseFragment
+import io.github.cloudcutter.ui.input
 import io.github.cloudcutter.work.action.WorkStateAction
 import io.github.cloudcutter.work.event.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.receiveAsFlow
+import java.io.File
 import java.net.Inet4Address
 import java.net.InetAddress
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
@@ -91,15 +97,103 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 				vm.prepare(args.profileSlug)
 			} ?: return@launch
 			b.profile = profile
-			if (profile.data is ProfileLightleak.Data) {
-				showDialog()
+			// TODO move dialog functions when adding support for Classic, along with its config dialogs
+			if (profile is ProfileLightleak) {
+				chooseDirectoryInfoDialog()
 			} else {
 				startWork(null)
 			}
 		}
 	}
 
-	private fun showDialog() {
+	private fun chooseDirectoryInfoDialog() {
+		MaterialAlertDialogBuilder(requireContext())
+			.setTitle(R.string.work_directory_dialog_title)
+			.setMessage(R.string.work_directory_dialog_text)
+			.setPositiveButton(R.string.ok) { _, _ ->
+				chooseDirectoryDialog()
+			}
+			.setNegativeButton(R.string.cancel) { _, _ ->
+				navigateUp()
+			}
+			.setCancelable(false)
+			.show()
+	}
+
+	private fun chooseDirectoryDialog() {
+		val filesDir = requireContext().getExternalFilesDir(null) ?: requireContext().filesDir
+		val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+		val deviceDirs = filesDir.listFiles { it: File ->
+			it.isDirectory
+		} ?: arrayOf<File>()
+		// list all saved devices, current date and "add device" item
+		val items = (deviceDirs as Array<File?>) + filesDir.openChild("${now}_lightleak") + null
+
+		MaterialAlertDialogBuilder(requireContext())
+			.setTitle(R.string.work_directory_dialog_title)
+			.setItems(items.map { directory ->
+				directory?.name ?: requireContext().getString(R.string.work_directory_dialog_add)
+			}.toTypedArray()) { dialog, which ->
+				val item = items[which]
+				if (item == null) {
+					dialog.dismiss()
+					chooseDirectoryNameDialog()
+					return@setItems
+				}
+				vm.outputDir = item
+				chooseStateInfoDialog()
+			}
+			.setNegativeButton(R.string.back) { _, _ ->
+				chooseDirectoryInfoDialog()
+			}
+			.setCancelable(false)
+			.show()
+	}
+
+	private fun chooseDirectoryNameDialog() {
+		MaterialAlertDialogBuilder(requireContext())
+			.setTitle(R.string.work_directory_name_dialog_title)
+			.input(
+				type = InputType.TYPE_CLASS_TEXT,
+				positiveButton = R.string.ok,
+				positiveListener = { _, input ->
+					if (input.isEmpty())
+						return@input false
+					val name = input.lowercase()
+						.trim()
+						.replace(" ", "-")
+						.replace("_", "-")
+						.replace("[^a-z0-9-]".toRegex(), "")
+						.replace("-+".toRegex(), "-")
+						.trim('-')
+					val filesDir = requireContext().getExternalFilesDir(null) ?: requireContext().filesDir
+					filesDir.openChild(name).mkdirs()
+					return@input true
+				},
+			)
+			.setNegativeButton(R.string.cancel, null)
+			.setOnDismissListener {
+				chooseDirectoryDialog()
+			}
+			.setCancelable(false)
+			.show()
+	}
+
+	private fun chooseStateInfoDialog() {
+		MaterialAlertDialogBuilder(requireContext())
+			.setTitle(R.string.work_state_dialog_title)
+			.setMessage(R.string.work_state_dialog_text)
+			.setPositiveButton(R.string.ok) { _, _ ->
+				chooseStateDialog()
+			}
+			.setNegativeButton(R.string.back) { _, _ ->
+				chooseDirectoryDialog()
+			}
+			.setCancelable(false)
+			.show()
+	}
+
+	private fun chooseStateDialog() {
 		val items = listOf(
 			R.string.work_state_dialog_raw,
 			R.string.work_state_dialog_with_stager,
@@ -109,21 +203,17 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 
 		MaterialAlertDialogBuilder(requireContext())
 			.setTitle(R.string.work_state_dialog_title)
-			.setMessage(R.string.work_state_dialog_text)
-			.setPositiveButton(R.string.ok) { _, _ ->
-				MaterialAlertDialogBuilder(requireContext())
-					.setTitle(R.string.work_state_dialog_title)
-					.setItems(items.toTypedArray()) { dialog, which ->
-						dialog.dismiss()
-						when (which) {
-							0 -> startWork(null)
-							1 -> startWork("message_device_connect_2")
-							2 -> startWork("message_device_connect_3")
-							3 -> startWork("work_state_running")
-						}
-					}
-					.setCancelable(false)
-					.show()
+			.setItems(items.toTypedArray()) { dialog, which ->
+				dialog.dismiss()
+				when (which) {
+					0 -> startWork(null)
+					1 -> startWork("message_device_connect_2")
+					2 -> startWork("message_device_connect_3")
+					3 -> startWork("work_state_running")
+				}
+			}
+			.setNegativeButton(R.string.back) { _, _ ->
+				chooseStateInfoDialog()
 			}
 			.setCancelable(false)
 			.show()

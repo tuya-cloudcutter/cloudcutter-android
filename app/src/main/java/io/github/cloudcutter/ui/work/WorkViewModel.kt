@@ -12,6 +12,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.api.ApiService
 import io.github.cloudcutter.data.model.Profile
+import io.github.cloudcutter.data.model.ProfileClassic
+import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.repository.ProfileRepository
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ui.base.BaseViewModel
@@ -20,16 +22,40 @@ import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.ActionGraph
 import io.github.cloudcutter.work.ActionState
 import io.github.cloudcutter.work.WorkData
-import io.github.cloudcutter.work.action.*
-import io.github.cloudcutter.work.event.*
+import io.github.cloudcutter.work.action.Action
+import io.github.cloudcutter.work.action.DummyAction
+import io.github.cloudcutter.work.action.MessageAction
+import io.github.cloudcutter.work.action.PacketAction
+import io.github.cloudcutter.work.action.PingAction
+import io.github.cloudcutter.work.action.WiFiConnectAction
+import io.github.cloudcutter.work.action.WiFiCustomAPAction
+import io.github.cloudcutter.work.action.WiFiScanAction
+import io.github.cloudcutter.work.action.WorkStateAction
+import io.github.cloudcutter.work.event.Event
+import io.github.cloudcutter.work.event.MessageEvent
+import io.github.cloudcutter.work.event.MessageRemoveEvent
+import io.github.cloudcutter.work.event.PingFoundEvent
+import io.github.cloudcutter.work.event.PingLostEvent
+import io.github.cloudcutter.work.event.WiFiConnectRequest
+import io.github.cloudcutter.work.event.WiFiConnectResponse
+import io.github.cloudcutter.work.event.WiFiScanRequest
+import io.github.cloudcutter.work.event.WiFiScanResponse
+import io.github.cloudcutter.work.event.WorkStateEvent
+import io.github.cloudcutter.work.event.await
 import io.github.cloudcutter.work.protocol.proper.ProperPacket
 import io.github.cloudcutter.work.protocol.send
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
-import kotlinx.coroutines.*
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import java.io.File
 import java.net.InetAddress
 import javax.inject.Inject
 
@@ -51,6 +77,7 @@ class WorkViewModel @Inject constructor(
 
 	val event = LiveEvent<Event>()
 	var localAddress: InetAddress = InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1))
+	var outputDir: File? = null
 
 	private var messageRemove: Boolean? = null
 	private var pingJob: Deferred<Unit>? = null
@@ -131,7 +158,17 @@ class WorkViewModel @Inject constructor(
 		}
 		pingJob?.cancel()
 		DummyAction(Text(R.string.action_finish)).start().end()
-		navigate(WorkFragmentDirections.actionMenuWorkToMenuLightleak(work.profile.slug))
+		when (work.profile) {
+			is ProfileClassic -> {
+
+			}
+			is ProfileLightleak -> {
+				navigate(WorkFragmentDirections.actionMenuWorkToMenuLightleak(
+					profileSlug = work.profile.slug,
+					outputDir = outputDir?.absolutePath ?: "",
+				))
+			}
+		}
 	}
 
 	private suspend fun runAction(state: ActionState): Action? {
