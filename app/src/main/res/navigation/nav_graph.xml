@@ -8,7 +8,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/nav_graph"
-	app:startDestination="@id/menu_devices">
+	app:startDestination="@id/menu_profiles">
 
 	<fragment
 		android:id="@+id/menu_devices"
@@ -36,7 +36,8 @@
 			app:argType="string" />
 		<action
 			android:id="@+id/action_menu_work_to_menu_lightleak"
-			app:destination="@id/menu_lightleak" />
+			app:destination="@id/menu_lightleak"
+			app:popUpTo="@id/menu_profiles" />
 	</fragment>
 
 	<fragment
