@@ -110,8 +110,8 @@ class LightleakService : Service(), CoroutineScope {
 			val requestId = packet.readIntLittleEndian()
 			val crc32 = packet.readIntLittleEndian()
 			val data = packet.readBytes()
-			val dataString = data.take(64).toHexString()
-			Log.d(TAG, "Got packet: requestId=$requestId, crc32=$crc32, data=$dataString")
+			// val dataString = data.take(64).toHexString()
+			// Log.d(TAG, "Got packet: requestId=$requestId, crc32=$crc32, data=$dataString")
 			if (crc32 == data.crc32()) {
 				packets.send(requestId to data)
 			} else {
@@ -137,8 +137,9 @@ class LightleakService : Service(), CoroutineScope {
 	}
 
 	private suspend fun flashRead(start: Int, end: Int, output: File): List<ByteArray> {
-		val readBlockSize = 0x4000
 		val readPacketSize = 1024
+		val readPacketsMax = 8
+		val readTimeoutMs = 10
 
 		val size = end - start
 		val packetCount = ceil(size / readPacketSize.toFloat()).toInt()
@@ -147,36 +148,43 @@ class LightleakService : Service(), CoroutineScope {
 
 		var pauseCount = 0
 		while (true) {
-			val readIndex = packetList.indexOfFirst { it == null }
-			if (readIndex == -1)
+			val readStartIndex = packetList.indexOf(null)
+			if (readStartIndex == -1)
 				break
+			val readEndIndex = packetList
+				.subList(readStartIndex + 1, packetCount)
+				.indexOfFirst { it != null }
+
+			val readPacketCount = when (readEndIndex) {
+				-1 -> packetCount - readStartIndex
+				else -> readEndIndex + 1
+			}.coerceAtMost(readPacketsMax)
 
 			val requestId = newRequestId
-			// get offset for the index and calculate read length
-			val readOffset = packetOffsets[readIndex]
-			val readLength = min(readBlockSize, end - readOffset)
+			val readOffset = packetOffsets[readStartIndex]
 			// read flash
-			Log.d(TAG, "Reading data #$readIndex, offset=0x${readOffset.toString(16)}")
+			Log.d(TAG, "Reading data #$readStartIndex, offset=0x${readOffset.toString(16)}, count=$readPacketCount")
 			FlashReadPacket(
 				profile = profile,
 				requestId = requestId,
 				offset = readOffset,
-				length = readLength,
+				length = readPacketCount * readPacketSize,
 				maxLength = readPacketSize,
 			).also { it.returnIp = returnIp }.send("192.168.175.1")
 
 			// wait a moment
 			if (pauseCount++ == 100)
-				delay(2000)
-			else
-				delay(20)
+				delay(500)
+//			else
+//				delay(20)
 
 			// receive all currently buffered packets
-			var packetReceived = false
-			while (true) {
+			var packetsReceived = 0
+			val endTime = System.currentTimeMillis() + readTimeoutMs
+			while (packetsReceived < readPacketsMax && System.currentTimeMillis() < endTime) {
 				val result = packets.tryReceive()
 				if (!result.isSuccess)
-					break
+					continue
 				val bytes = result.getOrThrow().second
 				val buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
 				val offset = buf.int
@@ -185,12 +193,12 @@ class LightleakService : Service(), CoroutineScope {
 				Log.d(TAG,
 					"Received data #$index, offset=0x${offset.toString(16)}, size=${bytes.size}")
 				packetList[index] = bytes.sliceArray(8 until length + 8)
-				packetReceived = true
+				packetsReceived++
 			}
 
 			// check if all packets were received
 			val progress = packetList.count { it != null }
-			if (packetReceived) {
+			if (packetsReceived > 0) {
 				this.progressValue?.postValue(progress * 100 / packetCount)
 				this.progressBytes?.postValue(progress * readPacketSize)
 			}
