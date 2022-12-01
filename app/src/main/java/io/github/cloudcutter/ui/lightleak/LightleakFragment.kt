@@ -57,11 +57,10 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 
 	private val networkCallback = object : ConnectivityManager.NetworkCallback() {
 		override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-			vm.binder?.setReturnIp(linkProperties.linkAddresses
+			vm.returnIp = linkProperties.linkAddresses
 				.map { it.address }
 				.firstOrNull { it is Inet4Address }
 				?: return
-			)
 		}
 	}
 

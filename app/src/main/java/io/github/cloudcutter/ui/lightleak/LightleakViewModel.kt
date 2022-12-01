@@ -6,7 +6,6 @@ package io.github.cloudcutter.ui.lightleak
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,10 +17,10 @@ import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ui.base.BaseViewModel
 import io.github.cloudcutter.work.service.lightleak.LightleakService
 import io.github.cloudcutter.work.service.lightleak.command.FlashReadCommand
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
+import java.net.InetAddress
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,6 +44,13 @@ class LightleakViewModel @Inject constructor(
 	val progressBytes = MutableLiveData<Int?>()
 
 	val profile = MutableLiveData<ProfileLightleak>()
+
+	var returnIp: InetAddress = InetAddress.getByAddress(byteArrayOf(255.toByte(), 255.toByte(), 255.toByte(), 0))
+		set(value) {
+			field = value
+			binder?.setReturnIp(value)
+		}
+
 	var binder: LightleakService.ServiceBinder? = null
 		set(value) {
 			field = value
@@ -53,6 +59,7 @@ class LightleakViewModel @Inject constructor(
 				progressValue = progressValue,
 				progressBytes = progressBytes,
 			)
+			value?.setReturnIp(returnIp)
 		}
 
 	suspend fun prepare(profileSlug: String) {
@@ -64,7 +71,11 @@ class LightleakViewModel @Inject constructor(
 
 		this.profile.postValue(profile)
 		// force setting the profile
-		binder = binder
+		binder?.setData(
+			profile = profile.data,
+			progressValue = progressValue,
+			progressBytes = progressBytes,
+		)
 		// write profile data to a file
 		val profileJson = moshi.adapter<ProfileLightleak>(profile::class.java).toJson(profile)
 		outputDir.openChild("profile.json").create().writeText(profileJson)
