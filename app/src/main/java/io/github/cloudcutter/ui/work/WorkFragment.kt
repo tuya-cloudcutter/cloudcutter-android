@@ -5,8 +5,14 @@
 package io.github.cloudcutter.ui.work
 
 import android.animation.ObjectAnimator
-import android.net.*
+import android.annotation.SuppressLint
+import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
+import android.net.LinkProperties
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -34,13 +40,24 @@ import io.github.cloudcutter.ext.wifiConnect
 import io.github.cloudcutter.ext.wifiScan
 import io.github.cloudcutter.ui.base.BaseFragment
 import io.github.cloudcutter.ui.input
-import io.github.cloudcutter.work.action.WorkStateAction
-import io.github.cloudcutter.work.event.*
-import kotlinx.coroutines.*
+import io.github.cloudcutter.work.event.Event
+import io.github.cloudcutter.work.event.MessageEvent
+import io.github.cloudcutter.work.event.MessageRemoveEvent
+import io.github.cloudcutter.work.event.WiFiConnectRequest
+import io.github.cloudcutter.work.event.WiFiConnectResponse
+import io.github.cloudcutter.work.event.WiFiScanRequest
+import io.github.cloudcutter.work.event.WorkStateEvent
+import io.github.cloudcutter.work.event.toEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.Inet4Address
-import java.net.InetAddress
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -69,8 +86,23 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 		}
 	}
 
+	@SuppressLint("InlinedApi")
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+
+		requirePermissions(
+			android.Manifest.permission.ACCESS_COARSE_LOCATION,
+			android.Manifest.permission.ACCESS_FINE_LOCATION,
+			android.Manifest.permission.ACCESS_NETWORK_STATE,
+			android.Manifest.permission.ACCESS_WIFI_STATE,
+			android.Manifest.permission.CHANGE_WIFI_STATE,
+			android.Manifest.permission.NEARBY_WIFI_DEVICES
+				.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU },
+		)
+	}
+
+	override fun onPermissionsGranted() {
+		if (!isAdded) return
 
 		val adapter = WorkAdapter(vm.stateList)
 
@@ -166,7 +198,8 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 						.replace("[^a-z0-9-]".toRegex(), "")
 						.replace("-+".toRegex(), "-")
 						.trim('-')
-					val filesDir = requireContext().getExternalFilesDir(null) ?: requireContext().filesDir
+					val filesDir =
+						requireContext().getExternalFilesDir(null) ?: requireContext().filesDir
 					filesDir.openChild(name).mkdirs()
 					return@input true
 				},

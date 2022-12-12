@@ -53,6 +53,8 @@
 	<string name="message_type_warning">Warning</string>
 	<string name="no">No</string>
 	<string name="ok">OK</string>
+	<string name="permission_denied_text">You have denied one or more required permissions to the app.\n\nPlease open Android settings and grant the permissions manually.</string>
+	<string name="permission_denied_title">Permissions denied</string>
 	<string name="profile_type_classic">Classic</string>
 	<string name="profile_type_lightleak">Lightleak</string>
 	<string name="title_devices">Devices</string>

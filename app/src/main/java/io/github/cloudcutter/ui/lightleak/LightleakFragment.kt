@@ -13,6 +13,7 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -69,6 +70,18 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 		b.vm = vm
 		vm.progressRunning.postValue(true)
 
+		requirePermissions(
+			android.Manifest.permission.ACCESS_COARSE_LOCATION,
+			android.Manifest.permission.ACCESS_FINE_LOCATION,
+			android.Manifest.permission.ACCESS_NETWORK_STATE,
+			android.Manifest.permission.ACCESS_WIFI_STATE,
+			android.Manifest.permission.CHANGE_WIFI_STATE,
+			android.Manifest.permission.NEARBY_WIFI_DEVICES
+				.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU },
+		)
+	}
+
+	override fun onPermissionsGranted() {
 		vm.outputDir = File(args.outputDir)
 		b.outputDirectory.text = vm.outputDir.absolutePath
 
