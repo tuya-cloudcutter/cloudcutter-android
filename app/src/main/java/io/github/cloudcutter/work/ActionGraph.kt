@@ -209,7 +209,6 @@ class ActionGraph(private val work: WorkData) {
 			title = Text(R.string.action_custom_ap_wait_timeout),
 			nextId = "message_device_reboot",
 			ssid = work.idleSsid,
-			timeout = 90_000,
 		),
 		/* UNCONFIGURED MODE */
 		MessageAction(

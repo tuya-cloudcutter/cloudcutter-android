@@ -13,7 +13,7 @@ class WiFiScanAction(
 	title: Text,
 	nextId: String,
 	val ssid: String,
-	timeout: Long = 10_000,
+	timeout: Long = 5 * 60_000,
 ) : Action(id, title, nextId, timeout, mapOf(
 	TimeoutCancellationException::class.java to Text(R.string.message_error_wifi_scan_timeout, ssid),
 ))
