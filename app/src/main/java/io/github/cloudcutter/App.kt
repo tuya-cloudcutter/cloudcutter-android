@@ -5,12 +5,16 @@
 package io.github.cloudcutter
 
 import android.app.Application
+import android.util.Log
 import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.facebook.stetho.Stetho
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class App : Application() {
+	companion object {
+		private const val TAG = "App"
+	}
 
 	override fun onCreate() {
 		super.onCreate()
@@ -31,5 +35,15 @@ class App : Application() {
 			.customCrashDataCollector(null)
 			.apply()
 
+		Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+			Log.e(TAG, "Exception on thread ${thread.name}: $throwable")
+			throwable.printStackTrace()
+			when (throwable) {
+				is IllegalArgumentException -> when (throwable.message) {
+					"Selectable is closed" -> return@setDefaultUncaughtExceptionHandler
+				}
+			}
+			throw throwable
+		}
 	}
 }
