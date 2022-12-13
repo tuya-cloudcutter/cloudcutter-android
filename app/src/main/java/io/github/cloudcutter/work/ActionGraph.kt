@@ -12,19 +12,12 @@ import io.github.cloudcutter.data.model.ProfileClassic
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.model.ProfileLightleakDataN
 import io.github.cloudcutter.data.model.ProfileLightleakDataT
-import io.github.cloudcutter.ext.roundTo
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.action.*
 import io.github.cloudcutter.work.protocol.CloudcutPacket
 import io.github.cloudcutter.work.protocol.WifiPacket
-import io.github.cloudcutter.work.protocol.proper.StopTimerPacket
-import io.github.cloudcutter.work.protocol.stager.bk7231t.CallbackPacket
-import io.github.cloudcutter.work.protocol.stager.bk7231t.DetectionPacket
-import io.github.cloudcutter.work.protocol.stager.bk7231t.FlashErasePacket
-import io.github.cloudcutter.work.protocol.stager.bk7231t.FlashWritePacket
-import io.github.cloudcutter.work.protocol.toOffset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -94,7 +87,6 @@ class ActionGraph(private val work: WorkData) {
 			title = Text(R.string.action_ping_connect),
 			nextId = "exploit_initial",
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 		PacketAction(
 			id = "exploit_initial",
@@ -113,7 +105,6 @@ class ActionGraph(private val work: WorkData) {
 			title = Text(R.string.action_ping_lost),
 			nextId = "connect_custom_ssid",
 			mode = PingAction.Mode.LOST,
-			address = work.targetAddress,
 		),
 		WiFiConnectAction(
 			id = "connect_custom_ssid",
@@ -127,7 +118,6 @@ class ActionGraph(private val work: WorkData) {
 			title = Text(R.string.action_ping_connect),
 			nextId = "exploit_initial",
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 	)
 
@@ -157,7 +147,6 @@ class ActionGraph(private val work: WorkData) {
 			title = Text(R.string.action_ping_connect),
 			nextId = "custom_ap_setup",
 			mode = PingAction.Mode.FOUND,
-			address = work.idleAddress,
 		),
 		WiFiCustomAPAction(
 			id = "custom_ap_setup",
@@ -185,7 +174,6 @@ class ActionGraph(private val work: WorkData) {
 			title = Text(R.string.action_ping_connect),
 			nextId = "exploit_stager",
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 		PacketAction(
 			id = "exploit_stager",
@@ -202,7 +190,6 @@ class ActionGraph(private val work: WorkData) {
 			title = Text(R.string.action_ping_lost),
 			nextId = "custom_ap_scan",
 			mode = PingAction.Mode.LOST,
-			address = work.targetAddress,
 		),
 		WiFiScanAction(
 			id = "custom_ap_scan",
@@ -243,7 +230,6 @@ class ActionGraph(private val work: WorkData) {
 			timeout = 20_000,
 			nextId = "exploit_check",
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 		/* STAGER TYPE-DEPENDENT ACTIONS */
 		*when (profile) {
@@ -276,7 +262,6 @@ class ActionGraph(private val work: WorkData) {
 			title = Text(R.string.action_ping_respond),
 			nextId = null,
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 	)
 }

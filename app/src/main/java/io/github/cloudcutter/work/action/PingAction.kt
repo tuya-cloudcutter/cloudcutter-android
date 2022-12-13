@@ -13,7 +13,6 @@ class PingAction(
 	title: Text,
 	nextId: String?,
 	val mode: Mode,
-	val address: String,
 	val threshold: Int = when (mode) {
 		Mode.FOUND -> 2
 		Mode.LOST -> 3

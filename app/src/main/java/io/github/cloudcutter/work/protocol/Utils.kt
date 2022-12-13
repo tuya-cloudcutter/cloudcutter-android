@@ -4,12 +4,14 @@
 
 package io.github.cloudcutter.work.protocol
 
+import io.github.cloudcutter.ext.toInet4String
 import io.github.cloudcutter.work.protocol.base.IPacket
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.Inet4Address
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -39,10 +41,10 @@ fun getFinishToken(address: Int) = buildByteArray(
 fun Int.toOffset(): Int = this.floorDiv(32) * 34 + this.mod(32)
 fun Int.toAddress(): Int = this.floorDiv(34) * 32 + this.mod(34)
 
-suspend fun IPacket.send(address: String) {
+suspend fun IPacket.send(address: Inet4Address) {
 	val selectorManager = SelectorManager(Dispatchers.IO)
 	val socket = aSocket(selectorManager).udp().connect(
-		remoteAddress = InetSocketAddress(address, 6669),
+		remoteAddress = InetSocketAddress(address.toInet4String(), 6669),
 		localAddress = null,
 		configure = {
 			broadcast = true

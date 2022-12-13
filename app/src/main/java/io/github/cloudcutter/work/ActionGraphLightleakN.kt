@@ -42,7 +42,6 @@ class ActionGraphLightleakN(
 			title = Text(R.string.action_ping_exploitable),
 			nextId = "message_exploitable",
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 		MessageAction(
 			id = "message_exploitable",
@@ -75,7 +74,6 @@ class ActionGraphLightleakN(
 			title = Text(R.string.action_ping_respond),
 			nextId = "message_exploited",
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 		MessageAction(
 			id = "message_exploited",

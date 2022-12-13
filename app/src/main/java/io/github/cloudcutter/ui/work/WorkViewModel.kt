@@ -17,6 +17,7 @@ import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.repository.ProfileRepository
 import io.github.cloudcutter.ext.getBroadcastAddress
 import io.github.cloudcutter.ext.toHexString
+import io.github.cloudcutter.ext.toInet4String
 import io.github.cloudcutter.ui.base.BaseViewModel
 import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.util.Text
@@ -78,6 +79,7 @@ class WorkViewModel @Inject constructor(
 
 	val event = LiveEvent<Event>()
 	var localAddress: Inet4Address? = null
+	var gatewayAddress: Inet4Address? = null
 	var outputDir: File? = null
 
 	private var messageRemove: Boolean? = null
@@ -210,14 +212,15 @@ class WorkViewModel @Inject constructor(
 			action.packet.returnIp = localAddress ?: getBroadcastAddress()
 
 		for (i in 0 until 3) {
-			action.packet.send(work.targetBroadcast)
+			action.packet.send(gatewayAddress ?: getBroadcastAddress())
 			delay(100)
 		}
 	}
 
 	private suspend fun runPingAction(action: PingAction) = withContext(Dispatchers.IO) {
+		val address = gatewayAddress ?: throw RuntimeException("Wi-Fi network is disconnected")
 		var count = 0
-		val ping = Ping(InetAddress.getByName(action.address), object : PingListener {
+		val ping = Ping(address, object : PingListener {
 			override fun onPing(timeMs: Long, index: Int) {
 				if (timeMs == -1L) {
 					onPingException(null, index)
@@ -255,7 +258,12 @@ class WorkViewModel @Inject constructor(
 
 	private suspend fun runWiFiCustomAPAction(action: WiFiCustomAPAction) {
 		val selectorManager = SelectorManager(Dispatchers.IO)
-		val socket = aSocket(selectorManager).tcp().connect(work.idleAddress, work.idlePort)
+		val socket = aSocket(selectorManager)
+			.tcp()
+			.connect(
+				hostname = gatewayAddress?.toInet4String() ?: work.idleAddress,
+				port = work.idlePort,
+			)
 		val recv = socket.openReadChannel()
 		val send = socket.openWriteChannel(autoFlush = true)
 

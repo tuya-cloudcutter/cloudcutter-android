@@ -28,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -47,6 +48,7 @@ class LightleakService : Service(), CoroutineScope {
 
 	private lateinit var profile: ProfileLightleak.Data
 	private var localAddress: Inet4Address? = null
+	private var gatewayAddress: Inet4Address? = null
 	private var progressValue: MutableLiveData<Int?>? = null
 	private var progressBytes: MutableLiveData<Int?>? = null
 
@@ -57,6 +59,17 @@ class LightleakService : Service(), CoroutineScope {
 		}
 
 	inner class ServiceBinder : Binder() {
+		var localAddress
+			get() = this@LightleakService.localAddress
+			set(value) {
+				this@LightleakService.localAddress = value
+			}
+		var gatewayAddress
+			get() = this@LightleakService.gatewayAddress
+			set(value) {
+				this@LightleakService.gatewayAddress = value
+			}
+
 		fun setData(
 			profile: ProfileLightleak.Data?,
 			progressValue: MutableLiveData<Int?>,
@@ -65,10 +78,6 @@ class LightleakService : Service(), CoroutineScope {
 			this@LightleakService.progressValue = progressValue
 			this@LightleakService.progressBytes = progressBytes
 			this@LightleakService.profile = profile ?: return
-		}
-
-		fun setLocalAddress(localAddress: Inet4Address?) {
-			this@LightleakService.localAddress = localAddress
 		}
 
 		suspend fun <T : CommandRequest, D> execute(command: T): D {
@@ -104,7 +113,7 @@ class LightleakService : Service(), CoroutineScope {
 		}
 		Log.d(TAG, "UDP listener started")
 
-		while (true) {
+		while (isActive) {
 			val packet = socket.receive().packet
 			val requestId = packet.readIntLittleEndian()
 			val crc32 = packet.readIntLittleEndian()
@@ -146,7 +155,7 @@ class LightleakService : Service(), CoroutineScope {
 		val packetOffsets = MutableList(packetCount) { start + readPacketSize * it }
 
 		var pauseCount = 0
-		while (true) {
+		while (isActive) {
 			val readStartIndex = packetList.indexOf(null)
 			if (readStartIndex == -1)
 				break
@@ -174,8 +183,8 @@ class LightleakService : Service(), CoroutineScope {
 				maxLength = readPacketSize,
 			).also { it.returnIp = localAddress ?: getBroadcastAddress() }
 			try {
-				packet.send("192.168.175.1")
-			} catch (e: Exception) {
+				packet.send(gatewayAddress ?: getBroadcastAddress())
+			} catch (e: Throwable) {
 				// wait a bit longer in case of [network] exceptions
 				delay(500)
 			}

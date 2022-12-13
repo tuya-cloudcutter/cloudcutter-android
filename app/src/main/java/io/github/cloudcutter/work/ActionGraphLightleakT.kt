@@ -5,7 +5,6 @@
 package io.github.cloudcutter.work
 
 import io.github.cloudcutter.R
-import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.model.ProfileLightleakDataT
 import io.github.cloudcutter.ext.roundTo
 import io.github.cloudcutter.util.MessageType
@@ -40,7 +39,6 @@ class ActionGraphLightleakT(
 			title = Text(R.string.action_ping_exploitable),
 			nextId = "message_exploitable",
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 		MessageAction(
 			id = "message_exploitable",
@@ -55,7 +53,6 @@ class ActionGraphLightleakT(
 			title = Text(R.string.action_ping_respond),
 			nextId = "message_exploited",
 			mode = PingAction.Mode.FOUND,
-			address = work.targetAddress,
 		),
 		MessageAction(
 			id = "message_exploited",

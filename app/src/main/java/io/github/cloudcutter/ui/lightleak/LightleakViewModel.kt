@@ -48,7 +48,12 @@ class LightleakViewModel @Inject constructor(
 	var localAddress: Inet4Address? = null
 		set(value) {
 			field = value
-			binder?.setLocalAddress(value)
+			binder?.localAddress = value
+		}
+	var gatewayAddress: Inet4Address? = null
+		set(value) {
+			field = value
+			binder?.gatewayAddress = value
 		}
 
 	var binder: LightleakService.ServiceBinder? = null
@@ -59,7 +64,8 @@ class LightleakViewModel @Inject constructor(
 				progressValue = progressValue,
 				progressBytes = progressBytes,
 			)
-			value?.setLocalAddress(localAddress)
+			value?.localAddress = localAddress
+			value?.gatewayAddress = gatewayAddress
 		}
 
 	suspend fun prepare(profileSlug: String) {

@@ -315,6 +315,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 
 	override fun onAddressesChanged(local: Inet4Address?, gateway: Inet4Address?) {
 		vm.localAddress = local
+		vm.gatewayAddress = gateway
 	}
 
 	override fun onStart() {

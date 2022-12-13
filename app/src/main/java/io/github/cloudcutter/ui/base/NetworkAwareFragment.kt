@@ -32,7 +32,7 @@ interface NetworkAwareFragment {
 
 	private var networkCallback
 		get() = networkAwareCallbacks?.get(0) as? NetworkCallback
-		set(value) = networkAwareCallbacks?.set(0, value) as Unit
+		set(value) = networkAwareCallbacks?.set(0, value) as? Unit ?: Unit
 
 	fun onStart() {
 		if (networkAwareCallbacks == null) {
