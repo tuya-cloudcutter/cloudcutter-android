@@ -5,6 +5,7 @@
 package io.github.cloudcutter.work.action
 
 import io.github.cloudcutter.R
+import io.github.cloudcutter.util.CloudcutterException
 import io.github.cloudcutter.util.Text
 import kotlinx.coroutines.TimeoutCancellationException
 
@@ -21,11 +22,11 @@ abstract class Action(
 			if (e::class.java == cls) return text
 		}
 
-		if (e is TimeoutCancellationException) {
-			return Text(R.string.message_error_timeout)
+		return when (e) {
+			is TimeoutCancellationException -> Text(R.string.message_error_timeout)
+			is CloudcutterException -> Text(R.string.text_format_string, e.message!!)
+			else -> Text(R.string.message_error_unknown, e.toString())
 		}
-
-		return Text(R.string.message_error_unknown, e.toString())
 	}
 
 	override fun toString(): String {

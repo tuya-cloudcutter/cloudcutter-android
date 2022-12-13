@@ -20,6 +20,60 @@
 		android:layout_height="match_parent"
 		android:keepScreenOn="true">
 
+		<TextView
+			android:id="@+id/title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:text="@string/lightleak_title"
+			android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<include
+			android:id="@+id/profileInfo"
+			layout="@layout/layout_profile_info"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="16dp"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/title" />
+
+		<include
+			android:id="@+id/wifiState"
+			layout="@layout/layout_wifi_state"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:layout_marginEnd="16dp"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/title" />
+
+		<TextView
+			android:id="@+id/outputTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginTop="16dp"
+			android:text="@string/lightleak_output_directory_text"
+			android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/profileInfo" />
+
+		<TextView
+			android:id="@+id/outputDirectory"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="16dp"
+			android:layout_marginEnd="16dp"
+			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/outputTitle"
+			tools:text="/storage/emulated/0/Android/data/io.github.cloudcutter/2022-11-29_11-21-06_lightleak/" />
+
 		<Button
 			android:id="@+id/buttonReadFlash"
 			android:layout_width="wrap_content"
@@ -76,40 +130,6 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="@+id/title" />
 
-		<TextView
-			android:id="@+id/title"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="16dp"
-			android:text="Device connected"
-			android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
-
-		<TextView
-			android:id="@+id/profileName"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="8dp"
-			android:text="@{vm.profile.name}"
-			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/title"
-			tools:text="1.0.1 - BK7231T" />
-
-		<TextView
-			android:id="@+id/profileSubName"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@{vm.profile.subName}"
-			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/profileName"
-			tools:text="oem_bk7231s_ty_ffc_newdp" />
-
 		<ProgressBar
 			android:id="@+id/progressBar"
 			style="?android:attr/progressBarStyleHorizontal"
@@ -131,7 +151,7 @@
 			android:layout_marginHorizontal="16dp"
 			android:layout_marginVertical="8dp"
 			android:fontFamily="monospace"
-			app:layout_constraintBottom_toTopOf="@+id/textView"
+			app:layout_constraintBottom_toTopOf="@+id/warningText"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/buttonRead0to1MB" />
@@ -155,38 +175,14 @@
 			tools:text="65.1 KiB/s" />
 
 		<TextView
-			android:id="@+id/outputTitle"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="16dp"
-			android:text="Output directory"
-			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/profileSubName" />
-
-		<TextView
-			android:id="@+id/outputDirectory"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="16dp"
-			android:layout_marginEnd="16dp"
-			android:gravity="center"
-			android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/outputTitle"
-			tools:text="/storage/emulated/0/Android/data/io.github.cloudcutter/2022-11-29_11-21-06_lightleak/" />
-
-		<TextView
-			android:id="@+id/textView"
+			android:id="@+id/warningText"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="32dp"
 			android:layout_marginEnd="32dp"
 			android:layout_marginBottom="16dp"
 			android:gravity="center_horizontal"
-			android:text="Do not minimize the app or turn the screen off.\n\nOtherwise, the connection and reading process will break."
+			android:text="@string/lightleak_warning_text"
 			android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
 			android:textStyle="bold"
 			app:layout_constraintBottom_toBottomOf="parent"

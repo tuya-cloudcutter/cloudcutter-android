@@ -19,6 +19,7 @@ import io.github.cloudcutter.ext.getBroadcastAddress
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ext.toInet4String
 import io.github.cloudcutter.ui.base.BaseViewModel
+import io.github.cloudcutter.util.CloudcutterException
 import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.ActionGraph
@@ -218,7 +219,7 @@ class WorkViewModel @Inject constructor(
 	}
 
 	private suspend fun runPingAction(action: PingAction) = withContext(Dispatchers.IO) {
-		val address = gatewayAddress ?: throw RuntimeException("Wi-Fi network is disconnected")
+		val address = gatewayAddress ?: throw CloudcutterException("Wi-Fi network is disconnected")
 		var count = 0
 		val ping = Ping(address, object : PingListener {
 			override fun onPing(timeMs: Long, index: Int) {

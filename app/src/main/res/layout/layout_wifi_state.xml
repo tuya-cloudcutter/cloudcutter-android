@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) Kuba Szczodrzyński 2022-12-13.
+  -->
+
+<layout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<data>
+
+		<variable
+			name="wifiSsid"
+			type="String" />
+
+		<variable
+			name="wifiRssi"
+			type="int" />
+
+		<variable
+			name="localAddress"
+			type="String" />
+
+		<variable
+			name="gatewayAddress"
+			type="String" />
+	</data>
+
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:ellipsize="middle"
+				android:singleLine="true"
+				android:text="@{wifiSsid ?? @string/wifi_state_no_wifi}"
+				android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+				tools:text="SmartLife-ABCD" />
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="8dp"
+				android:text="@{wifiRssi == 0 ? null : @string/wifi_state_rssi_format(wifiRssi)}"
+				android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+				tools:text="-56 dBm" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:fontFamily="monospace"
+				android:text="@string/wifi_state_ip_prefix"
+				android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:fontFamily="monospace"
+				android:text="@{localAddress ?? @string/wifi_state_no_address}"
+				android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+				tools:text="192.168.175.100/24" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:fontFamily="monospace"
+				android:text="@string/wifi_state_gw_prefix"
+				android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:fontFamily="monospace"
+				android:text="@{gatewayAddress ?? @string/wifi_state_no_address}"
+				android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+				tools:text="192.168.175.1" />
+		</LinearLayout>
+	</LinearLayout>
+</layout>

@@ -52,6 +52,7 @@ interface NetworkAwareFragment {
 					@Suppress("DEPRECATION")
 					val wifiInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
 						networkCapabilities.transportInfo as? WifiInfo
+							?: wifiManager?.connectionInfo
 					else
 						wifiManager?.connectionInfo
 					this@NetworkAwareFragment.onWifiInfoChanged(wifiInfo)
@@ -59,11 +60,10 @@ interface NetworkAwareFragment {
 			}
 		}
 
-		val networkRequest =
-			NetworkRequest.Builder()
-				.addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-				.removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-				.build()
+		val networkRequest = NetworkRequest.Builder()
+			.addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+			.removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+			.build()
 		connectivityManager?.registerNetworkCallback(networkRequest, networkCallback ?: return)
 		connectivityManager?.requestNetwork(networkRequest, networkCallback ?: return)
 	}
@@ -73,11 +73,9 @@ interface NetworkAwareFragment {
 	}
 
 	private fun onLinkPropertiesChanged(linkProperties: LinkProperties) {
-		val localAddress = linkProperties.linkAddresses
-			.firstOrNull { it.address is Inet4Address }
-		val gatewayAddress = linkProperties.routes
-			.firstOrNull { it.gateway is Inet4Address }
-			?.gateway
+		val localAddress = linkProperties.linkAddresses.firstOrNull { it.address is Inet4Address }
+		val gatewayAddress =
+			linkProperties.routes.firstOrNull { it.gateway is Inet4Address && it.destination.prefixLength == 0 }?.gateway
 		onAddressesChanged(
 			local = localAddress?.address as? Inet4Address,
 			gateway = gatewayAddress as? Inet4Address,
@@ -90,7 +88,7 @@ interface NetworkAwareFragment {
 
 	private fun onWifiInfoChanged(wifiInfo: WifiInfo?) {
 		onConnectedSsidChanged(
-			ssid = wifiInfo?.ssid,
+			ssid = wifiInfo?.ssid?.drop(1)?.dropLast(1),
 			rssi = wifiInfo?.rssi,
 		)
 	}

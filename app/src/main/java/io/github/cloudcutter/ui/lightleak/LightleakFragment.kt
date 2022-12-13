@@ -73,6 +73,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 			withContext(Dispatchers.IO) {
 				vm.prepare(args.profileSlug)
 			}
+			b.profileInfo.profile = vm.profile.value
 		}
 
 		vm.progressBytes.observe(viewLifecycleOwner) { progress ->
@@ -119,6 +120,16 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override fun onAddressesChanged(local: Inet4Address?, gateway: Inet4Address?) {
 		vm.localAddress = local
 		vm.gatewayAddress = gateway
+	}
+
+	override fun onAddressesTextChanged(local: String?, gateway: String?) {
+		b.wifiState.localAddress = local
+		b.wifiState.gatewayAddress = gateway
+	}
+
+	override fun onConnectedSsidChanged(ssid: String?, rssi: Int?) {
+		b.wifiState.wifiSsid = ssid
+		b.wifiState.wifiRssi = rssi ?: 0
 	}
 
 	override fun onStart() {

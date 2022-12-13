@@ -113,7 +113,7 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 			val profile = withContext(Dispatchers.IO) {
 				vm.prepare(args.profileSlug)
 			} ?: return@launch
-			b.profile = profile
+			b.profileInfo.profile = profile
 			// TODO move dialog functions when adding support for Classic, along with its config dialogs
 			if (profile is ProfileLightleak) {
 				chooseDirectoryInfoDialog()
@@ -316,6 +316,16 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 	override fun onAddressesChanged(local: Inet4Address?, gateway: Inet4Address?) {
 		vm.localAddress = local
 		vm.gatewayAddress = gateway
+	}
+
+	override fun onAddressesTextChanged(local: String?, gateway: String?) {
+		b.wifiState.localAddress = local
+		b.wifiState.gatewayAddress = gateway
+	}
+
+	override fun onConnectedSsidChanged(ssid: String?, rssi: Int?) {
+		b.wifiState.wifiSsid = ssid
+		b.wifiState.wifiRssi = rssi ?: 0
 	}
 
 	override fun onStart() {

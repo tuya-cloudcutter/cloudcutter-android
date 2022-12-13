@@ -31,7 +31,10 @@
 	<string name="action_scanned_ssid">Found network: %s</string>
 	<string name="back">Back</string>
 	<string name="cancel">Cancel</string>
+	<string name="lightleak_output_directory_text">Output directory</string>
 	<string name="lightleak_service_name">Cloudcutter Lightleak Service</string>
+	<string name="lightleak_title">Device connected</string>
+	<string name="lightleak_warning_text"><![CDATA[Do not minimize the app or turn the screen off.\n\nOtherwise, the connection and reading process will break.]]></string>
 	<string name="message_device_reboot_ap_mode">The device exited AP mode and connected to the custom AP. Reboot the device into AP mode once again (usually only 1 reboot is needed now).</string>
 	<string name="message_enable_ap_pairing">Put the smart device in AP pairing mode. The light (or LED) should be blinking slowly (every 1–2 seconds).</string>
 	<string name="message_error_packet_socket_exception">Couldn\'t send the packet to the device, which means it:\n- exited AP mode\n- was frozen by an incompatible Lightleak profile\n- lost connection temporarily.\n\nYou can try repeating this process again, or choosing a different Lightleak profile.</string>
@@ -55,13 +58,20 @@
 	<string name="ok">OK</string>
 	<string name="permission_denied_text">You have denied one or more required permissions to the app.\n\nPlease open Android settings and grant the permissions manually.</string>
 	<string name="permission_denied_title">Permissions denied</string>
+	<string name="profile_info_title">Current profile</string>
 	<string name="profile_type_classic">Classic</string>
 	<string name="profile_type_lightleak">Lightleak</string>
+	<string name="text_format_string">%s</string>
 	<string name="title_devices">Devices</string>
 	<string name="title_dumps">My Dumps</string>
 	<string name="title_lightleak">Lightleak</string>
 	<string name="title_profiles">Profiles</string>
 	<string name="title_work">Cloudcutter</string>
+	<string name="wifi_state_gw_prefix">GW: </string>
+	<string name="wifi_state_ip_prefix">IP: </string>
+	<string name="wifi_state_no_address">-        </string>
+	<string name="wifi_state_no_wifi">No Wi-Fi</string>
+	<string name="wifi_state_rssi_format">%d dBm</string>
 	<string name="work_directory_dialog_add">-- create a new device --</string>
 	<string name="work_directory_dialog_text">Choose a descriptive name of the device you\'re currently connecting to. The dump and profile files will be created in a directory with this name.\n\nIf the process fails for some reason, you\'ll be able to continue dumping using the previously created device.</string>
 	<string name="work_directory_dialog_title">Choose output directory</string>
@@ -72,6 +82,8 @@
 	<string name="work_state_dialog_text">What is the current state of the device?\n\nThis may save you some time if you want to re-run the remote dump feature (i.e. in case of errors).\n\nIf in doubt, choose the first option. Other options will not work on a fresh device.\n\nClick OK to choose the state.</string>
 	<string name="work_state_dialog_title">Device state</string>
 	<string name="work_state_dialog_with_stager">Configured to join CustomAP</string>
+	<string name="work_state_preparing">Preparing…</string>
 	<string name="work_state_title">Current state</string>
+	<string name="work_title">Configuring the device</string>
 	<string name="yes">Yes</string>
 </resources>
