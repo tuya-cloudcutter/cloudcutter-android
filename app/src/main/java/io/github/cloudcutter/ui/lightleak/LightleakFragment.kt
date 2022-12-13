@@ -8,17 +8,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.ConnectivityManager
-import android.net.LinkProperties
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.View
-import androidx.core.content.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -27,6 +21,7 @@ import io.github.cloudcutter.databinding.LightleakFragmentBinding
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ext.toReadableSize
 import io.github.cloudcutter.ui.base.BaseFragment
+import io.github.cloudcutter.ui.base.NetworkAwareFragment
 import io.github.cloudcutter.work.service.lightleak.LightleakService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +34,7 @@ import java.net.Inet4Address
 @AndroidEntryPoint
 class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, parent ->
 	LightleakFragmentBinding.inflate(inflater, parent, false)
-}), CoroutineScope, ServiceConnection {
+}), CoroutineScope, ServiceConnection, NetworkAwareFragment {
 	companion object {
 		private const val TAG = "LightleakFragment"
 		private const val PROGRESS_SPEED_SIZE = 50 // 50 KiB
@@ -47,23 +42,12 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 
 	override val coroutineContext = Job() + Dispatchers.Main
 	override val vm: LightleakViewModel by viewModels()
-	private val args: LightleakFragmentArgs by navArgs()
+	override var networkAwareCallbacks: MutableList<Any?>? = null
 
+	private val args: LightleakFragmentArgs by navArgs()
 	private var progressLast = 0
 	private var progressLastAt = 0L
 	private var progressSpeedList = listOf<Int>()
-
-	private val connectivityManager
-		get() = context?.getSystemService<ConnectivityManager>()
-
-	private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-		override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-			vm.returnIp = linkProperties.linkAddresses
-				.map { it.address }
-				.firstOrNull { it is Inet4Address }
-				?: return
-		}
-	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
@@ -132,15 +116,21 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 		}
 	}
 
+	override fun onAddressesChanged(local: Inet4Address?, gateway: Inet4Address?) {
+		vm.localAddress = local
+	}
+
 	override fun onStart() {
-		super.onStart()
+		super<BaseFragment>.onStart()
+		super<NetworkAwareFragment>.onStart()
 		Intent(requireContext(), LightleakService::class.java).also { intent ->
 			context?.bindService(intent, this, Context.BIND_AUTO_CREATE)
 		}
 	}
 
 	override fun onStop() {
-		super.onStop()
+		super<BaseFragment>.onStop()
+		super<NetworkAwareFragment>.onStop()
 		vm.cancel()
 		context?.unbindService(this)
 		onServiceDisconnected(null)
@@ -149,17 +139,10 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override fun onServiceConnected(className: ComponentName, service: IBinder) {
 		Log.d(TAG, "Service connected: $className")
 		vm.binder = service as? LightleakService.ServiceBinder
-
-		val networkRequest =
-			NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-				.removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
-		connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
-		connectivityManager?.requestNetwork(networkRequest, networkCallback)
 	}
 
 	override fun onServiceDisconnected(className: ComponentName?) {
 		Log.d(TAG, "Service disconnected: $className")
 		vm.binder = null
-		connectivityManager?.unregisterNetworkCallback(networkCallback)
 	}
 }

@@ -6,19 +6,12 @@ package io.github.cloudcutter.ui.work
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.net.ConnectivityManager
-import android.net.ConnectivityManager.NetworkCallback
-import android.net.LinkProperties
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
-import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -39,6 +32,7 @@ import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ext.wifiConnect
 import io.github.cloudcutter.ext.wifiScan
 import io.github.cloudcutter.ui.base.BaseFragment
+import io.github.cloudcutter.ui.base.NetworkAwareFragment
 import io.github.cloudcutter.ui.input
 import io.github.cloudcutter.work.event.Event
 import io.github.cloudcutter.work.event.MessageEvent
@@ -64,27 +58,18 @@ import java.time.format.DateTimeFormatter
 @AndroidEntryPoint
 class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 	WorkFragmentBinding.inflate(inflater, parent, false)
-}), Observer<Event>, CoroutineScope {
+}), Observer<Event>, CoroutineScope, NetworkAwareFragment {
 	companion object {
 		private const val TAG = "WorkFragment"
 	}
 
 	override val coroutineContext = Job() + Dispatchers.Main
 	override val vm: WorkViewModel by viewModels()
+	override var networkAwareCallbacks: MutableList<Any?>? = null
+
 	private val args: WorkFragmentArgs by navArgs()
 	private var defaultIcon: IconicsDrawable? = null
 	private var anim: ObjectAnimator? = null
-
-	private val connectivityManager
-		get() = context?.getSystemService<ConnectivityManager>()
-
-	private val networkCallback = object : NetworkCallback() {
-		override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-			vm.localAddress =
-				linkProperties.linkAddresses.map { it.address }.firstOrNull { it is Inet4Address }
-					?: return
-		}
-	}
 
 	@SuppressLint("InlinedApi")
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -328,17 +313,17 @@ class WorkFragment : BaseFragment<WorkFragmentBinding>({ inflater, parent ->
 		}
 	}
 
+	override fun onAddressesChanged(local: Inet4Address?, gateway: Inet4Address?) {
+		vm.localAddress = local
+	}
+
 	override fun onStart() {
-		super.onStart()
-		val networkRequest =
-			NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-				.removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
-		connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
-		connectivityManager?.requestNetwork(networkRequest, networkCallback)
+		super<BaseFragment>.onStart()
+		super<NetworkAwareFragment>.onStart()
 	}
 
 	override fun onStop() {
-		super.onStop()
-		connectivityManager?.unregisterNetworkCallback(networkCallback)
+		super<BaseFragment>.onStop()
+		super<NetworkAwareFragment>.onStop()
 	}
 }

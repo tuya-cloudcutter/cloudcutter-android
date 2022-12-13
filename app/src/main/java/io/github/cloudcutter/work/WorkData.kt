@@ -19,7 +19,6 @@ class WorkData(
 	val targetSsidPrefix = "CCTR-"
 	val targetSsidRegex = """^[\w\d +-]+-[A-F0-9]{4}$""".toRegex()
 	val targetAddress = "192.168.175.1"
-	val targetBroadcast = "255.255.255.255"
 
 	var lightleakSsid = "LightleakCustom".toByteArray()
 	lateinit var lightleakPassword: ByteArray

@@ -15,6 +15,7 @@ import io.github.cloudcutter.data.model.Profile
 import io.github.cloudcutter.data.model.ProfileClassic
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.repository.ProfileRepository
+import io.github.cloudcutter.ext.getBroadcastAddress
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ui.base.BaseViewModel
 import io.github.cloudcutter.util.MessageType
@@ -56,7 +57,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.io.File
-import java.net.InetAddress
+import java.net.Inet4Address
 import javax.inject.Inject
 
 @HiltViewModel
@@ -76,7 +77,7 @@ class WorkViewModel @Inject constructor(
 	val stateChangedIndex = Channel<Int>()
 
 	val event = LiveEvent<Event>()
-	var localAddress: InetAddress = InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1))
+	var localAddress: Inet4Address? = null
 	var outputDir: File? = null
 
 	private var messageRemove: Boolean? = null
@@ -206,7 +207,7 @@ class WorkViewModel @Inject constructor(
 
 	private suspend fun runPacketAction(action: PacketAction) {
 		if (action.packet is ProperPacket)
-			action.packet.returnIp = localAddress
+			action.packet.returnIp = localAddress ?: getBroadcastAddress()
 
 		for (i in 0 until 3) {
 			action.packet.send(work.targetBroadcast)

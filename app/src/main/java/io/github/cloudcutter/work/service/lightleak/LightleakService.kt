@@ -13,7 +13,7 @@ import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.ext.crc32
-import io.github.cloudcutter.ext.toHexString
+import io.github.cloudcutter.ext.getBroadcastAddress
 import io.github.cloudcutter.work.protocol.proper.FlashReadPacket
 import io.github.cloudcutter.work.protocol.send
 import io.github.cloudcutter.work.service.lightleak.command.CommandRequest
@@ -31,11 +31,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.net.InetAddress
+import java.net.Inet4Address
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.ceil
-import kotlin.math.min
 
 class LightleakService : Service(), CoroutineScope {
 	companion object {
@@ -47,7 +46,7 @@ class LightleakService : Service(), CoroutineScope {
 	private val packets = Channel<Pair<Int, ByteArray>>(Channel.UNLIMITED)
 
 	private lateinit var profile: ProfileLightleak.Data
-	private lateinit var returnIp: InetAddress
+	private var localAddress: Inet4Address? = null
 	private var progressValue: MutableLiveData<Int?>? = null
 	private var progressBytes: MutableLiveData<Int?>? = null
 
@@ -68,8 +67,8 @@ class LightleakService : Service(), CoroutineScope {
 			this@LightleakService.profile = profile ?: return
 		}
 
-		fun setReturnIp(ip: InetAddress) {
-			returnIp = ip
+		fun setLocalAddress(localAddress: Inet4Address?) {
+			this@LightleakService.localAddress = localAddress
 		}
 
 		suspend fun <T : CommandRequest, D> execute(command: T): D {
@@ -163,14 +162,23 @@ class LightleakService : Service(), CoroutineScope {
 			val requestId = newRequestId
 			val readOffset = packetOffsets[readStartIndex]
 			// read flash
-			Log.d(TAG, "Reading data #$readStartIndex, offset=0x${readOffset.toString(16)}, count=$readPacketCount")
-			FlashReadPacket(
+			Log.d(
+				TAG,
+				"Reading data #$readStartIndex, offset=0x${readOffset.toString(16)}, count=$readPacketCount",
+			)
+			val packet = FlashReadPacket(
 				profile = profile,
 				requestId = requestId,
 				offset = readOffset,
 				length = readPacketCount * readPacketSize,
 				maxLength = readPacketSize,
-			).also { it.returnIp = returnIp }.send("192.168.175.1")
+			).also { it.returnIp = localAddress ?: getBroadcastAddress() }
+			try {
+				packet.send("192.168.175.1")
+			} catch (e: Exception) {
+				// wait a bit longer in case of [network] exceptions
+				delay(500)
+			}
 
 			// wait a moment
 			if (pauseCount++ == 100)

@@ -20,7 +20,7 @@ import io.github.cloudcutter.work.service.lightleak.command.FlashReadCommand
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
-import java.net.InetAddress
+import java.net.Inet4Address
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,10 +45,10 @@ class LightleakViewModel @Inject constructor(
 
 	val profile = MutableLiveData<ProfileLightleak>()
 
-	var returnIp: InetAddress = InetAddress.getByAddress(byteArrayOf(255.toByte(), 255.toByte(), 255.toByte(), 0))
+	var localAddress: Inet4Address? = null
 		set(value) {
 			field = value
-			binder?.setReturnIp(value)
+			binder?.setLocalAddress(value)
 		}
 
 	var binder: LightleakService.ServiceBinder? = null
@@ -59,7 +59,7 @@ class LightleakViewModel @Inject constructor(
 				progressValue = progressValue,
 				progressBytes = progressBytes,
 			)
-			value?.setReturnIp(returnIp)
+			value?.setLocalAddress(localAddress)
 		}
 
 	suspend fun prepare(profileSlug: String) {

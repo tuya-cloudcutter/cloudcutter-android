@@ -10,11 +10,11 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.content.getSystemService
 import java.io.File
+import java.net.Inet4Address
 import java.text.DecimalFormat
 import java.util.zip.CRC32
 import kotlin.math.log10
 import kotlin.math.pow
-
 
 operator fun MatchResult.get(i: Int) = this.groupValues[i]
 
@@ -34,7 +34,11 @@ fun Context.hasInternet(): Boolean {
 }
 
 fun ByteArray.toHexString() = joinToString(" ") { it.toUByte().toString(16).padStart(2, '0') }
-fun Collection<Byte>.toHexString() = joinToString(" ") { it.toUByte().toString(16).padStart(2, '0') }
+fun Collection<Byte>.toHexString() = joinToString(" ") { byte ->
+	byte.toUByte()
+		.toString(16)
+		.padStart(2, '0')
+}
 
 fun ByteArray.crc32() = CRC32().let { crc ->
 	crc.update(this@crc32)
@@ -64,3 +68,13 @@ fun Int.toReadableSize(unit: String = "iB", system: Double = 1024.0): String {
 		.format(this / system.pow(digitGroups.toDouble()))
 	return "$value ${units[digitGroups]}$unit"
 }
+
+fun String.toInet4Address() =
+	Inet4Address.getByAddress(this.split(".").map { it.toByte() }.toByteArray()) as Inet4Address
+
+fun Inet4Address.toInet4String() =
+	this.address.joinToString(".") { it.toUByte().toString() }
+
+fun getBroadcastAddress() = "255.255.255.255".toInet4Address()
+fun getLocalhostAddress() = "127.0.0.1".toInet4Address()
+
