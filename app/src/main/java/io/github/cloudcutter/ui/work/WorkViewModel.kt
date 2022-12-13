@@ -118,6 +118,7 @@ class WorkViewModel @Inject constructor(
 	}
 
 	suspend fun prepare(profileSlug: String): Profile<*>? {
+		stateList.clear()
 		val state = DummyAction(Text(R.string.action_prepare)).start()
 		try {
 			val profile = profileRepository.getProfile(profileSlug)
