@@ -9,10 +9,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.community.material.CommunityMaterial
+import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.model.ProfileBase
 import io.github.cloudcutter.databinding.ProfileListItemBinding
+import io.github.cloudcutter.ui.resolveAttr
 import io.github.cloudcutter.util.BindingViewHolder
 
 class ProfileListAdapter(
@@ -46,6 +48,7 @@ class ProfileListAdapter(
 			icon = profile.icon ?: CommunityMaterial.Icon.cmd_code_tags,
 		).apply {
 			sizeDp = 24
+			colorInt = android.R.attr.textColorPrimary.resolveAttr(holder.b.icon.context)
 		}
 		holder.b.root.setOnClickListener {
 			onClick(profile)

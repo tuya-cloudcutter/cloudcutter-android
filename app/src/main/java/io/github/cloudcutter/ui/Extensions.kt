@@ -4,9 +4,14 @@
 
 package io.github.cloudcutter.ui
 
+import android.content.Context
+import android.graphics.Color
 import android.text.InputType
+import android.util.TypedValue
 import android.view.LayoutInflater
 import androidx.activity.ComponentActivity
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.viewbinding.ViewBinding
@@ -48,4 +53,14 @@ fun MaterialAlertDialogBuilder.input(
 	setView(b.root)
 
 	return this
+}
+
+@ColorInt
+fun @receiver:AttrRes Int.resolveAttr(context: Context?): Int {
+	val typedValue = TypedValue()
+	context?.theme?.resolveAttribute(this, typedValue, true)
+	val typedArray = context?.obtainStyledAttributes(typedValue.data, intArrayOf(this))
+	val color = typedArray?.getColor(0, Color.TRANSPARENT)
+	typedArray?.recycle()
+	return color ?: Color.TRANSPARENT
 }

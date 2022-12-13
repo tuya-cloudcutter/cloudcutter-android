@@ -13,7 +13,6 @@ import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
 import coil.load
 import coil.transform.CircleCropTransformation
-import coil.transform.Transformation
 
 @BindingAdapter("android:isVisible")
 fun bindIsVisible(view: View, isVisible: Boolean) {
