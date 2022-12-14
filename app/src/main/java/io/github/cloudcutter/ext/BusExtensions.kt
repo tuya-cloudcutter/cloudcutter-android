@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
 
 suspend inline fun <reified T : Event> Channel<Event>.await(): T {
 	Log.d("Extensions", "Awaiting ${T::class.java.simpleName}")
@@ -88,10 +87,12 @@ private class BusSubscriber<T : CommandRequest, D>(
 	}
 
 	@Subscribe
-	fun onValue(value: CommandResponse<T, D>) {
-		Log.d(TAG, "Got value on bus: $value")
-		if (value.command == command)
-			continuation.resume(value)
+	fun onValue(value: Result<CommandResponse<T, D>>) {
+		Log.d(TAG, "Got result on bus: $value")
+		if (value.isFailure)
+			continuation.resumeWith(value)
+		else if (value.getOrThrow().command == command)
+			continuation.resumeWith(value)
 	}
 }
 
