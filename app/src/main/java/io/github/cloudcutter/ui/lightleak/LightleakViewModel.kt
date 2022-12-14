@@ -15,8 +15,8 @@ import io.github.cloudcutter.data.repository.ProfileRepository
 import io.github.cloudcutter.ext.create
 import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ui.base.BaseViewModel
-import io.github.cloudcutter.work.service.lightleak.LightleakService
-import io.github.cloudcutter.work.service.lightleak.command.FlashReadCommand
+import io.github.cloudcutter.work.lightleak.LightleakService
+import io.github.cloudcutter.work.lightleak.command.FlashReadCommand
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File

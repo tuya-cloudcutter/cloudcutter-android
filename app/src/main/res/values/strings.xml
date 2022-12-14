@@ -64,9 +64,9 @@
 	<string name="text_format_string">%s</string>
 	<string name="title_devices">Devices</string>
 	<string name="title_dumps">My Dumps</string>
+	<string name="title_exploit">Cloudcutter</string>
 	<string name="title_lightleak">Lightleak</string>
 	<string name="title_profiles">Profiles</string>
-	<string name="title_work">Cloudcutter</string>
 	<string name="wifi_state_gw_prefix">GW: </string>
 	<string name="wifi_state_ip_prefix">IP: </string>
 	<string name="wifi_state_no_address">-        </string>

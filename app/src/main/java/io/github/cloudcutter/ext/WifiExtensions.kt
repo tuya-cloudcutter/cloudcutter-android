@@ -10,7 +10,7 @@ import android.util.Log
 import com.thanosfisherman.wifiutils.WifiUtils
 import com.thanosfisherman.wifiutils.wifiConnect.ConnectionErrorCode
 import com.thanosfisherman.wifiutils.wifiConnect.ConnectionSuccessListener
-import io.github.cloudcutter.work.event.WiFiScanResponse
+import io.github.cloudcutter.work.exploit.event.WiFiScanResponse
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 

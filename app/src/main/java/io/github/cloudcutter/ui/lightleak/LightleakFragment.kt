@@ -22,7 +22,7 @@ import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ext.toReadableSize
 import io.github.cloudcutter.ui.base.BaseFragment
 import io.github.cloudcutter.ui.base.NetworkAwareFragment
-import io.github.cloudcutter.work.service.lightleak.LightleakService
+import io.github.cloudcutter.work.lightleak.LightleakService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

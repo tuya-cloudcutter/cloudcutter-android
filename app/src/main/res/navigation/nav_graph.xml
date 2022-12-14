@@ -23,14 +23,14 @@
 		tools:layout="@layout/profile_list_fragment">
 		<action
 			android:id="@+id/action_menu_profiles_to_menu_work"
-			app:destination="@id/menu_work" />
+			app:destination="@id/menu_exploit" />
 	</fragment>
 
 	<fragment
-		android:id="@+id/menu_work"
-		android:name="io.github.cloudcutter.ui.work.WorkFragment"
-		android:label="@string/title_work"
-		tools:layout="@layout/work_fragment">
+		android:id="@+id/menu_exploit"
+		android:name="io.github.cloudcutter.ui.exploit.ExploitFragment"
+		android:label="@string/title_exploit"
+		tools:layout="@layout/exploit_fragment">
 		<argument
 			android:name="profileSlug"
 			app:argType="string" />

@@ -11,9 +11,9 @@ import androidx.lifecycle.asFlow
 import com.hadilq.liveevent.LiveEvent
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
-import io.github.cloudcutter.work.event.Event
-import io.github.cloudcutter.work.service.lightleak.command.CommandRequest
-import io.github.cloudcutter.work.service.lightleak.command.CommandResponse
+import io.github.cloudcutter.work.exploit.event.Event
+import io.github.cloudcutter.work.lightleak.command.CommandRequest
+import io.github.cloudcutter.work.lightleak.command.CommandResponse
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first

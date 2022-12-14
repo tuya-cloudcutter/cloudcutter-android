@@ -36,7 +36,7 @@
 		</activity>
 
 		<service
-			android:name=".work.service.lightleak.LightleakService"
+			android:name=".work.lightleak.LightleakService"
 			android:description="@string/lightleak_service_name" />
 	</application>
 </manifest>
