@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.databinding.LightleakFragmentBinding
+import io.github.cloudcutter.ext.launchWithErrorCard
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ext.toReadableSize
 import io.github.cloudcutter.ui.base.BaseFragment
@@ -26,7 +27,6 @@ import io.github.cloudcutter.work.lightleak.LightleakService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.Inet4Address
@@ -69,7 +69,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 		vm.outputDir = File(args.outputDir)
 		b.outputDirectory.text = vm.outputDir.absolutePath
 
-		lifecycleScope.launch {
+		lifecycleScope.launchWithErrorCard(b.messageCard) {
 			withContext(Dispatchers.IO) {
 				vm.prepare(args.profileSlug)
 			}

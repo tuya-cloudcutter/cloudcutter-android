@@ -188,5 +188,16 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent" />
+
+		<include
+			android:id="@+id/messageCard"
+			layout="@layout/layout_message_card"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_margin="16dp"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			android:visibility="gone" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

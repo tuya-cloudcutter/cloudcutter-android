@@ -16,6 +16,7 @@ import io.github.cloudcutter.ext.awaitResponse
 import io.github.cloudcutter.ext.crc32
 import io.github.cloudcutter.ext.getBroadcastAddress
 import io.github.cloudcutter.ext.send
+import io.github.cloudcutter.work.exceptions.PacketReadException
 import io.github.cloudcutter.work.lightleak.command.CommandRequest
 import io.github.cloudcutter.work.lightleak.command.CommandResponse
 import io.github.cloudcutter.work.lightleak.command.FlashReadCommand
@@ -132,16 +133,21 @@ class LightleakService : Service(), CoroutineScope {
 	@Subscribe
 	fun onCommand(command: CommandRequest) = launch {
 		Log.d(TAG, "Running command: $command")
-		val response = when (command) {
-			is FlashReadCommand -> flashRead(
-				start = command.offset,
-				end = command.offset + command.length,
-				output = command.output,
-			)
-			else -> null
-		} ?: return@launch
+		val result = try {
+			val data = when (command) {
+				is FlashReadCommand -> flashRead(
+					start = command.offset,
+					end = command.offset + command.length,
+					output = command.output,
+				)
+				else -> null
+			} ?: return@launch
+			Result.success(CommandResponse(command, data))
+		} catch (e: Exception) {
+			Result.failure(e)
+		}
 		withContext(Dispatchers.Main) {
-			bus.post(CommandResponse(command, response))
+			bus.post(result)
 		}
 	}
 
@@ -156,6 +162,7 @@ class LightleakService : Service(), CoroutineScope {
 		val packetOffsets = MutableList(packetCount) { start + readPacketSize * it }
 
 		var pauseCount = 0
+		var failedCount = 0
 		while (isActive) {
 			val readStartIndex = packetList.indexOf(null)
 			if (readStartIndex == -1)
@@ -219,6 +226,9 @@ class LightleakService : Service(), CoroutineScope {
 			if (packetsReceived > 0) {
 				this.progressValue?.postValue(progress * 100 / packetCount)
 				this.progressBytes?.postValue(progress * readPacketSize)
+				failedCount = 0
+			} else if (failedCount++ >= 200) {
+				throw PacketReadException()
 			}
 			if (progress == packetCount)
 				break
