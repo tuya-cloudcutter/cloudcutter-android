@@ -15,7 +15,9 @@ import io.github.cloudcutter.data.model.Profile
 import io.github.cloudcutter.data.model.ProfileClassic
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.repository.ProfileRepository
+import io.github.cloudcutter.ext.await
 import io.github.cloudcutter.ext.getBroadcastAddress
+import io.github.cloudcutter.ext.send
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ext.toInet4String
 import io.github.cloudcutter.ui.base.BaseViewModel
@@ -44,9 +46,7 @@ import io.github.cloudcutter.work.event.WiFiConnectResponse
 import io.github.cloudcutter.work.event.WiFiScanRequest
 import io.github.cloudcutter.work.event.WiFiScanResponse
 import io.github.cloudcutter.work.event.WorkStateEvent
-import io.github.cloudcutter.work.event.await
 import io.github.cloudcutter.work.protocol.proper.ProperPacket
-import io.github.cloudcutter.work.protocol.send
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*

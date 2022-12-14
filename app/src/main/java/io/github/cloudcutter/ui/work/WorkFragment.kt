@@ -28,12 +28,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.databinding.WorkFragmentBinding
+import io.github.cloudcutter.ext.input
 import io.github.cloudcutter.ext.openChild
+import io.github.cloudcutter.ext.toEvent
 import io.github.cloudcutter.ext.wifiConnect
 import io.github.cloudcutter.ext.wifiScan
 import io.github.cloudcutter.ui.base.BaseFragment
 import io.github.cloudcutter.ui.base.NetworkAwareFragment
-import io.github.cloudcutter.ui.input
 import io.github.cloudcutter.work.event.Event
 import io.github.cloudcutter.work.event.MessageEvent
 import io.github.cloudcutter.work.event.MessageRemoveEvent
@@ -41,7 +42,6 @@ import io.github.cloudcutter.work.event.WiFiConnectRequest
 import io.github.cloudcutter.work.event.WiFiConnectResponse
 import io.github.cloudcutter.work.event.WiFiScanRequest
 import io.github.cloudcutter.work.event.WorkStateEvent
-import io.github.cloudcutter.work.event.toEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

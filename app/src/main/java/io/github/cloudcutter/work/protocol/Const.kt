@@ -11,5 +11,3 @@ const val DGRAM_FR_NUM = 0x00
 const val DGRAM_FR_TYPE = 0x01
 
 const val OPT_MARKER = 0xFF
-
-

@@ -6,14 +6,15 @@ package io.github.cloudcutter.work
 
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.model.ProfileLightleakDataN
+import io.github.cloudcutter.ext.buildByteArray
 import io.github.cloudcutter.ext.roundTo
+import io.github.cloudcutter.ext.toOffset
 import io.github.cloudcutter.util.MessageType
 import io.github.cloudcutter.util.Text
 import io.github.cloudcutter.work.action.Action
 import io.github.cloudcutter.work.action.MessageAction
 import io.github.cloudcutter.work.action.PacketAction
 import io.github.cloudcutter.work.action.PingAction
-import io.github.cloudcutter.work.protocol.buildByteArray
 import io.github.cloudcutter.work.protocol.proper.FillIntfPacket
 import io.github.cloudcutter.work.protocol.proper.StopTimerPacket
 import io.github.cloudcutter.work.protocol.stager.bk7231n.CallbackPacket
@@ -21,7 +22,6 @@ import io.github.cloudcutter.work.protocol.stager.bk7231n.DDevCommand
 import io.github.cloudcutter.work.protocol.stager.bk7231n.DDevControlPacket
 import io.github.cloudcutter.work.protocol.stager.bk7231n.DDevOpenPacket
 import io.github.cloudcutter.work.protocol.stager.bk7231n.DDevWritePacket
-import io.github.cloudcutter.work.protocol.toOffset
 
 class ActionGraphLightleakN(
 	private val work: WorkData,

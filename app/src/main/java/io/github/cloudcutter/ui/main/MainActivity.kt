@@ -7,7 +7,6 @@ package io.github.cloudcutter.ui.main
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
 import androidx.core.view.forEach
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -21,7 +20,7 @@ import com.mikepenz.iconics.utils.sizeDp
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.R
 import io.github.cloudcutter.databinding.MainActivityBinding
-import io.github.cloudcutter.ui.viewBinding
+import io.github.cloudcutter.ext.viewBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

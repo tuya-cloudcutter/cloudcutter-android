@@ -5,7 +5,7 @@
 package io.github.cloudcutter.work.protocol.stager.bk7231n
 
 import io.github.cloudcutter.data.model.ProfileLightleakDataN
-import io.github.cloudcutter.work.protocol.buildByteArray
+import io.github.cloudcutter.ext.buildByteArray
 
 data class DDevControlPacket(
 	private val profile: ProfileLightleakDataN,

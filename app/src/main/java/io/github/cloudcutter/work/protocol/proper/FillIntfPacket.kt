@@ -7,7 +7,7 @@ package io.github.cloudcutter.work.protocol.proper
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.model.ProfileLightleakDataN
 import io.github.cloudcutter.data.model.ProfileLightleakDataT
-import io.github.cloudcutter.work.protocol.buildByteArray
+import io.github.cloudcutter.ext.buildByteArray
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 

@@ -14,7 +14,7 @@ import com.mikepenz.iconics.utils.sizeDp
 import io.github.cloudcutter.R
 import io.github.cloudcutter.data.model.ProfileBase
 import io.github.cloudcutter.databinding.ProfileListItemBinding
-import io.github.cloudcutter.ui.resolveAttr
+import io.github.cloudcutter.ext.resolveAttr
 import io.github.cloudcutter.util.BindingViewHolder
 
 class ProfileListAdapter(

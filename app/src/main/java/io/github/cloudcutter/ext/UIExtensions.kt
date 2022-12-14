@@ -2,7 +2,7 @@
  * Copyright (c) Kuba Szczodrzyński 2022-9-28.
  */
 
-package io.github.cloudcutter.ui
+package io.github.cloudcutter.ext
 
 import android.content.Context
 import android.graphics.Color

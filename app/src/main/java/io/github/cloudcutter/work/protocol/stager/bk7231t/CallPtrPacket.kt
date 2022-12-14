@@ -5,7 +5,7 @@
 package io.github.cloudcutter.work.protocol.stager.bk7231t
 
 import io.github.cloudcutter.data.model.ProfileLightleakDataT
-import io.github.cloudcutter.work.protocol.buildByteArray
+import io.github.cloudcutter.ext.buildByteArray
 
 abstract class CallPtrPacket(
 	profile: ProfileLightleakDataT,

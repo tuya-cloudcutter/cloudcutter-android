@@ -12,10 +12,11 @@ import androidx.lifecycle.MutableLiveData
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import io.github.cloudcutter.data.model.ProfileLightleak
+import io.github.cloudcutter.ext.awaitResponse
 import io.github.cloudcutter.ext.crc32
 import io.github.cloudcutter.ext.getBroadcastAddress
+import io.github.cloudcutter.ext.send
 import io.github.cloudcutter.work.protocol.proper.FlashReadPacket
-import io.github.cloudcutter.work.protocol.send
 import io.github.cloudcutter.work.service.lightleak.command.CommandRequest
 import io.github.cloudcutter.work.service.lightleak.command.CommandResponse
 import io.github.cloudcutter.work.service.lightleak.command.FlashReadCommand

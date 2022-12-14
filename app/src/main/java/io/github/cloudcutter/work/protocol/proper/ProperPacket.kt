@@ -8,7 +8,7 @@ import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.model.ProfileLightleakDataN
 import io.github.cloudcutter.data.model.ProfileLightleakDataT
 import io.github.cloudcutter.work.protocol.base.BasePacket
-import io.github.cloudcutter.work.protocol.buildByteArray
+import io.github.cloudcutter.ext.buildByteArray
 import java.net.InetAddress
 import io.github.cloudcutter.work.protocol.stager.bk7231n.StagerPacket as StagerPacketN
 import io.github.cloudcutter.work.protocol.stager.bk7231t.StagerPacket as StagerPacketT

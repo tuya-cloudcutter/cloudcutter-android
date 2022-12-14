@@ -5,7 +5,7 @@
 package io.github.cloudcutter.work.protocol.proper
 
 import io.github.cloudcutter.data.model.ProfileLightleak
-import io.github.cloudcutter.work.protocol.buildByteArray
+import io.github.cloudcutter.ext.buildByteArray
 import java.net.InetAddress
 
 class FlashReadPacket(

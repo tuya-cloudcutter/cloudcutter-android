@@ -5,6 +5,7 @@
 package io.github.cloudcutter.work.protocol
 
 import io.github.cloudcutter.data.model.ProfileClassic
+import io.github.cloudcutter.ext.getFinishToken
 import io.github.cloudcutter.work.protocol.base.BasePacket
 
 data class CloudcutPacket(

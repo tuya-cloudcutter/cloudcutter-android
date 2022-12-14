@@ -5,7 +5,7 @@
 package io.github.cloudcutter.work.protocol.stager.bk7231n
 
 import io.github.cloudcutter.data.model.ProfileLightleakDataN
-import io.github.cloudcutter.work.protocol.getFinishToken
+import io.github.cloudcutter.ext.getFinishToken
 
 data class CallbackPacket(
 	private val profile: ProfileLightleakDataN,
