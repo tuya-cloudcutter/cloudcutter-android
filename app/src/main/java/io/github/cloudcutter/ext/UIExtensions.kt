@@ -81,19 +81,23 @@ fun BaseFragment<*>.launchWithErrorCard(
 	try {
 		block()
 	} catch (e: Exception) {
-		val context = b.root.context
-		val text = when (e) {
-			is CloudcutterTextException -> e.text.format(context)
-			is CloudcutterException -> e.message
-			else -> "Exception: ${e::class.java}\n\n${e.message}"
-		}
-		log("Error: $text")
-		b.messageCard.isVisible = true
-		b.messageTitle.setText(R.string.message_title_error)
-		b.messageText.text = text
-		b.messageIcon.icon = IconicsDrawable(context, CommunityMaterial.Icon.cmd_alert_circle_outline).apply {
-			sizeDp = 32
-			colorRes = R.color.icon_error
-		}
+		showError(b, e)
+	}
+}
+
+fun BaseFragment<*>.showError(b: LayoutMessageCardBinding, e: Exception) {
+	val context = b.root.context
+	val text = when (e) {
+		is CloudcutterTextException -> e.text.format(context)
+		is CloudcutterException -> e.message
+		else -> "Exception: ${e::class.java}\n\n${e.message}"
+	}
+	log("Error: $text")
+	b.messageCard.isVisible = true
+	b.messageTitle.setText(R.string.message_title_error)
+	b.messageText.text = text
+	b.messageIcon.icon = IconicsDrawable(context, CommunityMaterial.Icon.cmd_alert_circle_outline).apply {
+		sizeDp = 32
+		colorRes = R.color.icon_error
 	}
 }

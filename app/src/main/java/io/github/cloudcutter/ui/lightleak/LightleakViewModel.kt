@@ -49,6 +49,7 @@ class LightleakViewModel @Inject constructor(
 	val progressValue = MutableLiveData<Int?>()
 	val progressBytes = MutableLiveData<Int?>()
 	var result = MutableLiveData<List<ByteArray>>()
+	var exception = MutableLiveData<Exception>()
 
 	var localAddress: Inet4Address? = null
 		set(value) {
@@ -101,6 +102,18 @@ class LightleakViewModel @Inject constructor(
 		progressJob?.cancel()
 	}
 
+	suspend fun runWithProgress(block: suspend () -> Unit) {
+		progressRunning.postValue(true)
+		try {
+			block()
+		} catch (e: Exception) {
+			exception.postValue(e)
+		} finally {
+			progressRunning.postValue(false)
+			progressJob = null
+		}
+	}
+
 	fun onReadKeyblockClick() {
 		progressJob = viewModelScope.launch {
 			val length = 0x1000 + 0xE000 + 0x3000 // encrypted key + storage + swap
@@ -122,15 +135,13 @@ class LightleakViewModel @Inject constructor(
 	}
 
 	private suspend fun flashRead(start: Int, length: Int) {
-		// TODO handle exceptions here
-		progressRunning.postValue(true)
-		val outputDir = storageDir ?: return
-		val output = outputDir.openChild("dump_${outputDir.name}.bin").create()
-		val response: List<ByteArray> =
-			binder?.execute(FlashReadCommand(start, length, output)) ?: return
-		Log.d(TAG, response.toString())
-		progressRunning.postValue(false)
-		result.postValue(response)
-		progressJob = null
+		runWithProgress {
+			val outputDir = storageDir ?: return@runWithProgress
+			val output = outputDir.openChild("dump_${outputDir.name}.bin").create()
+			val response: List<ByteArray> =
+				binder?.execute(FlashReadCommand(start, length, output)) ?: return@runWithProgress
+			Log.d(TAG, response.toString())
+			result.postValue(response)
+		}
 	}
 }

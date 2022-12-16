@@ -18,6 +18,7 @@ import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.databinding.LightleakFragmentBinding
 import io.github.cloudcutter.ext.launchWithErrorCard
+import io.github.cloudcutter.ext.showError
 import io.github.cloudcutter.ext.toHexString
 import io.github.cloudcutter.ext.toReadableSize
 import io.github.cloudcutter.ui.base.BaseFragment
@@ -76,6 +77,10 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 				vm.prepare(args.profileSlug)
 			}
 			b.profileInfo.profile = profile
+		}
+
+		vm.exception.observe(viewLifecycleOwner) {
+			showError(b.messageCard, it)
 		}
 
 		vm.progressBytes.observe(viewLifecycleOwner) { progress ->

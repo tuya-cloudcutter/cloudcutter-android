@@ -9,16 +9,13 @@ import android.content.Intent
 import android.os.Binder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import com.squareup.otto.Bus
-import com.squareup.otto.Subscribe
 import io.github.cloudcutter.data.model.ProfileLightleak
-import io.github.cloudcutter.ext.awaitResponse
 import io.github.cloudcutter.ext.crc32
 import io.github.cloudcutter.ext.getBroadcastAddress
 import io.github.cloudcutter.ext.send
+import io.github.cloudcutter.util.RequestBus
 import io.github.cloudcutter.work.exceptions.PacketReadException
 import io.github.cloudcutter.work.lightleak.command.CommandRequest
-import io.github.cloudcutter.work.lightleak.command.CommandResponse
 import io.github.cloudcutter.work.lightleak.command.FlashReadCommand
 import io.github.cloudcutter.work.protocol.proper.FlashReadPacket
 import io.ktor.network.selector.*
@@ -45,7 +42,7 @@ class LightleakService : Service(), CoroutineScope {
 	}
 
 	override val coroutineContext = Job() + Dispatchers.IO
-	private val bus = Bus()
+	private val bus = RequestBus<CommandRequest>()
 	private val packets = Channel<Pair<Int, ByteArray>>(Channel.UNLIMITED)
 
 	private lateinit var profile: ProfileLightleak.Data
@@ -82,19 +79,12 @@ class LightleakService : Service(), CoroutineScope {
 			this@LightleakService.profile = profile ?: return
 		}
 
-		suspend fun <T : CommandRequest, D> execute(command: T): D {
-			Log.d(TAG, "Sending: $command")
-			bus.post(command)
-			Log.d(TAG, "Awaiting response: $command")
-			val response = bus.awaitResponse<T, D>(command)
-			Log.d(TAG, "Got response: $command")
-			return response.data
-		}
+		suspend fun <T : CommandRequest, D> execute(command: T) = bus.request<D>(command)
 	}
 
 	override fun onCreate() {
 		Log.d(TAG, "Creating $TAG")
-		bus.register(this)
+		bus.subscribe(this, this::onCommand)
 		startUdpListener()
 	}
 
@@ -102,7 +92,6 @@ class LightleakService : Service(), CoroutineScope {
 
 	override fun onDestroy() {
 		Log.d(TAG, "Destroying $TAG")
-		bus.unregister(this)
 		this.cancel()
 	}
 
@@ -130,24 +119,15 @@ class LightleakService : Service(), CoroutineScope {
 		}
 	}
 
-	@Subscribe
-	fun onCommand(command: CommandRequest) = launch {
+	private suspend fun onCommand(command: CommandRequest): Any {
 		Log.d(TAG, "Running command: $command")
-		val result = try {
-			val data = when (command) {
-				is FlashReadCommand -> flashRead(
-					start = command.offset,
-					end = command.offset + command.length,
-					output = command.output,
-				)
-				else -> null
-			} ?: return@launch
-			Result.success(CommandResponse(command, data))
-		} catch (e: Exception) {
-			Result.failure(e)
-		}
-		withContext(Dispatchers.Main) {
-			bus.post(result)
+		return when (command) {
+			is FlashReadCommand -> flashRead(
+				start = command.offset,
+				end = command.offset + command.length,
+				output = command.output,
+			)
+			else -> throw NotImplementedError("Unknown command $command")
 		}
 	}
 
