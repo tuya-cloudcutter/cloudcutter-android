@@ -31,6 +31,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.RandomAccessFile
 import java.net.Inet4Address
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -143,6 +144,7 @@ class LightleakService : Service(), CoroutineScope {
 
 		var pauseCount = 0
 		var failedCount = 0
+		var exception: Exception? = null
 		while (isActive) {
 			val readStartIndex = packetList.indexOf(null)
 			if (readStartIndex == -1)
@@ -208,7 +210,8 @@ class LightleakService : Service(), CoroutineScope {
 				this.progressBytes?.postValue(progress * readPacketSize)
 				failedCount = 0
 			} else if (failedCount++ >= 200) {
-				throw PacketReadException()
+				exception = PacketReadException()
+				break
 			}
 			if (progress == packetCount)
 				break
@@ -217,16 +220,17 @@ class LightleakService : Service(), CoroutineScope {
 		progressBytes?.postValue(null)
 
 		withContext(Dispatchers.IO) {
-			output.outputStream().use { stream ->
-				val channel = stream.channel
-				channel.position(start.toLong())
-				for (chunk in packetList) {
-					if (chunk == null)
-						continue
-					channel.write(ByteBuffer.wrap(chunk))
+			RandomAccessFile(output, "rw").use {
+				packetList.forEachIndexed { index, chunk ->
+					chunk ?: return@forEachIndexed
+					it.seek((start + index * readPacketSize).toLong())
+					it.write(chunk)
 				}
 			}
 		}
+
+		if (exception != null)
+			throw exception
 
 		return packetList.filterNotNull()
 	}
