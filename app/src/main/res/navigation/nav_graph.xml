@@ -49,7 +49,7 @@
 			android:name="profileSlug"
 			app:argType="string" />
 		<argument
-			android:name="outputDir"
+			android:name="storageDir"
 			app:argType="string" />
 	</fragment>
 </navigation>

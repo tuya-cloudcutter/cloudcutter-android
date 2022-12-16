@@ -14,7 +14,6 @@ import android.os.IBinder
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.cloudcutter.databinding.LightleakFragmentBinding
@@ -65,15 +64,18 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 		)
 	}
 
-	override fun onPermissionsGranted() {
-		vm.outputDir = File(args.outputDir)
-		b.outputDirectory.text = vm.outputDir.absolutePath
+	override suspend fun onPermissionsGranted() {
+		if (!isAdded) return
 
-		lifecycleScope.launchWithErrorCard(b.messageCard) {
-			withContext(Dispatchers.IO) {
+		vm.storageDir = File(args.storageDir)
+		log.open(vm.storageDir)
+		b.outputDirectory.text = vm.storageDir?.absolutePath
+
+		launchWithErrorCard(b.messageCard) {
+			val profile = withContext(Dispatchers.IO) {
 				vm.prepare(args.profileSlug)
 			}
-			b.profileInfo.profile = vm.profile.value
+			b.profileInfo.profile = profile
 		}
 
 		vm.progressBytes.observe(viewLifecycleOwner) { progress ->
@@ -125,11 +127,13 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override fun onAddressesTextChanged(local: String?, gateway: String?) {
 		b.wifiState.localAddress = local
 		b.wifiState.gatewayAddress = gateway
+		log("IP addresses changed: $local / $gateway")
 	}
 
 	override fun onConnectedSsidChanged(ssid: String?, rssi: Int?) {
 		b.wifiState.wifiSsid = ssid
 		b.wifiState.wifiRssi = rssi ?: 0
+		log("Wi-Fi SSID changed: $ssid")
 	}
 
 	override fun onStart() {

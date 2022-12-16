@@ -15,11 +15,14 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.github.cloudcutter.R
 import io.github.cloudcutter.ui.main.MainViewModel
+import io.github.cloudcutter.util.FileLogger
+import kotlinx.coroutines.launch
 
 abstract class BaseFragment<B : ViewBinding>(
 	private val inflater: (inflater: LayoutInflater, parent: ViewGroup?) -> B,
@@ -28,6 +31,7 @@ abstract class BaseFragment<B : ViewBinding>(
 	protected lateinit var b: B
 	protected abstract val vm: BaseViewModel
 	protected val activity: MainViewModel by activityViewModels()
+	val log = FileLogger(name = null, className = this::class.java.simpleName)
 
 	private lateinit var permissionLauncher: ActivityResultLauncher<String>
 	private var neededPermissions: List<String>? = null
@@ -82,7 +86,7 @@ abstract class BaseFragment<B : ViewBinding>(
 		findNavController().navigateUp()
 	}
 
-	protected open fun onPermissionsGranted() {}
+	protected open suspend fun onPermissionsGranted() {}
 
 	protected fun requirePermissions(vararg permissions: String?) {
 		neededPermissions = permissions.filterNotNull().filter {
@@ -92,7 +96,9 @@ abstract class BaseFragment<B : ViewBinding>(
 			) == PackageManager.PERMISSION_DENIED
 		}
 		if (neededPermissions?.isEmpty() != false) {
-			onPermissionsGranted()
+			lifecycleScope.launch {
+				onPermissionsGranted()
+			}
 			return
 		}
 		askedPermission = neededPermissions?.firstOrNull() ?: return

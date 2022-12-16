@@ -10,11 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.cloudcutter.data.api.ApiService
+import io.github.cloudcutter.data.model.Profile
 import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.data.repository.ProfileRepository
 import io.github.cloudcutter.ext.create
 import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ui.base.BaseViewModel
+import io.github.cloudcutter.work.exceptions.CloudcutterException
 import io.github.cloudcutter.work.lightleak.LightleakService
 import io.github.cloudcutter.work.lightleak.command.FlashReadCommand
 import kotlinx.coroutines.Job
@@ -36,14 +38,17 @@ class LightleakViewModel @Inject constructor(
 	private var isPrepared = false
 	private var progressJob: Job? = null
 
-	lateinit var outputDir: File
-	var result = MutableLiveData<List<ByteArray>>()
+	var storageDir: File? = null
+		set(value) {
+			field = value
+			log.open(field ?: return)
+		}
 
+	val profile = MutableLiveData<ProfileLightleak>()
 	val progressRunning = MutableLiveData<Boolean>()
 	val progressValue = MutableLiveData<Int?>()
 	val progressBytes = MutableLiveData<Int?>()
-
-	val profile = MutableLiveData<ProfileLightleak>()
+	var result = MutableLiveData<List<ByteArray>>()
 
 	var localAddress: Inet4Address? = null
 		set(value) {
@@ -68,11 +73,12 @@ class LightleakViewModel @Inject constructor(
 			value?.gatewayAddress = gatewayAddress
 		}
 
-	suspend fun prepare(profileSlug: String) {
-		if (isPrepared)
-			return
+	suspend fun prepare(profileSlug: String): Profile<*> {
+		if (isPrepared && this.profile.value != null)
+			return this.profile.value!!
 		progressRunning.postValue(true)
-		val profile = profileRepository.getProfile(profileSlug) as? ProfileLightleak ?: return
+		val profile = profileRepository.getProfile(profileSlug) as? ProfileLightleak
+			?: throw CloudcutterException("Couldn't load Lightleak profile")
 		Log.d(TAG, "Profile: $profile")
 
 		this.profile.postValue(profile)
@@ -84,10 +90,11 @@ class LightleakViewModel @Inject constructor(
 		)
 		// write profile data to a file
 		val profileJson = moshi.adapter<ProfileLightleak>(profile::class.java).toJson(profile)
-		outputDir.openChild("profile.json").create().writeText(profileJson)
+		storageDir?.openChild("profile.json")?.create()?.writeText(profileJson)
 
 		isPrepared = true
 		progressRunning.postValue(false)
+		return profile
 	}
 
 	fun cancel() {
@@ -117,8 +124,10 @@ class LightleakViewModel @Inject constructor(
 	private suspend fun flashRead(start: Int, length: Int) {
 		// TODO handle exceptions here
 		progressRunning.postValue(true)
+		val outputDir = storageDir ?: return
 		val output = outputDir.openChild("dump_${outputDir.name}.bin").create()
-		val response: List<ByteArray> = binder?.execute(FlashReadCommand(start, length, output)) ?: return
+		val response: List<ByteArray> =
+			binder?.execute(FlashReadCommand(start, length, output)) ?: return
 		Log.d(TAG, response.toString())
 		progressRunning.postValue(false)
 		result.postValue(response)

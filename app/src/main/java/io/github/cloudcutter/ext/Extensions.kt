@@ -4,6 +4,8 @@
 
 package io.github.cloudcutter.ext
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -25,3 +27,12 @@ suspend fun <R> runFinally(finally: suspend () -> Unit, block: suspend () -> R):
 		throw e
 	}
 }
+
+fun LocalDateTime.toIsoString() =
+	this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+
+fun LocalDateTime.toIsoStringHm() =
+	this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
+
+fun LocalDateTime.toReadableString() =
+	this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
