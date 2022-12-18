@@ -45,6 +45,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override var networkAwareCallbacks: MutableList<Any?>? = null
 
 	private val args: LightleakFragmentArgs by navArgs()
+	private val data = vm.data
 	private var progressLast = 0
 	private var progressLastAt = 0L
 	private var progressSpeedList = listOf<Int>()
@@ -52,7 +53,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 		b.vm = vm
-		vm.progressRunning.postValue(true)
+		data.progressRunning.value = true
 
 		requirePermissions(
 			android.Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -68,9 +69,9 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override suspend fun onPermissionsGranted() {
 		if (!isAdded) return
 
-		vm.storageDir = File(args.storageDir)
-		log.open(vm.storageDir)
-		b.outputDirectory.text = vm.storageDir?.absolutePath
+		data.storageDir = File(args.storageDir)
+		log.open(data.storageDir)
+		b.outputDirectory.text = data.storageDir?.absolutePath
 
 		launchWithErrorCard(b.messageCard) {
 			val profile = withContext(Dispatchers.IO) {
@@ -79,11 +80,11 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 			b.profileInfo.profile = profile
 		}
 
-		vm.exception.observe(viewLifecycleOwner) {
+		data.exception.observe(viewLifecycleOwner) {
 			showError(b.messageCard, it)
 		}
 
-		vm.progressBytes.observe(viewLifecycleOwner) { progress ->
+		data.progressBytes.observe(viewLifecycleOwner) { progress ->
 			if (progress == null) {
 				b.readSpeed.text = null
 				b.progressText.text = null
@@ -94,7 +95,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 				val readBytes = progress - progressLast
 				val readTime = now - progressLastAt
 				val readSpeed = ((1000f / readTime) * readBytes).toInt()
-				val percentage = vm.progressValue.value ?: 0
+				val percentage = data.progressValue.value ?: 0
 				b.progressText.text = "$percentage% - " + progress.toReadableSize()
 				if (readSpeed != 0) {
 					progressSpeedList = progressSpeedList.takeLast(PROGRESS_SPEED_SIZE - 1) + readSpeed
@@ -106,7 +107,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 			progressLastAt = now
 		}
 
-		vm.result.observe(viewLifecycleOwner) { result ->
+		data.result.observe(viewLifecycleOwner) { result ->
 			val bytes = result.take(2).flatMap { it.toList() }
 			val text = bytes.chunked(16).mapIndexed { index, chunk ->
 				val offset = (index * 16).toString(16).padStart(6, '0')
@@ -125,8 +126,8 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	}
 
 	override fun onAddressesChanged(local: Inet4Address?, gateway: Inet4Address?) {
-		vm.localAddress = local
-		vm.gatewayAddress = gateway
+		data.localAddress = local
+		data.gatewayAddress = gateway
 	}
 
 	override fun onAddressesTextChanged(local: String?, gateway: String?) {
@@ -144,6 +145,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override fun onStart() {
 		super<BaseFragment>.onStart()
 		super<NetworkAwareFragment>.onStart()
+		vm.start()
 		Intent(requireContext(), LightleakService::class.java).also { intent ->
 			context?.bindService(intent, this, Context.BIND_AUTO_CREATE)
 		}
@@ -152,7 +154,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override fun onStop() {
 		super<BaseFragment>.onStop()
 		super<NetworkAwareFragment>.onStop()
-		vm.cancel()
+		vm.stop()
 		context?.unbindService(this)
 		onServiceDisconnected(null)
 	}

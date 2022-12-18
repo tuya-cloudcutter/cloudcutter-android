@@ -8,13 +8,12 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import io.github.cloudcutter.data.model.ProfileLightleak
 import io.github.cloudcutter.ext.crc32
 import io.github.cloudcutter.ext.getBroadcastAddress
 import io.github.cloudcutter.ext.send
 import io.github.cloudcutter.util.RequestBus
 import io.github.cloudcutter.work.exceptions.PacketReadException
+import io.github.cloudcutter.work.exceptions.ServiceDisconnectedException
 import io.github.cloudcutter.work.lightleak.command.CommandRequest
 import io.github.cloudcutter.work.lightleak.command.FlashReadCommand
 import io.github.cloudcutter.work.protocol.proper.FlashReadPacket
@@ -32,7 +31,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.RandomAccessFile
-import java.net.Inet4Address
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.ceil
@@ -46,11 +44,7 @@ class LightleakService : Service(), CoroutineScope {
 	private val bus = RequestBus<CommandRequest>()
 	private val packets = Channel<Pair<Int, ByteArray>>(Channel.UNLIMITED)
 
-	private lateinit var profile: ProfileLightleak.Data
-	private var localAddress: Inet4Address? = null
-	private var gatewayAddress: Inet4Address? = null
-	private var progressValue: MutableLiveData<Int?>? = null
-	private var progressBytes: MutableLiveData<Int?>? = null
+	private var data: LightleakData? = null
 
 	private var newRequestId = 1
 		get() {
@@ -59,28 +53,11 @@ class LightleakService : Service(), CoroutineScope {
 		}
 
 	inner class ServiceBinder : Binder() {
-		var localAddress
-			get() = this@LightleakService.localAddress
-			set(value) {
-				this@LightleakService.localAddress = value
-			}
-		var gatewayAddress
-			get() = this@LightleakService.gatewayAddress
-			set(value) {
-				this@LightleakService.gatewayAddress = value
-			}
-
-		fun setData(
-			profile: ProfileLightleak.Data?,
-			progressValue: MutableLiveData<Int?>,
-			progressBytes: MutableLiveData<Int?>,
-		) {
-			this@LightleakService.progressValue = progressValue
-			this@LightleakService.progressBytes = progressBytes
-			this@LightleakService.profile = profile ?: return
+		fun setData(data: LightleakData) {
+			this@LightleakService.data = data
 		}
 
-		suspend fun <T : CommandRequest, D> execute(command: T) = bus.request<D>(command)
+		suspend fun <T : CommandRequest, D> request(command: T) = bus.request<D>(command)
 	}
 
 	override fun onCreate() {
@@ -90,6 +67,11 @@ class LightleakService : Service(), CoroutineScope {
 	}
 
 	override fun onBind(intent: Intent) = ServiceBinder()
+
+	override fun onUnbind(intent: Intent): Boolean {
+		this@LightleakService.data = null
+		return false
+	}
 
 	override fun onDestroy() {
 		Log.d(TAG, "Destroying $TAG")
@@ -166,14 +148,14 @@ class LightleakService : Service(), CoroutineScope {
 				"Reading data #$readStartIndex, offset=0x${readOffset.toString(16)}, count=$readPacketCount",
 			)
 			val packet = FlashReadPacket(
-				profile = profile,
+				profile = data?.profileData ?: throw ServiceDisconnectedException(),
 				requestId = requestId,
 				offset = readOffset,
 				length = readPacketCount * readPacketSize,
 				maxLength = readPacketSize,
-			).also { it.returnIp = localAddress ?: getBroadcastAddress() }
+			).also { it.returnIp = data?.localAddress ?: getBroadcastAddress() }
 			try {
-				packet.send(gatewayAddress ?: getBroadcastAddress())
+				packet.send(data?.gatewayAddress ?: getBroadcastAddress())
 			} catch (e: Throwable) {
 				// wait a bit longer in case of [network] exceptions
 				delay(500)
@@ -206,8 +188,8 @@ class LightleakService : Service(), CoroutineScope {
 			// check if all packets were received
 			val progress = packetList.count { it != null }
 			if (packetsReceived > 0) {
-				this.progressValue?.postValue(progress * 100 / packetCount)
-				this.progressBytes?.postValue(progress * readPacketSize)
+				data?.progressValue?.postValue(progress * 100 / packetCount)
+				data?.progressBytes?.postValue(progress * readPacketSize)
 				failedCount = 0
 			} else if (failedCount++ >= 200) {
 				exception = PacketReadException()
@@ -216,8 +198,8 @@ class LightleakService : Service(), CoroutineScope {
 			if (progress == packetCount)
 				break
 		}
-		progressValue?.postValue(null)
-		progressBytes?.postValue(null)
+		data?.progressValue?.postValue(null)
+		data?.progressBytes?.postValue(null)
 
 		withContext(Dispatchers.IO) {
 			RandomAccessFile(output, "rw").use {

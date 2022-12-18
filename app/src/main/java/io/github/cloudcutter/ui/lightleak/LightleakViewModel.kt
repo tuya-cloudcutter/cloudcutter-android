@@ -5,8 +5,6 @@
 package io.github.cloudcutter.ui.lightleak
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.cloudcutter.data.api.ApiService
@@ -17,12 +15,13 @@ import io.github.cloudcutter.ext.create
 import io.github.cloudcutter.ext.openChild
 import io.github.cloudcutter.ui.base.BaseViewModel
 import io.github.cloudcutter.work.exceptions.CloudcutterException
+import io.github.cloudcutter.work.lightleak.LightleakData
 import io.github.cloudcutter.work.lightleak.LightleakService
 import io.github.cloudcutter.work.lightleak.command.FlashReadCommand
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.io.File
-import java.net.Inet4Address
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,113 +34,77 @@ class LightleakViewModel @Inject constructor(
 		private const val TAG = "LightleakViewModel"
 	}
 
-	private var isPrepared = false
-	private var progressJob: Job? = null
-
-	var storageDir: File? = null
-		set(value) {
-			field = value
-			log.open(field ?: return)
-		}
-
-	val profile = MutableLiveData<ProfileLightleak>()
-	val progressRunning = MutableLiveData<Boolean>()
-	val progressValue = MutableLiveData<Int?>()
-	val progressBytes = MutableLiveData<Int?>()
-	var result = MutableLiveData<List<ByteArray>>()
-	var exception = MutableLiveData<Exception>()
-
-	var localAddress: Inet4Address? = null
-		set(value) {
-			field = value
-			binder?.localAddress = value
-		}
-	var gatewayAddress: Inet4Address? = null
-		set(value) {
-			field = value
-			binder?.gatewayAddress = value
-		}
+	private var jobScope: CoroutineScope? = null
+	val data = LightleakData()
 
 	var binder: LightleakService.ServiceBinder? = null
 		set(value) {
 			field = value
-			value?.setData(
-				profile = profile.value?.data,
-				progressValue = progressValue,
-				progressBytes = progressBytes,
-			)
-			value?.localAddress = localAddress
-			value?.gatewayAddress = gatewayAddress
+			value?.setData(data)
 		}
 
+	fun start() {
+		runCatching {
+			jobScope?.cancel()
+		}
+		jobScope = CoroutineScope(Dispatchers.Main)
+	}
+
+	fun stop() {
+		runCatching {
+			jobScope?.cancel()
+		}
+		jobScope = null
+	}
+
 	suspend fun prepare(profileSlug: String): Profile<*> {
-		if (isPrepared && this.profile.value != null)
-			return this.profile.value!!
-		progressRunning.postValue(true)
+		if (data.profile.value != null)
+			return data.profile.value!!
+		data.progressRunning.postValue(true)
 		val profile = profileRepository.getProfile(profileSlug) as? ProfileLightleak
 			?: throw CloudcutterException("Couldn't load Lightleak profile")
 		Log.d(TAG, "Profile: $profile")
 
-		this.profile.postValue(profile)
-		// force setting the profile
-		binder?.setData(
-			profile = profile.data,
-			progressValue = progressValue,
-			progressBytes = progressBytes,
-		)
+		data.profile.postValue(profile)
 		// write profile data to a file
 		val profileJson = moshi.adapter<ProfileLightleak>(profile::class.java).toJson(profile)
-		storageDir?.openChild("profile.json")?.create()?.writeText(profileJson)
+		data.storageDir?.openChild("profile.json")?.create()?.writeText(profileJson)
 
-		isPrepared = true
-		progressRunning.postValue(false)
+		data.progressRunning.postValue(false)
 		return profile
 	}
 
-	fun cancel() {
-		progressJob?.cancel()
-	}
-
-	suspend fun runWithProgress(block: suspend () -> Unit) {
-		progressRunning.postValue(true)
+	private fun runWithProgress(block: suspend () -> Unit) = jobScope?.launch {
+		data.progressRunning.value = true
 		try {
 			block()
 		} catch (e: Exception) {
-			exception.postValue(e)
+			data.exception.value = e
 		} finally {
-			progressRunning.postValue(false)
-			progressJob = null
+			data.progressRunning.value = false
 		}
 	}
 
-	fun onReadKeyblockClick() {
-		progressJob = viewModelScope.launch {
-			val length = 0x1000 + 0xE000 + 0x3000 // encrypted key + storage + swap
-			val offset = 0x200000 - length
-			flashRead(offset, length)
-		}
-	}
+	fun onReadKeyblockClick() = flashRead(
+		start = 0x200000 - 0x1000 + 0xE000 + 0x3000,
+		length = 0x1000 + 0xE000 + 0x3000, // encrypted key + storage + swap
+	)
 
-	fun onReadFlashClick() {
-		progressJob = viewModelScope.launch {
-			flashRead(0x000000, 0x200000)
-		}
-	}
+	fun onReadFlashClick() =
+		flashRead(0x000000, 0x200000)
 
-	fun onReadFlashRangeClick(start: Int = 0x000000, length: Int = 0x200000) {
-		progressJob = viewModelScope.launch {
-			flashRead(start, length)
-		}
-	}
+	fun onReadFlashRangeClick(start: Int = 0x000000, length: Int = 0x200000) =
+		flashRead(start, length)
 
-	private suspend fun flashRead(start: Int, length: Int) {
-		runWithProgress {
-			val outputDir = storageDir ?: return@runWithProgress
-			val output = outputDir.openChild("dump_${outputDir.name}.bin").create()
-			val response: List<ByteArray> =
-				binder?.execute(FlashReadCommand(start, length, output)) ?: return@runWithProgress
-			Log.d(TAG, response.toString())
-			result.postValue(response)
-		}
+	private fun flashRead(start: Int, length: Int) = runWithProgress {
+		val outputDir = data.storageDir ?: return@runWithProgress
+		val output = outputDir.openChild("dump_${outputDir.name}.bin").create()
+
+		val response: List<ByteArray> =
+			binder?.request(FlashReadCommand(start, length, output))
+				?: return@runWithProgress
+
+		Log.d(TAG, response.toString())
+		data.result.value = response
 	}
 }
