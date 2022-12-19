@@ -11,7 +11,7 @@ import io.github.cloudcutter.util.FileLogger
 
 abstract class BaseViewModel(logName: String? = null) : ViewModel() {
 
-	protected val log = FileLogger(name = logName, className = this::class.java.simpleName)
+	val log = FileLogger(name = logName, className = this::class.java.simpleName)
 
 	val navCommand = LiveEvent<NavDirections>()
 

@@ -45,6 +45,8 @@ class LightleakService : Service(), CoroutineScope {
 	private val packets = Channel<Pair<Int, ByteArray>>(Channel.UNLIMITED)
 
 	private var data: LightleakData? = null
+	private val log
+		get() = data?.serviceLog
 
 	private var newRequestId = 1
 		get() {
@@ -97,13 +99,13 @@ class LightleakService : Service(), CoroutineScope {
 			if (crc32 == data.crc32()) {
 				packets.send(requestId to data)
 			} else {
-				Log.e(TAG, "Packet CRC invalid. Got $crc32, expected ${data.crc32()}")
+				log?.invoke("Packet CRC invalid. Got $crc32, expected ${data.crc32()}")
 			}
 		}
 	}
 
 	private suspend fun onCommand(command: CommandRequest): Any {
-		Log.d(TAG, "Running command: $command")
+		log?.invoke("Running command: $command")
 		return when (command) {
 			is FlashReadCommand -> flashRead(
 				start = command.offset,
@@ -143,10 +145,7 @@ class LightleakService : Service(), CoroutineScope {
 			val requestId = newRequestId
 			val readOffset = packetOffsets[readStartIndex]
 			// read flash
-			Log.d(
-				TAG,
-				"Reading data #$readStartIndex, offset=0x${readOffset.toString(16)}, count=$readPacketCount",
-			)
+			log?.invoke("Reading data #$readStartIndex, offset=0x${readOffset.toString(16)}, count=$readPacketCount")
 			val packet = FlashReadPacket(
 				profile = data?.profileData ?: throw ServiceDisconnectedException(),
 				requestId = requestId,
@@ -179,8 +178,7 @@ class LightleakService : Service(), CoroutineScope {
 				val offset = buf.int
 				val length = buf.int
 				val index = packetOffsets.indexOf(offset)
-				Log.d(TAG,
-					"Received data #$index, offset=0x${offset.toString(16)}, size=${bytes.size}")
+				log?.invoke("Received data #$index, offset=0x${offset.toString(16)}, size=${bytes.size}")
 				packetList[index] = bytes.sliceArray(8 until length + 8)
 				packetsReceived++
 			}

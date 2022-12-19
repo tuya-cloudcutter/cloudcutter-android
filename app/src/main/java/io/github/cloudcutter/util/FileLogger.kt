@@ -24,7 +24,6 @@ class FileLogger(name: String?, className: String? = null) {
 	}
 
 	operator fun invoke(vararg message: Any) {
-		file ?: return
 		val now = LocalDateTime.now().toReadableString()
 		val caller = Thread.currentThread()
 			.stackTrace

@@ -6,6 +6,7 @@ package io.github.cloudcutter.work.lightleak
 
 import androidx.lifecycle.MutableLiveData
 import io.github.cloudcutter.data.model.ProfileLightleak
+import io.github.cloudcutter.util.FileLogger
 import java.io.File
 import java.net.Inet4Address
 
@@ -18,6 +19,7 @@ class LightleakData {
 	val progressBytes = MutableLiveData<Int?>()
 
 	var storageDir: File? = null
+	var serviceLog = FileLogger(name = "Lightleak")
 	var localAddress: Inet4Address? = null
 	var gatewayAddress: Inet4Address? = null
 

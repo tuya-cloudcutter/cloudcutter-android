@@ -63,7 +63,7 @@ class LightleakViewModel @Inject constructor(
 		data.progressRunning.postValue(true)
 		val profile = profileRepository.getProfile(profileSlug) as? ProfileLightleak
 			?: throw CloudcutterException("Couldn't load Lightleak profile")
-		Log.d(TAG, "Profile: $profile")
+		log("Profile: $profile")
 
 		data.profile.postValue(profile)
 		// write profile data to a file

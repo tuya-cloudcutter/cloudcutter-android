@@ -11,7 +11,6 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -71,6 +70,8 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 
 		data.storageDir = File(args.storageDir)
 		log.open(data.storageDir)
+		vm.log.open(data.storageDir)
+		data.serviceLog.open(data.storageDir)
 		b.outputDirectory.text = data.storageDir?.absolutePath
 
 		launchWithErrorCard(b.messageCard) {
@@ -160,12 +161,12 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	}
 
 	override fun onServiceConnected(className: ComponentName, service: IBinder) {
-		Log.d(TAG, "Service connected: $className")
+		log("Service connected: $className")
 		vm.binder = service as? LightleakService.ServiceBinder
 	}
 
 	override fun onServiceDisconnected(className: ComponentName?) {
-		Log.d(TAG, "Service disconnected: $className")
+		log("Service disconnected: $className")
 		vm.binder = null
 	}
 }
