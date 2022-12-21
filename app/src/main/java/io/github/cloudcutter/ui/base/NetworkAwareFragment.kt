@@ -88,9 +88,8 @@ interface NetworkAwareFragment {
 
 	private fun onWifiInfoChanged(wifiInfo: WifiInfo?) {
 		val ssid = wifiInfo?.ssid
-			?.drop(1)
-			?.dropLast(1)
-			?.takeIf { it != "unknown ssid" }
+			?.removePrefix("\"")
+			?.removeSuffix("\"")
 		onConnectedSsidChanged(
 			ssid = ssid,
 			rssi = wifiInfo?.rssi?.takeIf { ssid != null },

@@ -140,7 +140,7 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override fun onConnectedSsidChanged(ssid: String?, rssi: Int?) {
 		b.wifiState.wifiSsid = ssid
 		b.wifiState.wifiRssi = rssi ?: 0
-		log("Wi-Fi SSID changed: $ssid")
+		log("Wi-Fi changed: ssid=$ssid, rssi=$rssi")
 	}
 
 	override fun onStart() {
