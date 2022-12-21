@@ -42,9 +42,10 @@ class LightleakFragment : BaseFragment<LightleakFragmentBinding>({ inflater, par
 	override val coroutineContext = Job() + Dispatchers.Main
 	override val vm: LightleakViewModel by viewModels()
 	override var networkAwareCallbacks: MutableList<Any?>? = null
-
 	private val args: LightleakFragmentArgs by navArgs()
-	private val data = vm.data
+	private val data
+		get() = vm.data
+
 	private var progressLast = 0
 	private var progressLastAt = 0L
 	private var progressSpeedList = listOf<Int>()
